@@ -1,90 +1,368 @@
-Berikut alur penggunaan LokalKita dari awal sampai akhir untuk pembeli dan penjual, termasuk perhitungan HPP, pemberian poin setelah transaksi disetujui, serta penukaran poin untuk produk promo.
+# LokalKita
 
-Untuk rancangan ini, poin dianggap berlaku di toko yang memberikannya. Poin yang diperoleh dari Toko A digunakan untuk promo Toko A, bukan otomatis untuk semua toko.
+**Etalase online + asisten keuangan untuk UMKM lokal.**
 
-1. Alur pengguna atau pembeli
-A. Pendaftaran dan pencarian produk
-Pengguna membuka website LokalKita.
+LokalKita adalah layanan yang membantu penjual baru maupun penjual yang sudah lama berjualan untuk:
 
-Pengguna dapat menjelajahi UMKM dan produk tanpa login.
+- berjualan online tanpa harus membangun sistem sendiri;
+- mengetahui HPP, harga jual, dan keuntungan yang wajar;
+- menghitung diskon dan promo poin sebelum benar-benar dijalankan;
+- melihat evaluasi usaha setiap bulan dan setiap tahun tanpa mencatat ulang di Excel.
 
-Pengguna melakukan registrasi atau login untuk memesan, menyimpan favorit, dan mengumpulkan poin.
+> **Status:** dokumen rencana produk. "LokalKita" masih nama kerja dan belum menjadi aplikasi jadi.
 
-Pengguna mencari produk melalui kolom pencarian atau filter wilayah dan kategori.
+## Daftar isi
 
-Pengguna membuka profil toko atau detail produk.
+1. [Latar belakang](#1-latar-belakang)
+2. [Untuk siapa](#2-untuk-siapa)
+3. [Posisi produk](#3-posisi-produk)
+4. [Istilah penting](#4-istilah-penting)
+5. [Fitur utama](#5-fitur-utama)
+6. [Contoh perhitungan](#6-contoh-perhitungan)
+7. [Alur pembeli](#7-alur-pembeli)
+8. [Alur penjual](#8-alur-penjual)
+9. [Aturan sistem](#9-aturan-sistem)
+10. [Laporan evaluasi bulanan dan tahunan](#10-laporan-evaluasi-bulanan-dan-tahunan)
+11. [Rencana pengembangan](#11-rencana-pengembangan)
+12. [Hal yang masih perlu diputuskan](#12-hal-yang-masih-perlu-diputuskan)
 
-Pengguna melihat harga, varian, ketersediaan, dan estimasi reward poin.
+---
 
-B. Pemesanan dan penyelesaian pembelian
-Pengguna memilih varian dan jumlah barang.
+## 1. Latar belakang
 
-Sistem menampilkan ringkasan pesanan:
+Banyak pelaku UMKM bisa membuat produk, tetapi belum tentu bisa menghitung apakah usaha mereka benar-benar untung. Masalah yang sering muncul:
 
-Produk dan jumlah.
+- Harga jual ditentukan dengan perkiraan "ikut harga pasar", tanpa tahu HPP per unit.
+- Diskon dan promo dijalankan karena ingin ramai, tetapi tidak dihitung apakah masih untung.
+- Poin loyalitas dianggap gratis, padahal barang yang ditukar tetap punya HPP.
+- Catatan penjualan tersebar di WhatsApp, buku catatan, dan Excel. Rekap bulanan jadi lambat dan sering salah.
+- Membangun aplikasi sendiri butuh waktu, biaya, dan orang teknis. Tidak semua penjual siap.
 
-Total pembayaran.
+LokalKita ingin menutup jarak itu: penjual tetap bisa berjualan dengan cara yang familiar, tetapi di belakangnya ada alat bantu hitung dan catatan usaha yang otomatis.
 
-Estimasi poin yang akan diperoleh.
+## 2. Untuk siapa
 
-Pengguna mengirim pesanan.
+| Pengguna | Kebutuhan utama | Yang didapat dari LokalKita |
+|---|---|---|
+| Penjual baru | Bingung menentukan harga dan mulai berjualan online | Panduan HPP, simulasi harga jual, etalase sederhana |
+| Penjual lama | Sudah punya pelanggan, ingin usahanya lebih rapi | Laporan penjualan, simulasi promo, poin pelanggan |
+| Pembeli | Mencari produk lokal dan promo yang jelas | Katalog, pesanan yang tercatat, poin per toko |
 
-Sistem mencatat pesanan dengan status “Menunggu konfirmasi penjual”.
+## 3. Posisi produk
 
-Penjual menerima atau menolak pesanan.
+LokalKita bukan sekadar marketplace yang menampilkan produk. LokalKita adalah **etalase online yang dilengkapi alat hitung dan catatan usaha**.
 
-Jika diterima, pembeli melakukan pembayaran dan mengatur pengambilan atau pengiriman sesuai metode yang tersedia.
+Marketplace umumnya berfokus pada produk yang tampil dan bisa dibeli. LokalKita menambahkan lapisan berikutnya: setelah transaksi terjadi, penjual bisa melihat apakah transaksi itu benar-benar untung, berapa biaya promonya, dan apa yang perlu diperbaiki bulan depan.
 
-Pembeli menerima barang.
+Prinsip rancangannya:
 
-Penjual memeriksa bahwa pembayaran dan penyerahan barang sudah selesai.
+- **Penjual tetap memegang hubungan dengan pembeli.** WhatsApp masih bisa dipakai, tetapi pesanan tetap dicatat di LokalKita agar punya nomor transaksi dan riwayat status.
+- **Fokus pada kesehatan usaha, bukan hanya ramainya transaksi.** Promo boleh dijalankan, asal penjual tahu dampaknya.
+- **Poin berlaku per toko.** Poin dari Toko A hanya bisa dipakai di Toko A. Ini memudahkan penjual mengatur biaya reward sendiri.
+- **Semua angka penting ditampilkan sebelum keputusan diambil.** Diskon, poin, dan promo disimulasikan terlebih dahulu.
+- **Laporan dibuat dari transaksi yang tercatat.** Penjual tidak perlu merekap ulang dari nol.
 
-Penjual menyetujui penyelesaian transaksi.
+## 4. Istilah penting
 
-Jika komunikasi dilakukan melalui WhatsApp, pesanan tetap dicatat di LokalKita agar memiliki nomor transaksi dan riwayat status.
+| Istilah | Arti |
+|---|---|
+| HPP | Harga pokok produksi/penjualan, yaitu total biaya untuk menghasilkan atau menyediakan satu unit barang |
+| Omzet | Total harga jual sebelum diskon dan sebelum dikurangi biaya |
+| Diskon | Potongan harga yang diberikan kepada pembeli |
+| Pendapatan bersih | Omzet setelah dikurangi diskon |
+| Laba kotor | Pendapatan bersih dikurangi HPP |
+| Laba bersih | Laba kotor dikurangi biaya operasional dan biaya promo |
+| Margin | Persentase laba dibanding pendapatan bersih |
+| Markup | Persentase laba dibanding HPP |
+| Harga tebus | Nilai poin yang ditukar ditambah uang tambahan yang dibayar pembeli |
 
-C. Penerimaan poin
-Setelah penjual menyetujui penyelesaian transaksi, sistem otomatis memberikan poin kepada pembeli.
+## 5. Fitur utama
 
-Pengguna menerima notifikasi pemberian poin.
+### 5.1 Etalase dan pesanan
 
-Saldo dan riwayat poin pada toko tersebut diperbarui.
+- Profil toko: nama, kategori, cerita usaha, alamat/wilayah layanan, foto, jam operasional, dan kontak WhatsApp.
+- Katalog produk: nama, foto, deskripsi, varian, harga, dan stok.
+- Pencarian dan filter berdasarkan wilayah serta kategori.
+- Detail produk: harga, varian, ketersediaan, dan estimasi poin yang akan didapat.
+- Favorit dan riwayat pesanan untuk pembeli yang sudah login.
+- Pesanan dengan status yang jelas, dari "menunggu konfirmasi" sampai "selesai".
+- Pesanan yang diproses lewat WhatsApp tetap dicatat di LokalKita.
 
-Jika pesanan ditolak atau dibatalkan sebelum selesai, poin tidak diberikan.
+### 5.2 Kalkulator HPP dan harga jual
 
-D. Penukaran poin untuk produk promo
-Pengguna membuka menu “Promo Poin”.
+Penjual memasukkan komponen biaya produksi atau pengadaan:
 
-Pengguna memilih toko dan produk promo.
+- bahan baku atau harga beli barang;
+- tenaga kerja;
+- kemasan;
+- alokasi overhead (listrik, sewa, transportasi, dan lain-lain);
+- jumlah unit yang dihasilkan.
 
-Pengguna melihat:
+Sistem menghitung HPP per unit, lalu menampilkan simulasi harga jual dan laba berdasarkan target margin yang dipilih.
 
-Jumlah poin yang dibutuhkan.
+**Rumus yang dipakai:**
 
-Tambahan uang, jika menggunakan poin + uang.
+```text
+HPP per unit = total biaya produksi / jumlah unit
 
-Stok atau kuota.
+Harga jual (target margin) = HPP / (1 - margin)
 
-Periode serta ketentuan promo.
+Laba kotor per unit = harga jual - HPP
 
-Pengguna mengajukan penukaran.
+Margin = (laba kotor / harga jual) x 100%
 
-Sistem memeriksa kecukupan saldo dan ketersediaan promo.
+Markup = (laba kotor / HPP) x 100%
+```
 
-Poin ditahan sementara dan kuota promo dicadangkan selama pengajuan diproses.
+> Catatan: margin 30% bukan berarti harga jual = HPP + 30%. Itu namanya markup. Jika ingin margin 30%, harga jual = HPP / 0,70.
 
-Penjual menerima atau menolak pengajuan.
+### 5.3 Kalkulator diskon dan simulasi promo
 
-Jika diterima, pengguna membayar tambahan uang jika ada dan menerima produk.
+Sebelum membuat diskon, penjual bisa memasukkan:
 
-Setelah transaksi diselesaikan, poin yang ditahan dipotong secara final.
+- harga jual normal;
+- HPP per unit;
+- persentase diskon;
+- jumlah barang yang ikut promo;
+- biaya tambahan, misalnya biaya kemasan promo atau biaya kirim yang ditanggung penjual.
 
-Pengguna dapat melihat transaksi pada riwayat penukaran.
+Sistem menampilkan:
 
-Jika pengajuan ditolak atau dibatalkan, poin yang ditahan dan kuota promo dikembalikan.
+- harga setelah diskon;
+- laba atau rugi per unit;
+- total laba atau rugi untuk seluruh barang promo;
+- batas diskon maksimum agar tidak rugi;
+- batas diskon maksimum jika penjual tetap ingin mendapat target laba tertentu;
+- peringatan jika diskon melewati batas aman.
 
-Ringkasan alur pembeli
-text
+**Rumus yang dipakai:**
+
+```text
+Harga setelah diskon = harga jual x (1 - diskon)
+
+Laba per unit = harga setelah diskon - HPP
+
+Diskon maksimum agar tidak rugi =
+(harga jual - HPP) / harga jual x 100%
+
+Diskon maksimum dengan target laba =
+(harga jual - HPP - target laba per unit) / harga jual x 100%
+```
+
+Penjual tetap boleh melanjutkan promo meskipun sudah melewati batas aman, tetapi sistem wajib menampilkan peringatan. Tujuannya bukan melarang, melainkan supaya penjual tahu bahwa promo tersebut sedang disubsidi.
+
+### 5.4 Poin pembeli dan simulasi biaya reward
+
+Aturan dasar poin:
+
+- Poin hanya berlaku di toko yang memberikannya.
+- Poin diberikan setelah penjual menyetujui bahwa transaksi selesai.
+- Jika pesanan ditolak atau dibatalkan sebelum selesai, poin tidak diberikan.
+- Poin bisa ditukar dengan produk promo secara **poin penuh** atau **poin + uang**.
+- Saat pengajuan penukaran dibuat, poin ditahan sementara dan kuota promo dicadangkan.
+- Jika pengajuan ditolak atau dibatalkan, poin dan kuota dikembalikan.
+- Setelah penukaran selesai, poin dipotong secara final.
+- Pada versi awal, transaksi penukaran promo tidak menghasilkan poin baru. Aturan ini ditampilkan sebelum pembeli mengonfirmasi penukaran.
+
+Bentuk reward yang didukung pada versi awal adalah produk promo. Potongan harga langsung dan merchandise bisa ditambahkan pada versi berikutnya.
+
+Penjual menentukan:
+
+- nilai poin, misalnya 1 poin = Rp100;
+- aturan perolehan poin, misalnya 1 poin per Rp2.000 belanja;
+- produk yang bisa ditukar;
+- jumlah poin yang dibutuhkan;
+- tambahan uang, jika ada;
+- stok atau kuota promo;
+- batas penukaran per pembeli;
+- periode promo.
+
+**Simulasi yang harus ditampilkan sistem:**
+
+```text
+Nilai poin yang ditukar = jumlah poin x nilai poin
+
+Harga tebus = nilai poin yang ditukar + tambahan uang
+
+Batas minimum harga tebus = HPP + target laba per unit
+
+Selisih terhadap target = harga tebus - HPP - target laba
+
+Kas yang diterima saat penukaran = tambahan uang
+```
+
+Dengan rumus ini, penjual bisa melihat:
+
+- apakah harga tebus sudah menutup HPP;
+- apakah harga tebus sudah mencapai target laba;
+- berapa uang tunai yang benar-benar masuk saat penukaran;
+- berapa biaya reward yang harus ditanggung toko.
+
+> Penting: poin penuh bukan berarti produk gratis bagi penjual. HPP tetap keluar. Poin adalah kewajiban yang terbentuk dari transaksi sebelumnya. Karena itu, saat poin diberikan, sistem sebaiknya mencatat **cadangan biaya reward** sebesar poin yang diberikan dikali nilai poin. Dengan begitu, laba bulanan tidak terlihat lebih besar dari yang sebenarnya.
+
+### 5.5 Laporan evaluasi bulanan dan tahunan
+
+Laporan bulanan dan tahunan dihitung otomatis dari transaksi yang sudah selesai. Isinya:
+
+- omzet, diskon, pendapatan bersih, HPP, laba kotor, biaya operasional, biaya promo, dan laba bersih;
+- margin bersih;
+- produk terlaris berdasarkan jumlah terjual;
+- produk paling menguntungkan berdasarkan laba;
+- produk yang sering masuk promo dan masih untung atau tidak;
+- poin yang diberikan, poin yang ditukar, dan sisa poin beredar;
+- perbandingan dengan bulan atau tahun sebelumnya.
+
+Detail laporannya ada di [bagian 10](#10-laporan-evaluasi-bulanan-dan-tahunan).
+
+### 5.6 Dashboard penjual
+
+Dashboard menampilkan:
+
+- pesanan masuk dan transaksi selesai;
+- pendapatan dari transaksi yang tercatat;
+- estimasi keuntungan berdasarkan HPP yang dimasukkan;
+- poin yang diberikan dan ditukarkan;
+- biaya produk reward;
+- sisa kuota promo;
+- statistik kunjungan dan klik WhatsApp;
+- tombol cepat untuk melihat laporan bulanan.
+
+## 6. Contoh perhitungan
+
+Contoh berikut memakai satu produk dengan total biaya produksi Rp500.000 untuk 50 unit.
+
+### 6.1 Menghitung HPP dan harga jual
+
+| Komponen biaya | Jumlah |
+|---|---:|
+| Bahan baku | Rp300.000 |
+| Tenaga kerja | Rp100.000 |
+| Kemasan | Rp50.000 |
+| Alokasi overhead | Rp50.000 |
+| **Total biaya produksi** | **Rp500.000** |
+
+```text
+HPP per unit = Rp500.000 / 50 = Rp10.000
+```
+
+Jika penjual ingin margin 30%:
+
+```text
+Harga jual = Rp10.000 / (1 - 0,30)
+           = Rp14.285,71
+           ≈ Rp14.300
+```
+
+Pada harga Rp14.300:
+
+- laba kotor per unit = Rp4.300;
+- margin = Rp4.300 / Rp14.300 = 30,07%;
+- markup = Rp4.300 / Rp10.000 = 43%.
+
+### 6.2 Simulasi diskon
+
+Harga jual Rp14.300 dan HPP Rp10.000.
+
+| Diskon | Harga setelah diskon | Laba per unit | Status |
+|---:|---:|---:|---|
+| 0% | Rp14.300 | Rp4.300 | aman |
+| 20% | Rp11.440 | Rp1.440 | masih untung |
+| 30% | Rp10.010 | Rp10 | hampir impas |
+| 40% | Rp8.580 | -Rp1.420 | rugi |
+
+Batas diskon agar tidak rugi:
+
+```text
+(Rp14.300 - Rp10.000) / Rp14.300 = 30,07%
+```
+
+Jika penjual ingin tetap mendapat laba Rp2.000 per unit:
+
+```text
+(Rp14.300 - Rp10.000 - Rp2.000) / Rp14.300 = 16,08%
+```
+
+Jadi:
+- diskon sampai sekitar 16% masih memenuhi target laba Rp2.000 per unit;
+- diskon antara 16% dan 30% masih untung, tetapi labanya sudah di bawah target;
+- diskon di atas 30% membuat penjual mulai rugi.
+
+### 6.3 Simulasi poin
+
+Asumsi contoh:
+
+- HPP produk = Rp10.000;
+- target laba = Rp2.000 per unit;
+- 1 poin = Rp100.
+
+| Promo | Nilai poin | Tambahan uang | Harga tebus | Selisih terhadap HPP | Status |
+|---|---:|---:|---:|---:|---|
+| 50 poin + Rp5.000 | Rp5.000 | Rp5.000 | Rp10.000 | Rp0 | impas, belum mencapai target |
+| 70 poin + Rp5.000 | Rp7.000 | Rp5.000 | Rp12.000 | Rp2.000 | sesuai target |
+| 100 poin (penuh) | Rp10.000 | Rp0 | Rp10.000 | Rp0 | impas, tidak ada uang masuk |
+| 80 poin (penuh) | Rp8.000 | Rp0 | Rp8.000 | -Rp2.000 | penjual menanggung selisih |
+
+Catatan:
+
+- "Selisih terhadap HPP" adalah harga tebus dikurangi HPP. Angka ini belum memperhitungkan cadangan poin.
+- Jika poin sudah dicadangkan saat diberikan, selisih negatif berarti penjual masih harus menanggung kekurangan biaya reward.
+- Jika poin tidak dicadangkan, seluruh HPP akan terasa sebagai biaya pada saat penukaran.
+
+## 7. Alur pembeli
+
+### 7.1 Pendaftaran dan pencarian produk
+
+1. Pembeli membuka website LokalKita.
+2. Pembeli dapat menjelajahi UMKM dan produk tanpa login.
+3. Pembeli melakukan registrasi atau login untuk memesan, menyimpan favorit, dan mengumpulkan poin.
+4. Pembeli mencari produk melalui kolom pencarian atau filter wilayah dan kategori.
+5. Pembeli membuka profil toko atau detail produk.
+6. Pembeli melihat harga, varian, ketersediaan, dan estimasi reward poin.
+
+### 7.2 Pemesanan dan penyelesaian pembelian
+
+1. Pembeli memilih varian dan jumlah barang.
+2. Sistem menampilkan ringkasan pesanan:
+   - produk dan jumlah;
+   - total pembayaran;
+   - estimasi poin yang akan diperoleh.
+3. Pembeli mengirim pesanan.
+4. Sistem mencatat pesanan dengan status **"Menunggu konfirmasi penjual"**.
+5. Penjual menerima atau menolak pesanan.
+6. Jika diterima, pembeli melakukan pembayaran dan mengatur pengambilan atau pengiriman sesuai metode yang tersedia.
+7. Pembeli menerima barang.
+8. Penjual memeriksa bahwa pembayaran dan penyerahan barang sudah selesai.
+9. Penjual menyetujui penyelesaian transaksi.
+10. Jika komunikasi dilakukan melalui WhatsApp, pesanan tetap dicatat di LokalKita agar memiliki nomor transaksi dan riwayat status.
+
+### 7.3 Penerimaan poin
+
+1. Setelah penjual menyetujui penyelesaian transaksi, sistem otomatis memberikan poin kepada pembeli.
+2. Pembeli menerima notifikasi pemberian poin.
+3. Saldo dan riwayat poin pada toko tersebut diperbarui.
+4. Jika pesanan ditolak atau dibatalkan sebelum selesai, poin tidak diberikan.
+
+### 7.4 Penukaran poin untuk produk promo
+
+1. Pembeli membuka menu **"Promo Poin"**.
+2. Pembeli memilih toko dan produk promo.
+3. Pembeli melihat:
+   - jumlah poin yang dibutuhkan;
+   - tambahan uang, jika menggunakan poin + uang;
+   - stok atau kuota;
+   - periode serta ketentuan promo.
+4. Pembeli mengajukan penukaran.
+5. Sistem memeriksa kecukupan saldo dan ketersediaan promo.
+6. Poin ditahan sementara dan kuota promo dicadangkan selama pengajuan diproses.
+7. Penjual menerima atau menolak pengajuan.
+8. Jika diterima, pembeli membayar tambahan uang jika ada dan menerima produk.
+9. Setelah transaksi diselesaikan, poin yang ditahan dipotong secara final.
+10. Pembeli dapat melihat transaksi pada riwayat penukaran.
+11. Jika pengajuan ditolak atau dibatalkan, poin yang ditahan dan kuota promo dikembalikan.
+
+### 7.5 Ringkasan alur pembeli
+
+```text
 Daftar / Login
       ↓
 Cari toko dan produk
@@ -106,149 +384,112 @@ Ajukan penukaran poin
 Penjual menerima pengajuan
       ↓
 Terima produk → Penukaran selesai
-2. Alur penjual
-A. Pendaftaran dan pengaturan toko
-Penjual melakukan registrasi atau login.
+```
 
-Penjual memilih menu “Daftarkan Usaha”.
+## 8. Alur penjual
 
-Penjual mengisi profil toko:
+### 8.1 Pendaftaran dan pengaturan toko
 
-Nama dan kategori usaha.
+1. Penjual melakukan registrasi atau login.
+2. Penjual memilih menu **"Daftarkan Usaha"**.
+3. Penjual mengisi profil toko:
+   - nama dan kategori usaha;
+   - cerita singkat usaha;
+   - alamat atau wilayah layanan;
+   - foto usaha;
+   - jam operasional;
+   - kontak WhatsApp.
+4. Penjual menyimpan dan menerbitkan profil toko.
 
-Cerita singkat usaha.
+### 8.2 Menghitung HPP dan menetapkan harga
 
-Alamat atau wilayah layanan.
+1. Penjual membuka kalkulator HPP.
+2. Penjual memasukkan biaya produksi atau pengadaan sesuai produknya:
+   - bahan baku atau harga beli barang;
+   - tenaga kerja;
+   - kemasan;
+   - alokasi overhead;
+   - jumlah unit yang dihasilkan.
+3. Sistem menampilkan hasil perhitungan HPP per unit.
+4. Penjual memasukkan target margin atau harga jual.
+5. Sistem menampilkan simulasi keuntungan berdasarkan biaya yang dimasukkan.
+6. Sebelum membuat promo, penjual membuka kalkulator diskon untuk melihat batas aman dan target laba.
 
-Foto usaha.
+### 8.3 Menambahkan produk dan reward poin
 
-Jam operasional.
+1. Penjual menambahkan nama, foto, deskripsi, varian, harga, dan stok produk.
+2. Penjual menentukan apakah produk memberikan reward poin.
+3. Penjual mengatur jumlah poin atau aturan perolehannya.
+4. Penjual meninjau ringkasan produk.
+5. Penjual menerbitkan produk.
 
-Kontak WhatsApp.
+### 8.4 Memproses pembelian dan menyetujui poin
 
-Penjual menyimpan dan menerbitkan profil toko.
+1. Penjual menerima notifikasi pesanan baru.
+2. Penjual memeriksa produk, jumlah, stok, dan detail pemesanan.
+3. Penjual menerima atau menolak pesanan.
+4. Jika diterima, penjual memproses pembayaran dan penyerahan barang.
+5. Setelah pembayaran serta penyerahan barang selesai, penjual menekan tombol **"Selesaikan Transaksi & Berikan Poin"**.
+6. Sistem meminta konfirmasi.
+7. Setelah dikonfirmasi, sistem:
+   - mengubah status transaksi menjadi **"Selesai"**;
+   - memberikan poin kepada pembeli;
+   - mencatat pemberian poin;
+   - mencegah poin diberikan dua kali untuk transaksi yang sama.
 
-B. Menghitung HPP dan menetapkan harga
-Penjual membuka kalkulator HPP.
+### 8.5 Membuat produk promo poin
 
-Penjual memasukkan biaya produksi atau pengadaan sesuai produknya, seperti:
+1. Penjual membuka menu **"Kelola Promo Poin"**.
+2. Penjual memilih produk dari katalog.
+3. Penjual menentukan metode penukaran:
+   - poin penuh;
+   - poin + uang.
+4. Penjual memasukkan:
+   - poin yang dibutuhkan;
+   - tambahan uang jika ada;
+   - stok atau kuota promo;
+   - batas penukaran per pembeli, jika diperlukan;
+   - periode promo.
+5. Sistem menampilkan HPP produk, harga tebus, dan simulasi biaya promo.
+6. Sistem memberi peringatan jika harga tebus berada di bawah HPP atau di bawah target laba.
+7. Penjual meninjau ketentuan, lalu menerbitkan promo.
 
-Bahan baku atau harga beli barang.
+> Untuk produk poin penuh, tidak ada pembayaran uang pada saat penukaran. Karena itu, simulasi harus menampilkan HPP sebagai biaya reward yang ditanggung penjual, bukan menyebut produk tersebut otomatis menghasilkan keuntungan.
 
-Tenaga kerja.
+### 8.6 Memproses penukaran
 
-Kemasan.
+1. Penjual menerima pengajuan penukaran.
+2. Penjual memeriksa detail promo dan kesiapan barang.
+3. Penjual menerima atau menolak pengajuan.
+4. Jika diterima, penjual memproses tambahan pembayaran jika ada dan menyerahkan barang.
+5. Penjual menyelesaikan transaksi penukaran.
+6. Sistem memfinalkan pemotongan poin serta memperbarui stok dan riwayat transaksi.
 
-Alokasi overhead.
+### 8.7 Memantau dashboard dan evaluasi
 
-Jumlah unit yang dihasilkan.
+Sebelum melihat laporan, penjual dapat mencatat biaya operasional bulanan seperti sewa, listrik, gaji, dan transportasi. Dengan begitu, laba bersih yang ditampilkan bukan hanya laba kotor.
 
-Sistem menampilkan hasil perhitungan HPP per unit.
-
-Penjual memasukkan target margin atau harga jual.
-
-Sistem menampilkan simulasi keuntungan berdasarkan biaya yang dimasukkan.
-
-C. Menambahkan produk dan reward poin
-Penjual menambahkan nama, foto, deskripsi, varian, harga, dan stok produk.
-
-Penjual menentukan apakah produk memberikan reward poin.
-
-Penjual mengatur jumlah poin atau aturan perolehannya.
-
-Penjual meninjau ringkasan produk.
-
-Penjual menerbitkan produk.
-
-D. Memproses pembelian dan menyetujui poin
-Penjual menerima notifikasi pesanan baru.
-
-Penjual memeriksa produk, jumlah, stok, dan detail pemesanan.
-
-Penjual menerima atau menolak pesanan.
-
-Jika diterima, penjual memproses pembayaran dan penyerahan barang.
-
-Setelah pembayaran serta penyerahan barang selesai, penjual menekan tombol “Selesaikan Transaksi & Berikan Poin”.
-
-Sistem meminta konfirmasi.
-
-Setelah dikonfirmasi, sistem:
-
-Mengubah status transaksi menjadi “Selesai”.
-
-Memberikan poin kepada pembeli.
-
-Mencatat pemberian poin.
-
-Mencegah poin diberikan dua kali untuk transaksi yang sama.
-
-E. Membuat produk promo poin
-Penjual membuka menu “Kelola Promo Poin”.
-
-Penjual memilih produk dari katalog.
-
-Penjual menentukan metode penukaran:
-
-Poin penuh.
-
-Poin + uang.
-
-Penjual memasukkan:
-
-Poin yang dibutuhkan.
-
-Tambahan uang jika ada.
-
-Stok atau kuota promo.
-
-Batas penukaran per pembeli, jika diperlukan.
-
-Periode promo.
-
-Sistem menampilkan HPP produk dan simulasi biaya promo.
-
-Penjual meninjau ketentuan, lalu menerbitkan promo.
-
-Untuk produk poin penuh, tidak ada pembayaran uang pada saat penukaran. Karena itu, rancangan simulasi perlu menampilkan HPP sebagai biaya reward yang ditanggung penjual—bukan menyebut produk tersebut otomatis menghasilkan keuntungan.
-
-F. Memproses penukaran
-Penjual menerima pengajuan penukaran.
-
-Penjual memeriksa detail promo dan kesiapan barang.
-
-Penjual menerima atau menolak pengajuan.
-
-Jika diterima, penjual memproses tambahan pembayaran jika ada dan menyerahkan barang.
-
-Penjual menyelesaikan transaksi penukaran.
-
-Sistem memfinalkan pemotongan poin serta memperbarui stok dan riwayat transaksi.
-
-G. Memantau dashboard
 Penjual membuka dashboard untuk melihat:
 
-Pesanan masuk dan transaksi selesai.
+- pesanan masuk dan transaksi selesai;
+- pendapatan dari transaksi yang tercatat;
+- estimasi keuntungan berdasarkan biaya yang dimasukkan;
+- poin yang diberikan dan ditukarkan;
+- biaya produk reward;
+- sisa kuota promo;
+- statistik kunjungan dan klik WhatsApp;
+- ringkasan bulanan dan tahunan.
 
-Pendapatan dari transaksi yang tercatat.
+### 8.8 Ringkasan alur penjual
 
-Estimasi keuntungan berdasarkan biaya yang dimasukkan.
-
-Poin yang diberikan dan ditukarkan.
-
-Biaya produk reward.
-
-Sisa kuota promo.
-
-Statistik kunjungan dan klik WhatsApp.
-
-Ringkasan alur penjual
-text
+```text
 Daftar / Login
       ↓
 Lengkapi profil toko
       ↓
 Hitung HPP → Tetapkan harga
+      ↓
+Simulasikan diskon dan promo
       ↓
 Tambahkan produk dan aturan reward poin
       ↓
@@ -266,15 +507,162 @@ Proses pengajuan penukaran
       ↓
 Selesaikan penukaran
       ↓
-Pantau dashboard
-3. Aturan sistem yang menghubungkan kedua alur
-Kondisi	Perlakuan sistem
-Pembeli baru membuat pesanan	Poin masih berupa estimasi
-Penjual menerima pesanan	Poin belum masuk ke saldo
-Penjual menyetujui transaksi selesai	Poin otomatis diberikan
-Pesanan batal sebelum selesai	Poin tidak diberikan
-Pembeli mengajukan penukaran	Poin ditahan sementara
-Penukaran ditolak atau dibatalkan	Poin dilepas kembali
-Penukaran selesai	Poin dipotong secara final
-Tombol penyelesaian ditekan berulang	Sistem tidak memberikan poin ganda
-Untuk versi awal, kamu bisa menetapkan bahwa transaksi penukaran promo tidak menghasilkan reward poin baru. Aturan ini perlu ditampilkan sebelum pengguna mengonfirmasi penukaran.
+Pantau dashboard dan laporan evaluasi
+```
+
+## 9. Aturan sistem
+
+### 9.1 Pesanan dan poin
+
+| Kondisi | Perlakuan sistem |
+|---|---|
+| Pesanan baru dibuat | Poin masih berupa estimasi |
+| Penjual menerima pesanan | Poin belum masuk ke saldo |
+| Penjual menyetujui transaksi selesai | Poin otomatis diberikan |
+| Pesanan batal sebelum selesai | Poin tidak diberikan |
+| Pembeli mengajukan penukaran | Poin ditahan sementara |
+| Penukaran ditolak atau dibatalkan | Poin dilepas kembali |
+| Penukaran selesai | Poin dipotong secara final |
+| Tombol penyelesaian ditekan berulang | Sistem tidak memberikan poin ganda |
+| Transaksi penukaran promo selesai | Tidak menghasilkan poin baru pada versi awal |
+
+### 9.2 Diskon dan promo
+
+| Kondisi | Perlakuan sistem |
+|---|---|
+| Diskon melewati batas aman | Sistem menampilkan peringatan; penjual bisa lanjut dengan konfirmasi |
+| Harga tebus poin di bawah HPP | Sistem menampilkan peringatan "promo berpotensi rugi" |
+| Harga tebus di atas HPP tetapi di bawah target laba | Sistem menampilkan peringatan "laba di bawah target" |
+| Promo poin penuh | Tidak ada uang masuk; HPP barang dicatat sebagai biaya, lalu dikurangi cadangan poin yang sudah dibentuk |
+| Promo poin + uang | Tambahan uang dicatat sebagai pendapatan; HPP dicatat sebagai biaya, lalu dikurangi cadangan poin |
+| Poin diberikan | Dicatat sebagai cadangan biaya reward (kewajiban) |
+| Poin ditukar | Mengurangi cadangan; jika HPP lebih besar dari cadangan ditambah tambahan uang, selisihnya menjadi biaya penjual |
+
+> Agar tidak terjadi pencatatan ganda: poin yang diberikan dicatat sebagai cadangan. Saat poin ditukar, cadangan itu dipakai untuk menutup HPP barang reward. Jika HPP lebih besar dari cadangan + tambahan uang, selisihnya baru dicatat sebagai biaya penjual.
+
+### 9.3 Laporan
+
+| Kondisi | Perlakuan sistem |
+|---|---|
+| Transaksi penjualan selesai | Masuk ke omzet dan HPP penjualan |
+| Penukaran poin selesai | Tidak masuk omzet; HPP barang reward masuk ke biaya reward poin |
+| Transaksi batal | Tidak masuk ke omzet |
+| Diskon diberikan | Mengurangi pendapatan bersih |
+| Biaya operasional dicatat | Mengurangi laba bersih |
+| Poin beredar belum ditukar | Ditampilkan sebagai kewajiban poin |
+| Bulan belum selesai | Laporan ditandai sebagai sementara |
+| Laporan tahunan | Dihitung dari akumulasi 12 bulan |
+
+## 10. Laporan evaluasi bulanan dan tahunan
+
+### 10.1 Isi laporan bulanan
+
+| Bagian | Yang ditampilkan |
+|---|---|
+| Ringkasan | Omzet, diskon, pendapatan bersih, HPP, laba kotor, biaya operasional, biaya promo, laba bersih, margin bersih |
+| Produk | Produk terlaris, produk paling untung, produk dengan margin terendah |
+| Promo | Diskon yang diberikan, poin diberikan, poin ditukar, biaya reward, promo yang merugikan |
+| Poin | Saldo poin beredar, poin yang akan kedaluwarsa (jika ada), nilai kewajiban poin |
+| Perbandingan | Bulan ini dibanding bulan lalu |
+| Catatan | Hal yang perlu diperbaiki, misalnya produk yang terlalu sering didiskon |
+
+### 10.2 Rumus laporan
+
+```text
+Omzet = total harga jual sebelum diskon dari transaksi penjualan selesai
+        (tidak termasuk penukaran poin)
+
+Diskon = total diskon yang diberikan
+
+Pendapatan bersih = omzet - diskon
+
+HPP = total HPP barang yang terjual lewat transaksi penjualan
+      (tidak termasuk barang yang diserahkan lewat penukaran poin)
+
+Laba kotor = pendapatan bersih - HPP
+
+Biaya reward poin = cadangan poin yang diberikan
+                    + kekurangan biaya saat penukaran (jika ada)
+
+Biaya promo = biaya reward poin + biaya promo lain (di luar diskon)
+
+Laba bersih = laba kotor - biaya operasional - biaya promo
+
+Margin bersih = (laba bersih / pendapatan bersih) x 100%
+```
+
+> Diskon sudah mengurangi pendapatan bersih, jadi diskon tidak dihitung lagi sebagai biaya promo. Kalau dihitung dua kali, laba akan terlihat lebih kecil dari yang sebenarnya. HPP barang yang diserahkan lewat penukaran poin juga tidak dimasukkan ke HPP penjualan; biaya itu masuk ke biaya reward poin.
+
+### 10.3 Contoh ringkasan bulanan
+
+| Komponen | Januari | Februari |
+|---|---:|---:|
+| Omzet (sebelum diskon) | Rp15.500.000 | Rp19.000.000 |
+| Diskon | Rp500.000 | Rp1.000.000 |
+| **Pendapatan bersih** | **Rp15.000.000** | **Rp18.000.000** |
+| HPP | Rp9.000.000 | Rp10.500.000 |
+| **Laba kotor** | **Rp6.000.000** | **Rp7.500.000** |
+| Biaya operasional | Rp2.000.000 | Rp2.000.000 |
+| Biaya reward poin dan promo lain | Rp300.000 | Rp500.000 |
+| **Laba bersih** | **Rp3.700.000** | **Rp5.000.000** |
+| Margin bersih | 24,7% | 27,8% |
+
+Dari contoh ini, omzet dan laba bersih Februari naik, tetapi diskon dan biaya promo juga naik. Penjual bisa mengevaluasi apakah kenaikan omzet sebanding dengan tambahan diskon dan biaya promo.
+
+### 10.4 Laporan tahunan
+
+Laporan tahunan membantu penjual melihat:
+
+- total omzet, diskon, pendapatan bersih, HPP, laba kotor, dan laba bersih selama satu tahun;
+- bulan terbaik dan bulan terlemah;
+- tren kenaikan atau penurunan;
+- produk yang konsisten menguntungkan;
+- produk yang sering membuat rugi;
+- total poin yang diberikan dan ditukar;
+- perbandingan tahun ini dengan tahun lalu, jika data sudah tersedia.
+
+Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan berjalan dan membandingkannya dengan periode sebelumnya.
+
+## 11. Rencana pengembangan
+
+### Fase 1 — MVP
+
+- Akun, login, dan profil toko.
+- Katalog produk dengan varian dan stok.
+- Pesanan dan status pesanan.
+- Kalkulator HPP dan harga jual.
+- Kalkulator diskon dasar.
+- Poin: perolehan, penukaran, penahanan sementara, dan riwayat.
+- Ringkasan bulanan sederhana.
+
+### Fase 2 — Evaluasi dan promo
+
+- Laporan tahunan dan perbandingan periode.
+- Simulasi promo yang lebih lengkap.
+- Peringatan otomatis untuk promo yang berpotensi rugi.
+- Ekspor laporan ke CSV atau PDF.
+- Notifikasi pesanan dan poin.
+
+### Fase 3 — Otomasi dan kemitraan
+
+- Pembayaran online.
+- Integrasi pengiriman.
+- Multi-cabang atau multi-gudang.
+- Integrasi WhatsApp API, jika dibutuhkan.
+
+## 12. Hal yang masih perlu diputuskan
+
+| Topik | Yang perlu diputuskan | Saran awal |
+|---|---|---|
+| Nama produk | "LokalKita" atau nama lain | Pakai LokalKita sebagai nama kerja |
+| Model bisnis | Gratis, langganan, atau komisi | Tentukan sebelum diluncurkan |
+| Pembayaran | Manual, transfer, atau payment gateway | Manual dulu untuk MVP |
+| Pengiriman | Ambil sendiri, kurir lokal, atau ekspedisi | Fleksibel per toko |
+| Poin | Nilai poin, masa berlaku, dan apakah lintas toko | Per toko, dengan nilai poin tetap |
+| Diskon | Diblokir atau hanya diberi peringatan | Peringatan dan konfirmasi |
+| Laporan | Berbasis kas sederhana atau akrual | Kas sederhana dulu |
+| Target awal | Kota, komunitas, atau kategori tertentu | Mulai dari satu wilayah |
+
+---
+
+Dokumen ini adalah rancangan awal. Bagian alur, rumus, dan fitur bisa disesuaikan lagi setelah ada masukan dari calon penjual dan pembeli.
