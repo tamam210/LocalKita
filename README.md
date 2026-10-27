@@ -35,7 +35,7 @@ Banyak pelaku UMKM bisa membuat produk, tetapi belum tentu bisa menghitung apaka
 - Harga jual ditentukan dengan perkiraan "ikut harga pasar", tanpa tahu HPP per unit.
 - Diskon dan promo dijalankan karena ingin ramai, tetapi tidak dihitung apakah masih untung.
 - Poin loyalitas dianggap gratis, padahal barang yang ditukar tetap punya HPP.
-- Catatan penjualan tersebar di WhatsApp, buku catatan, dan Excel. Rekap bulanan jadi lambat dan sering salah.
+- Catatan penjualan tersebar di chat pribadi, buku catatan, dan Excel. Rekap bulanan jadi lambat dan sering salah.
 - Membangun aplikasi sendiri butuh waktu, biaya, dan orang teknis. Tidak semua penjual siap.
 
 LokalKita ingin menutup jarak itu: penjual tetap bisa berjualan dengan cara yang familiar, tetapi di belakangnya ada alat bantu hitung dan catatan usaha yang otomatis.
@@ -56,7 +56,7 @@ Marketplace umumnya berfokus pada produk yang tampil dan bisa dibeli. LokalKita 
 
 Prinsip rancangannya:
 
-- **Penjual tetap memegang hubungan dengan pembeli.** WhatsApp masih bisa dipakai, tetapi pesanan tetap dicatat di LokalKita agar punya nomor transaksi dan riwayat status.
+- **Komunikasi tetap di dalam LokalKita.** Pembeli dan penjual bisa chat langsung seperti di marketplace, sehingga riwayat percakapan dan pesanan tersimpan di satu tempat.
 - **Fokus pada kesehatan usaha, bukan hanya ramainya transaksi.** Promo boleh dijalankan, asal penjual tahu dampaknya.
 - **Poin berlaku per toko.** Poin dari Toko A hanya bisa dipakai di Toko A. Ini memudahkan penjual mengatur biaya reward sendiri.
 - **Semua angka penting ditampilkan sebelum keputusan diambil.** Diskon, poin, dan promo disimulasikan terlebih dahulu.
@@ -80,15 +80,29 @@ Prinsip rancangannya:
 
 ### 5.1 Etalase dan pesanan
 
-- Profil toko: nama, kategori, cerita usaha, alamat/wilayah layanan, foto, jam operasional, dan kontak WhatsApp.
+- Profil toko: nama, kategori, cerita usaha, alamat/wilayah layanan, foto, dan jam operasional.
 - Katalog produk: nama, foto, deskripsi, varian, harga, dan stok.
 - Pencarian dan filter berdasarkan wilayah serta kategori.
 - Detail produk: harga, varian, ketersediaan, dan estimasi poin yang akan didapat.
 - Favorit dan riwayat pesanan untuk pembeli yang sudah login.
 - Pesanan dengan status yang jelas, dari "menunggu konfirmasi" sampai "selesai".
-- Pesanan yang diproses lewat WhatsApp tetap dicatat di LokalKita.
+- Chat internal antara pembeli dan penjual, terhubung dengan pesanan.
 
-### 5.2 Kalkulator HPP dan harga jual
+### 5.2 Chat pembeli dan penjual
+
+Semua komunikasi pembeli dan penjual dilakukan melalui chat LokalKita, bukan melalui aplikasi lain.
+
+- Pembeli yang sudah login bisa memulai chat dari halaman toko, detail produk, atau detail pesanan.
+- Penjual membalas chat dari dashboard, sehingga pertanyaan pembeli tidak tercecer di aplikasi lain.
+- Inbox penjual menampilkan daftar percakapan, jumlah pesan belum dibaca, dan tautan ke pesanan terkait.
+- Setiap percakapan terhubung dengan pesanan terkait, lengkap dengan riwayat status.
+- Chat juga terhubung dengan pengajuan penukaran poin, bukan hanya pesanan biasa.
+- Chat mendukung teks, gambar produk, dan lampiran pendukung.
+- Pembeli dan penjual menerima notifikasi saat ada pesan baru.
+- Riwayat chat tersimpan di LokalKita dan bisa dibuka kembali kapan saja.
+- Status pesanan tetap tercatat terpisah dari chat, sehingga proses pesanan tidak bergantung pada percakapan.
+
+### 5.3 Kalkulator HPP dan harga jual
 
 Penjual memasukkan komponen biaya produksi atau pengadaan:
 
@@ -116,7 +130,7 @@ Markup = (laba kotor / HPP) x 100%
 
 > Catatan: margin 30% bukan berarti harga jual = HPP + 30%. Itu namanya markup. Jika ingin margin 30%, harga jual = HPP / 0,70.
 
-### 5.3 Kalkulator diskon dan simulasi promo
+### 5.4 Kalkulator diskon dan simulasi promo
 
 Sebelum membuat diskon, penjual bisa memasukkan:
 
@@ -151,7 +165,7 @@ Diskon maksimum dengan target laba =
 
 Penjual tetap boleh melanjutkan promo meskipun sudah melewati batas aman, tetapi sistem wajib menampilkan peringatan. Tujuannya bukan melarang, melainkan supaya penjual tahu bahwa promo tersebut sedang disubsidi.
 
-### 5.4 Poin pembeli dan simulasi biaya reward
+### 5.5 Poin pembeli dan simulasi biaya reward
 
 Aturan dasar poin:
 
@@ -200,7 +214,7 @@ Dengan rumus ini, penjual bisa melihat:
 
 > Penting: poin penuh bukan berarti produk gratis bagi penjual. HPP tetap keluar. Poin adalah kewajiban yang terbentuk dari transaksi sebelumnya. Karena itu, saat poin diberikan, sistem sebaiknya mencatat **cadangan biaya reward** sebesar poin yang diberikan dikali nilai poin. Dengan begitu, laba bulanan tidak terlihat lebih besar dari yang sebenarnya.
 
-### 5.5 Laporan evaluasi bulanan dan tahunan
+### 5.6 Laporan evaluasi bulanan dan tahunan
 
 Laporan bulanan dan tahunan dihitung otomatis dari transaksi yang sudah selesai. Isinya:
 
@@ -214,7 +228,7 @@ Laporan bulanan dan tahunan dihitung otomatis dari transaksi yang sudah selesai.
 
 Detail laporannya ada di [bagian 10](#10-laporan-evaluasi-bulanan-dan-tahunan).
 
-### 5.6 Dashboard penjual
+### 5.7 Dashboard penjual
 
 Dashboard menampilkan:
 
@@ -224,7 +238,7 @@ Dashboard menampilkan:
 - poin yang diberikan dan ditukarkan;
 - biaya produk reward;
 - sisa kuota promo;
-- statistik kunjungan dan klik WhatsApp;
+- statistik kunjungan toko dan chat masuk;
 - tombol cepat untuk melihat laporan bulanan.
 
 ## 6. Contoh perhitungan
@@ -314,10 +328,11 @@ Catatan:
 
 1. Pembeli membuka website LokalKita.
 2. Pembeli dapat menjelajahi UMKM dan produk tanpa login.
-3. Pembeli melakukan registrasi atau login untuk memesan, menyimpan favorit, dan mengumpulkan poin.
+3. Pembeli melakukan registrasi atau login untuk memesan, menyimpan favorit, chat dengan penjual, dan mengumpulkan poin.
 4. Pembeli mencari produk melalui kolom pencarian atau filter wilayah dan kategori.
 5. Pembeli membuka profil toko atau detail produk.
 6. Pembeli melihat harga, varian, ketersediaan, dan estimasi reward poin.
+7. Pembeli dapat bertanya kepada penjual melalui chat LokalKita.
 
 ### 7.2 Pemesanan dan penyelesaian pembelian
 
@@ -328,12 +343,12 @@ Catatan:
    - estimasi poin yang akan diperoleh.
 3. Pembeli mengirim pesanan.
 4. Sistem mencatat pesanan dengan status **"Menunggu konfirmasi penjual"**.
-5. Penjual menerima atau menolak pesanan.
-6. Jika diterima, pembeli melakukan pembayaran dan mengatur pengambilan atau pengiriman sesuai metode yang tersedia.
-7. Pembeli menerima barang.
-8. Penjual memeriksa bahwa pembayaran dan penyerahan barang sudah selesai.
-9. Penjual menyetujui penyelesaian transaksi.
-10. Jika komunikasi dilakukan melalui WhatsApp, pesanan tetap dicatat di LokalKita agar memiliki nomor transaksi dan riwayat status.
+5. Pembeli dan penjual dapat berkomunikasi melalui chat yang terhubung dengan pesanan. Seluruh percakapan tersimpan pada pesanan yang sama, lengkap dengan nomor transaksi dan riwayat status.
+6. Penjual menerima atau menolak pesanan.
+7. Jika diterima, pembeli melakukan pembayaran dan mengatur pengambilan atau pengiriman sesuai metode yang tersedia.
+8. Pembeli menerima barang.
+9. Penjual memeriksa bahwa pembayaran dan penyerahan barang sudah selesai.
+10. Penjual menyetujui penyelesaian transaksi.
 
 ### 7.3 Penerimaan poin
 
@@ -367,6 +382,8 @@ Daftar / Login
       ↓
 Cari toko dan produk
       ↓
+Tanya penjual lewat chat (opsional)
+      ↓
 Buat pesanan
       ↓
 Penjual menerima pesanan
@@ -397,8 +414,7 @@ Terima produk → Penukaran selesai
    - cerita singkat usaha;
    - alamat atau wilayah layanan;
    - foto usaha;
-   - jam operasional;
-   - kontak WhatsApp.
+   - jam operasional.
 4. Penjual menyimpan dan menerbitkan profil toko.
 
 ### 8.2 Menghitung HPP dan menetapkan harga
@@ -426,12 +442,13 @@ Terima produk → Penukaran selesai
 ### 8.4 Memproses pembelian dan menyetujui poin
 
 1. Penjual menerima notifikasi pesanan baru.
-2. Penjual memeriksa produk, jumlah, stok, dan detail pemesanan.
-3. Penjual menerima atau menolak pesanan.
-4. Jika diterima, penjual memproses pembayaran dan penyerahan barang.
-5. Setelah pembayaran serta penyerahan barang selesai, penjual menekan tombol **"Selesaikan Transaksi & Berikan Poin"**.
-6. Sistem meminta konfirmasi.
-7. Setelah dikonfirmasi, sistem:
+2. Penjual dapat membalas chat pembeli dari detail pesanan.
+3. Penjual memeriksa produk, jumlah, stok, dan detail pemesanan.
+4. Penjual menerima atau menolak pesanan.
+5. Jika diterima, penjual memproses pembayaran dan penyerahan barang.
+6. Setelah pembayaran serta penyerahan barang selesai, penjual menekan tombol **"Selesaikan Transaksi & Berikan Poin"**.
+7. Sistem meminta konfirmasi.
+8. Setelah dikonfirmasi, sistem:
    - mengubah status transaksi menjadi **"Selesai"**;
    - memberikan poin kepada pembeli;
    - mencatat pemberian poin;
@@ -477,7 +494,7 @@ Penjual membuka dashboard untuk melihat:
 - poin yang diberikan dan ditukarkan;
 - biaya produk reward;
 - sisa kuota promo;
-- statistik kunjungan dan klik WhatsApp;
+- statistik kunjungan toko dan chat masuk;
 - ringkasan bulanan dan tahunan.
 
 ### 8.8 Ringkasan alur penjual
@@ -495,7 +512,9 @@ Tambahkan produk dan aturan reward poin
       ↓
 Terbitkan produk
       ↓
-Terima dan proses pesanan
+Terima chat dan pesanan
+      ↓
+Proses pesanan
       ↓
 Konfirmasi transaksi selesai
       ↓
@@ -552,6 +571,17 @@ Pantau dashboard dan laporan evaluasi
 | Poin beredar belum ditukar | Ditampilkan sebagai kewajiban poin |
 | Bulan belum selesai | Laporan ditandai sebagai sementara |
 | Laporan tahunan | Dihitung dari akumulasi 12 bulan |
+
+### 9.4 Chat
+
+| Kondisi | Perlakuan sistem |
+|---|---|
+| Pembeli belum login mencoba chat | Diarahkan login terlebih dahulu |
+| Chat dari halaman toko atau produk | Masuk ke inbox penjual |
+| Chat dari detail pesanan | Terhubung dengan nomor pesanan tersebut |
+| Penjual membalas chat | Pembeli menerima notifikasi |
+| Pesanan selesai | Riwayat chat tetap tersimpan |
+| Pesan berisi gambar atau lampiran | Disimpan sebagai bagian dari riwayat percakapan |
 
 ## 10. Laporan evaluasi bulanan dan tahunan
 
@@ -630,6 +660,7 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 - Akun, login, dan profil toko.
 - Katalog produk dengan varian dan stok.
 - Pesanan dan status pesanan.
+- Chat pembeli dan penjual yang terhubung dengan pesanan.
 - Kalkulator HPP dan harga jual.
 - Kalkulator diskon dasar.
 - Poin: perolehan, penukaran, penahanan sementara, dan riwayat.
@@ -648,7 +679,7 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 - Pembayaran online.
 - Integrasi pengiriman.
 - Multi-cabang atau multi-gudang.
-- Integrasi WhatsApp API, jika dibutuhkan.
+- Peningkatan fitur chat: balasan cepat, pesan otomatis, dan notifikasi real-time.
 
 ## 12. Hal yang masih perlu diputuskan
 
@@ -660,6 +691,7 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 | Pengiriman | Ambil sendiri, kurir lokal, atau ekspedisi | Fleksibel per toko |
 | Poin | Nilai poin, masa berlaku, dan apakah lintas toko | Per toko, dengan nilai poin tetap |
 | Diskon | Diblokir atau hanya diberi peringatan | Peringatan dan konfirmasi |
+| Chat | Apakah wajib login dan apakah penjual boleh mengirim kontak pribadi | Chat untuk pembeli login; transaksi tetap lewat LokalKita |
 | Laporan | Berbasis kas sederhana atau akrual | Kas sederhana dulu |
 | Target awal | Kota, komunitas, atau kategori tertentu | Mulai dari satu wilayah |
 
