@@ -22,9 +22,10 @@ LokalKita adalah layanan yang membantu penjual baru maupun penjual yang sudah la
 7. [Alur pembeli](#7-alur-pembeli)
 8. [Alur penjual](#8-alur-penjual)
 9. [Aturan sistem](#9-aturan-sistem)
-10. [Laporan evaluasi bulanan dan tahunan](#10-laporan-evaluasi-bulanan-dan-tahunan)
-11. [Rencana pengembangan](#11-rencana-pengembangan)
-12. [Hal yang masih perlu diputuskan](#12-hal-yang-masih-perlu-diputuskan)
+10. [Akun penjual, ruang data, dan keamanan](#10-akun-penjual-ruang-data-dan-keamanan)
+11. [Laporan evaluasi bulanan dan tahunan](#11-laporan-evaluasi-bulanan-dan-tahunan)
+12. [Rencana pengembangan](#12-rencana-pengembangan)
+13. [Hal yang masih perlu diputuskan](#13-hal-yang-masih-perlu-diputuskan)
 
 ---
 
@@ -226,7 +227,7 @@ Laporan bulanan dan tahunan dihitung otomatis dari transaksi yang sudah selesai.
 - poin yang diberikan, poin yang ditukar, dan sisa poin beredar;
 - perbandingan dengan bulan atau tahun sebelumnya.
 
-Detail laporannya ada di [bagian 10](#10-laporan-evaluasi-bulanan-dan-tahunan).
+Detail laporannya ada di [bagian 11](#11-laporan-evaluasi-bulanan-dan-tahunan).
 
 ### 5.7 Dashboard penjual
 
@@ -408,14 +409,17 @@ Terima produk → Penukaran selesai
 ### 8.1 Pendaftaran dan pengaturan toko
 
 1. Penjual melakukan registrasi atau login.
-2. Penjual memilih menu **"Daftarkan Usaha"**.
-3. Penjual mengisi profil toko:
+2. Setelah akun diverifikasi, sistem otomatis menyiapkan **ruang data pribadi** untuk toko tersebut. Ruang data ini akan menyimpan produk, penjualan, HPP, chat, poin, dan laporan tokonya.
+3. Penjual memilih menu **"Daftarkan Usaha"**.
+4. Penjual mengisi profil toko:
    - nama dan kategori usaha;
    - cerita singkat usaha;
    - alamat atau wilayah layanan;
    - foto usaha;
    - jam operasional.
-4. Penjual menyimpan dan menerbitkan profil toko.
+5. Penjual menyimpan dan menerbitkan profil toko.
+
+> Ruang data hanya dapat diakses oleh pemilik akun, staf toko yang diberi izin, dan admin platform untuk keperluan operasional. Aturan lengkapnya ada di [bagian 10](#10-akun-penjual-ruang-data-dan-keamanan).
 
 ### 8.2 Menghitung HPP dan menetapkan harga
 
@@ -502,6 +506,8 @@ Penjual membuka dashboard untuk melihat:
 ```text
 Daftar / Login
       ↓
+Sistem menyiapkan ruang data pribadi toko
+      ↓
 Lengkapi profil toko
       ↓
 Hitung HPP → Tetapkan harga
@@ -583,9 +589,82 @@ Pantau dashboard dan laporan evaluasi
 | Pesanan selesai | Riwayat chat tetap tersimpan |
 | Pesan berisi gambar atau lampiran | Disimpan sebagai bagian dari riwayat percakapan |
 
-## 10. Laporan evaluasi bulanan dan tahunan
+## 10. Akun penjual, ruang data, dan keamanan
 
-### 10.1 Isi laporan bulanan
+### 10.1 Ruang data pribadi per penjual
+
+Setiap penjual yang membuat akun dan mendaftarkan usaha otomatis mendapatkan **ruang data pribadi** atau **database toko**. Di dalamnya tersimpan seluruh data operasional tokonya:
+
+- profil dan pengaturan toko;
+- produk, varian, stok, HPP, dan harga jual;
+- pesanan, pembayaran, dan status transaksi;
+- chat dengan pembeli;
+- poin, promo, dan riwayat penukaran;
+- biaya operasional;
+- laporan bulanan dan tahunan.
+
+Data disimpan di server LokalKita, bukan hanya di browser. Jika penjual berganti perangkat atau membersihkan cache, data tokonya tetap ada.
+
+Ada dua cara menyediakan ruang data:
+
+| Cara | Kelebihan | Kekurangan |
+|---|---|---|
+| Satu database dengan `toko_id` di setiap tabel | Lebih murah, mudah dirawat, cocok untuk MVP | Isolasi bergantung pada kode aplikasi dan aturan akses |
+| Database atau schema terpisah per penjual | Isolasi lebih kuat, cocok untuk paket premium | Biaya dan kerumitan operasional lebih tinggi |
+
+Untuk MVP, gunakan satu database dengan `toko_id` dan pemeriksaan akses yang ketat. Struktur ini disiapkan agar bisa ditingkatkan ke database terpisah tanpa mengubah alur produk.
+
+### 10.2 Siapa yang boleh mengakses
+
+| Peran | Hak akses |
+|---|---|
+| Pemilik akun toko | Seluruh data tokonya |
+| Staf toko yang diundang | Sesuai izin yang diberikan pemilik toko |
+| Admin platform | Hanya untuk dukungan, keamanan, dan kewajiban hukum; akses terbatas dan tercatat |
+| Penjual lain | Tidak boleh mengakses data toko lain, termasuk lewat API |
+| Pembeli atau publik | Hanya katalog dan informasi toko yang diterbitkan |
+
+Aturan penting:
+
+- Data keuangan, HPP, laporan, dan chat bersifat privat. Data tersebut tidak boleh muncul di halaman publik atau hasil pencarian.
+- Setiap permintaan ke API wajib memeriksa sesi login dan kepemilikan `toko_id`, bukan hanya menyembunyikan tombol di tampilan.
+- ID pesanan, produk, dan chat menggunakan UUID agar tidak mudah ditebak.
+- Berkas unggulan seperti foto produk dan lampiran chat disimpan di folder privat per toko, lalu diakses lewat tautan yang sah.
+
+### 10.3 Password dan akun
+
+- Password penjual disimpan sebagai **hash** (misalnya Argon2id atau bcrypt), bukan teks biasa.
+- **Pemilik platform tidak mengetahui password penjual** dan tidak bisa membacanya dari database. Yang dimiliki admin adalah hak akses administratif, bukan password akun.
+- Jika penjual lupa password, sistem mengirim tautan reset ke email atau kode OTP ke nomor terdaftar. Admin tidak mengirim atau membacakan password lama.
+- Penjual dapat melihat daftar perangkat yang sedang login dan mengeluarkan sesi yang tidak dikenal.
+- Verifikasi email atau nomor telepon dilakukan sebelum toko bisa menerima pesanan.
+- Akun admin platform wajib memakai autentikasi dua faktor (2FA).
+
+> Catatan: "hanya penjual dan pemilik web yang bisa melihat data" bukan berarti pemilik web tahu password penjual. Pemilik web memiliki akses admin untuk kebutuhan operasional, tetapi aksesnya dibatasi dan dicatat. Ini melindungi penjual sekaligus menjaga kepercayaan.
+
+### 10.4 Kewajiban platform
+
+- Menyimpan data dengan enkripsi saat transit (HTTPS) dan enkripsi saat disimpan.
+- Mencadangkan data secara terenkripsi dan menguji proses pemulihan.
+- Mencatat audit log untuk login admin, perubahan harga atau HPP, ekspor data, dan penghapusan data.
+- Tidak memakai data penjualan penjual untuk keperluan lain tanpa izin.
+- Menyediakan ekspor data toko (CSV atau PDF) kapan saja.
+- Menghapus data setelah akun dihapus, kecuali data yang wajib disimpan menurut hukum.
+- Menampilkan ringkasan kebijakan privasi dan meminta persetujuan saat pendaftaran.
+
+### 10.5 Pemeriksaan isolasi data
+
+Sebelum rilis, sistem harus diuji dengan skenario berikut:
+
+- Penjual B membuka ID produk, pesanan, atau chat milik penjual A → sistem menolak dengan **403** atau **404**.
+- Laporan penjual hanya menghitung transaksi dari tokonya sendiri.
+- Chat hanya bisa dibuka oleh pembeli dan penjual yang terlibat.
+- Pencarian publik tidak mengembalikan HPP, margin, atau data keuangan lain.
+- Setiap akses admin tercatat di audit log.
+
+## 11. Laporan evaluasi bulanan dan tahunan
+
+### 11.1 Isi laporan bulanan
 
 | Bagian | Yang ditampilkan |
 |---|---|
@@ -596,7 +675,7 @@ Pantau dashboard dan laporan evaluasi
 | Perbandingan | Bulan ini dibanding bulan lalu |
 | Catatan | Hal yang perlu diperbaiki, misalnya produk yang terlalu sering didiskon |
 
-### 10.2 Rumus laporan
+### 11.2 Rumus laporan
 
 ```text
 Omzet = total harga jual sebelum diskon dari transaksi penjualan selesai
@@ -623,7 +702,7 @@ Margin bersih = (laba bersih / pendapatan bersih) x 100%
 
 > Diskon sudah mengurangi pendapatan bersih, jadi diskon tidak dihitung lagi sebagai biaya promo. Kalau dihitung dua kali, laba akan terlihat lebih kecil dari yang sebenarnya. HPP barang yang diserahkan lewat penukaran poin juga tidak dimasukkan ke HPP penjualan; biaya itu masuk ke biaya reward poin.
 
-### 10.3 Contoh ringkasan bulanan
+### 11.3 Contoh ringkasan bulanan
 
 | Komponen | Januari | Februari |
 |---|---:|---:|
@@ -639,7 +718,7 @@ Margin bersih = (laba bersih / pendapatan bersih) x 100%
 
 Dari contoh ini, omzet dan laba bersih Februari naik, tetapi diskon dan biaya promo juga naik. Penjual bisa mengevaluasi apakah kenaikan omzet sebanding dengan tambahan diskon dan biaya promo.
 
-### 10.4 Laporan tahunan
+### 11.4 Laporan tahunan
 
 Laporan tahunan membantu penjual melihat:
 
@@ -653,11 +732,12 @@ Laporan tahunan membantu penjual melihat:
 
 Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan berjalan dan membandingkannya dengan periode sebelumnya.
 
-## 11. Rencana pengembangan
+## 12. Rencana pengembangan
 
 ### Fase 1 — MVP
 
 - Akun, login, dan profil toko.
+- Ruang data pribadi per penjual, pembatasan akses, dan audit log dasar.
 - Katalog produk dengan varian dan stok.
 - Pesanan dan status pesanan.
 - Chat pembeli dan penjual yang terhubung dengan pesanan.
@@ -681,7 +761,7 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 - Multi-cabang atau multi-gudang.
 - Peningkatan fitur chat: balasan cepat, pesan otomatis, dan notifikasi real-time.
 
-## 12. Hal yang masih perlu diputuskan
+## 13. Hal yang masih perlu diputuskan
 
 | Topik | Yang perlu diputuskan | Saran awal |
 |---|---|---|
@@ -693,6 +773,9 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 | Diskon | Diblokir atau hanya diberi peringatan | Peringatan dan konfirmasi |
 | Chat | Apakah wajib login dan apakah penjual boleh mengirim kontak pribadi | Chat untuk pembeli login; transaksi tetap lewat LokalKita |
 | Laporan | Berbasis kas sederhana atau akrual | Kas sederhana dulu |
+| Penyimpanan data | Satu database dengan `toko_id` atau database terpisah per penjual | Satu database dengan `toko_id` untuk MVP; siapkan migrasi ke database terpisah |
+| Akses admin | Seberapa luas admin platform boleh melihat data keuangan penjual | Hanya untuk dukungan, dengan audit log dan persetujuan bila memungkinkan |
+| Pemulihan akun | Reset lewat email, OTP WhatsApp, atau keduanya | Email dan OTP WhatsApp |
 | Target awal | Kota, komunitas, atau kategori tertentu | Mulai dari satu wilayah |
 
 ---
