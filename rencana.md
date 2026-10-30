@@ -768,8 +768,8 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 
 | Lapisan | Pilihan | Catatan |
 |---|---|---|
-| Frontend | HTML, CSS, JavaScript | Tanpa framework JS; halaman memanggil API lewat `fetch()` |
-| Backend | PHP native + PDO | Tanpa Laravel; memakai session, prepared statement, dan `password_hash` |
+| Frontend | HTML, CSS, JavaScript | Tanpa framework JS; halaman memanggil API lewat `fetch()`; hanya Arya Wira yang menulis HTML/CSS/JS |
+| Backend | PHP native + PDO | Tanpa Laravel; memakai session, prepared statement, dan `password_hash`; dikerjakan Tamam dan Rasya |
 | Database | MySQL 8 | InnoDB, `utf8mb4`, uang disimpan sebagai integer rupiah |
 | API | REST JSON | Endpoint di folder `api/`; format respons `{ok, data, message}` |
 | Hitung | Python opsional | Flask/FastAPI hanya untuk HPP/diskon; PHP tetap punya fallback |
@@ -790,19 +790,21 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 
 Pembagian ini sama dengan dokumen `Pembagian_Tugas_Tim_LokalKita.docx` dan dokumen per orang: `Pembagian_Tugas_Tamam.docx`, `Pembagian_Tugas_Arya_Wira.docx`, dan `Pembagian_Tugas_Rasya_Naufal.docx`. Tabel ini hanya berisi tugas coding.
 
-#### Tamam — Ketua + Coding
+**Batas peran:** Arya Wira hanya mengerjakan frontend (HTML/CSS/JS, fetch API, tampilan, responsive). Tamam dan Rasya hanya mengerjakan backend/data (PHP, MySQL, API, auth, Python); keduanya tidak boleh mengubah file frontend.
+
+#### Tamam — Ketua + Backend
 
 | Kode | Hari | Tugas |
 |---|---|---|
-| A1 | 30 Okt | Setup proyek PHP + MySQL: folder `public/`, `api/`, `lib/`, `sql/`, `python/`; buat `lib/db.php` pakai PDO dan `config.php`; pastikan koneksi MySQL jalan. |
+| A1 | 30 Okt | Setup folder backend `api/`, `lib/`, `sql/`, `python/`; buat `lib/db.php` pakai PDO dan `config.php`; pastikan koneksi MySQL jalan. Folder `public/` milik Arya. |
 | A2 | 30 Okt | Buat `sql/schema.sql` + `sql/seed.sql` untuk **28 tabel** sesuai `erd.pdf`; isi data dummy (users, stores, categories, products, variants, orders, payments, promotions, poin, laporan, chat). |
 | A3 | 30 Okt | Tulis kontrak API untuk Arya/Rasya Naufal: `api/products.php`, `api/hpp.php`, `api/diskon.php`, `api/poin.php`, `api/laporan.php`, `api/chat.php`; format JSON dan nama field tetap. |
 | A4 | 31 Okt | Buat `lib/hpp.php` + `python/hitung.py` endpoint `/hitung-hpp`: bahan + tenaga kerja + kemasan + overhead; HPP/unit, margin, harga saran; PHP fallback kalau Python mati. |
 | A5 | 31 Okt | Buat `lib/diskon.php` + endpoint Python `/hitung-diskon`: harga normal, diskon %, qty, biaya tambahan; laba/unit, total, batas aman, warning rugi. |
-| A6 | 31 Okt | Buat `api/hpp.php` + `api/diskon.php`; sambungkan form Arya ke API; test 3 contoh dan cek JSON. |
+| A6 | 31 Okt | Buat `api/hpp.php` + `api/diskon.php`; uji endpoint pakai Postman/curl, kirim contoh payload ke Arya; jangan edit HTML/CSS/JS. |
 | A7 | 1 Nov | Pasang auth/session + data room: login seller/admin, `password_hash`, cek `store_id` di semua query, password hanya seller, tulis `audit_logs` untuk akses sensitif. |
-| A8 | 1 Nov | Test end-to-end browser → PHP API → MySQL: katalog, HPP, diskon, poin, laporan; cek console/network dan angka. |
-| A9 | 1 Nov | Review & merge: PDO prepared statement, validasi input, CSRF, jangan tampilkan `password_hash`; rapikan kode dan commit final. |
+| A8 | 1 Nov | Test backend end-to-end via Postman/curl: katalog, HPP, diskon, poin, laporan; cocokkan JSON dengan UI Arya tanpa mengedit frontend. |
+| A9 | 1 Nov | Review & merge backend: PDO prepared statement, validasi input, CSRF, jangan tampilkan `password_hash`; rapikan kode dan commit final. |
 
 #### Arya Wira — Frontend / UI
 
@@ -814,11 +816,11 @@ Pembagian ini sama dengan dokumen `Pembagian_Tugas_Tim_LokalKita.docx` dan dokum
 | B4 | 31 Okt | Selesaikan UI `hpp.html`: form bahan/tenaga/kemasan/overhead/unit; kirim ke `api/hpp.php`; tampilkan HPP, margin, harga saran; form diskon + warning dari `api/diskon.php`. |
 | B5 | 31 Okt | Selesaikan UI `poin.html` (saldo, reward, tukar, riwayat, chat) dan `laporan.html` (kartu omzet/HPP/laba, tabel, chart) dari API. |
 | B6 | 31 Okt | Responsive 360–390 px: navbar, form, card, tabel scroll; touch target 44 px. |
-| B7 | 1 Nov | Rapikan integrasi API: loading, error, empty state, format rupiah, dan jangan taruh token/secret di JavaScript. |
+| B7 | 1 Nov | Rapikan `fetch()` frontend: loading, error, empty state, format rupiah, jangan taruh token/secret di JavaScript; jangan ubah PHP/MySQL. |
 | B8 | 1 Nov | Responsive final 360, 390, 768 px; tidak ada teks keluar card; tabel bisa scroll. |
-| B9 | 1 Nov | Perbaiki bug visual/API dari Tamam/Rasya Naufal; pastikan frontend tidak akses MySQL langsung. |
+| B9 | 1 Nov | Perbaiki bug visual/fetch di frontend; laporkan bug API ke Tamam/Rasya; jangan ubah PHP, MySQL, atau Python. |
 
-#### Rasya Naufal — Fitur & Data
+#### Rasya Naufal — Backend Fitur & Data
 
 | Kode | Hari | Tugas |
 |---|---|---|
@@ -827,10 +829,10 @@ Pembagian ini sama dengan dokumen `Pembagian_Tugas_Tim_LokalKita.docx` dan dokum
 | C3 | 30 Okt | Buat `lib/chat.php` + `api/chat.php` + tabel conversations/messages; isi 1 percakapan dummy. |
 | C4 | 31 Okt | Buat `api/poin.php`: earn, redeem, poin + uang, riwayat, validasi saldo, filter `store_id`; tulis ledger `point_transactions`. |
 | C5 | 31 Okt | Buat `api/laporan.php`: omzet, HPP, laba kotor/bersih, biaya, produk terlaris; balikin JSON. |
-| C6 | 31 Okt | Sambungkan API poin/laporan/chat ke UI Arya; samakan nama field dan format angka. |
+| C6 | 31 Okt | Finalisasi kontrak respons API poin/laporan/chat; kirim contoh JSON dan nama field ke Arya; jangan edit HTML/CSS/JS. |
 | C7 | 1 Nov | Test 3 data berbeda: saldo, riwayat, total laporan; cek transaksi rollback kalau gagal. |
 | C8 | 1 Nov | Samakan rumus PHP dan Python (`/hitung-hpp`, `/hitung-diskon`); test fallback kalau service Python mati. |
-| C9 | 1 Nov | Bantu Tamam integrasi dan bantu Arya Wira isi data; test chat; pastikan tidak ada data toko lain yang bocor. |
+| C9 | 1 Nov | Bantu Tamam integrasi backend dan siapkan data uji untuk Arya; test chat; pastikan tidak ada data toko lain yang bocor. |
 
 **Target:** 9 tugas per orang selesai 5 November 2026. Buffer 2–5 November untuk bugfix dan commit final. Panduan Belajar, Tanya AI, Cek selesai, dan kolom status ada di masing-masing dokumen Word.
 
