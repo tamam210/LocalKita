@@ -1,0 +1,4 @@
+backend/config.php
+*.log
+__pycache__/
+.venv/
