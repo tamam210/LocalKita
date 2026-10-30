@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masuk - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/login.js" defer></script>
+</head>
+<body>
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+    </div>
+  </header>
+  <main class="wadah">
+    <section class="auth panel kaca" aria-labelledby="judul-masuk">
+      <h1 id="judul-masuk">Masuk ke LokalKita</h1>
+      <p id="info-peran" aria-live="polite"></p>
+      <div id="pilih-peran" class="tab-daftar" role="group" aria-label="Masuk sebagai">
+        <button type="button" class="tab-satu" data-peran="pembeli" aria-pressed="true">Pembeli</button>
+        <button type="button" class="tab-satu" data-peran="penjual" aria-pressed="false">Penjual</button>
+      </div>
+      <div id="pilih-mode" class="chip-daftar" role="group" aria-label="Pilih aksi">
+        <button type="button" class="chip" data-mode="masuk" aria-pressed="true">Masuk</button>
+        <button type="button" class="chip" data-mode="daftar" aria-pressed="false">Daftar</button>
+      </div>
+      <form id="form-auth">
+        <div id="kolom-auth"></div>
+        <p id="pesan-auth" class="pesan-galat" role="alert" hidden></p>
+        <button id="tombol-auth" class="tombol" type="submit">Masuk</button>
+      </form>
+      <div class="auth-tamu">
+        <p>Hanya ingin melihat-lihat? Tamu hanya bisa melihat etalase. Poin, chat, kalkulator HPP, dan laporan membutuhkan akun.</p>
+        <a class="tombol tombol-garis" href="index.html">Lanjut sebagai tamu</a>
+      </div>
+    </section>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Etalase - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/katalog.js" defer></script>
+</head>
+<body>
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+      <nav aria-label="Menu utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html" aria-current="page">Etalase</a></li>
+          <li><a href="hpp.html">Kalkulator HPP</a></li>
+          <li><a href="poin.html">Poin</a></li>
+          <li><a href="laporan.html">Laporan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <section class="hero kaca" aria-labelledby="judul-hero">
+      <h1 id="judul-hero">Karya Lokal, Kebanggaan Kita.</h1>
+      <p>Etalase online dan asisten keuangan untuk UMKM lokal.</p>
+      <label class="sr-only" for="cari">Cari produk, toko, atau kategori</label>
+      <input id="cari" class="cari" type="search" placeholder="Cari produk, toko, atau kategori..." autocomplete="off">
+    </section>
+
+    <div id="daftar-kategori" class="chip-daftar" role="group" aria-label="Filter kategori"></div>
+    <div id="info-data" class="info-data" role="status" hidden></div>
+    <p id="jumlah-hasil" class="jumlah" aria-live="polite"></p>
+    <noscript><p>Halaman ini membutuhkan JavaScript untuk menampilkan produk.</p></noscript>
+    <div id="grid-produk" class="grid-produk" aria-busy="true"></div>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>
