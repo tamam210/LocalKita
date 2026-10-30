@@ -25,7 +25,8 @@ LokalKita adalah layanan yang membantu penjual baru maupun penjual yang sudah la
 10. [Akun penjual, ruang data, dan keamanan](#10-akun-penjual-ruang-data-dan-keamanan)
 11. [Laporan evaluasi bulanan dan tahunan](#11-laporan-evaluasi-bulanan-dan-tahunan)
 12. [Rencana pengembangan](#12-rencana-pengembangan)
-13. [Hal yang masih perlu diputuskan](#13-hal-yang-masih-perlu-diputuskan)
+13. [Stack teknologi dan pembagian tugas](#13-stack-teknologi-dan-pembagian-tugas)
+14. [Hal yang masih perlu diputuskan](#14-hal-yang-masih-perlu-diputuskan)
 
 ---
 
@@ -635,9 +636,9 @@ Aturan penting:
 
 - Password penjual disimpan sebagai **hash** (misalnya Argon2id atau bcrypt), bukan teks biasa.
 - **Pemilik platform tidak mengetahui password penjual** dan tidak bisa membacanya dari database. Yang dimiliki admin adalah hak akses administratif, bukan password akun.
-- Jika penjual lupa password, sistem mengirim tautan reset ke email atau kode OTP ke nomor terdaftar. Admin tidak mengirim atau membacakan password lama.
+- Jika penjual lupa password, sistem mengirim tautan reset ke email terdaftar. Admin tidak mengirim atau membacakan password lama.
 - Penjual dapat melihat daftar perangkat yang sedang login dan mengeluarkan sesi yang tidak dikenal.
-- Verifikasi email atau nomor telepon dilakukan sebelum toko bisa menerima pesanan.
+- Verifikasi email dilakukan sebelum toko bisa menerima pesanan.
 - Akun admin platform wajib memakai autentikasi dua faktor (2FA).
 
 > Catatan: "hanya penjual dan pemilik web yang bisa melihat data" bukan berarti pemilik web tahu password penjual. Pemilik web memiliki akses admin untuk kebutuhan operasional, tetapi aksesnya dibatasi dan dicatat. Ini melindungi penjual sekaligus menjaga kepercayaan.
@@ -761,7 +762,79 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 - Multi-cabang atau multi-gudang.
 - Peningkatan fitur chat: balasan cepat, pesan otomatis, dan notifikasi real-time.
 
-## 13. Hal yang masih perlu diputuskan
+## 13. Stack teknologi dan pembagian tugas
+
+### 13.1 Bahasa, framework, dan database
+
+| Lapisan | Pilihan | Catatan |
+|---|---|---|
+| Frontend | HTML, CSS, JavaScript | Tanpa framework JS; halaman memanggil API lewat `fetch()` |
+| Backend | PHP native + PDO | Tanpa Laravel; memakai session, prepared statement, dan `password_hash` |
+| Database | MySQL 8 | InnoDB, `utf8mb4`, uang disimpan sebagai integer rupiah |
+| API | REST JSON | Endpoint di folder `api/`; format respons `{ok, data, message}` |
+| Hitung | Python opsional | Flask/FastAPI hanya untuk HPP/diskon; PHP tetap punya fallback |
+| Data inti | MySQL | MongoDB tidak dipakai untuk pesanan, poin, atau laporan |
+
+**Framework yang dipakai:** tidak ada framework PHP. Backend memakai **PHP native + PDO** supaya setup ringan untuk MVP 3 hari, tetapi tetap memakai prepared statement, validasi input, session login, dan CSRF. Frontend juga tanpa framework JavaScript.
+
+**Aturan integrasi:** frontend hanya boleh mengirim request ke API PHP. PHP adalah satu-satunya pihak yang menulis ke MySQL. Python hanya menghitung lalu mengembalikan JSON; Python tidak menulis data inti. Kredensial database tidak boleh ada di JavaScript.
+
+### 13.2 Data room dan alur data
+
+- Setiap penjual punya ruang data pribadi secara logis: satu database MySQL dengan `store_id` di tabel operasional.
+- Hanya penjual pemilik toko yang bisa masuk ke data room-nya. Password hanya diketahui penjual; admin tidak bisa membaca password dan setiap akses admin dicatat di `audit_logs`.
+- Untuk paket premium, data room bisa ditingkatkan menjadi database atau schema terpisah per penjual tanpa mengubah alur produk.
+- Alur data: browser → API PHP → MySQL. Kalau service Python dipakai: PHP → Python untuk hitung → hasil dikembalikan ke PHP → PHP yang menyimpan ke MySQL.
+
+### 13.3 Pembagian tugas coding
+
+Pembagian ini sama dengan dokumen `Pembagian_Tugas_Tim_LokalKita.docx` dan dokumen per orang: `Pembagian_Tugas_Tamam.docx`, `Pembagian_Tugas_Arya_Wira.docx`, dan `Pembagian_Tugas_Rasya_Naufal.docx`. Tabel ini hanya berisi tugas coding.
+
+#### Tamam — Ketua + Coding
+
+| Kode | Hari | Tugas |
+|---|---|---|
+| A1 | 30 Okt | Setup proyek PHP + MySQL: folder `public/`, `api/`, `lib/`, `sql/`, `python/`; buat `lib/db.php` pakai PDO dan `config.php`; pastikan koneksi MySQL jalan. |
+| A2 | 30 Okt | Buat `sql/schema.sql` + `sql/seed.sql` untuk **28 tabel** sesuai `erd.pdf`; isi data dummy (users, stores, categories, products, variants, orders, payments, promotions, poin, laporan, chat). |
+| A3 | 30 Okt | Tulis kontrak API untuk Arya/Rasya Naufal: `api/products.php`, `api/hpp.php`, `api/diskon.php`, `api/poin.php`, `api/laporan.php`, `api/chat.php`; format JSON dan nama field tetap. |
+| A4 | 31 Okt | Buat `lib/hpp.php` + `python/hitung.py` endpoint `/hitung-hpp`: bahan + tenaga kerja + kemasan + overhead; HPP/unit, margin, harga saran; PHP fallback kalau Python mati. |
+| A5 | 31 Okt | Buat `lib/diskon.php` + endpoint Python `/hitung-diskon`: harga normal, diskon %, qty, biaya tambahan; laba/unit, total, batas aman, warning rugi. |
+| A6 | 31 Okt | Buat `api/hpp.php` + `api/diskon.php`; sambungkan form Arya ke API; test 3 contoh dan cek JSON. |
+| A7 | 1 Nov | Pasang auth/session + data room: login seller/admin, `password_hash`, cek `store_id` di semua query, password hanya seller, tulis `audit_logs` untuk akses sensitif. |
+| A8 | 1 Nov | Test end-to-end browser → PHP API → MySQL: katalog, HPP, diskon, poin, laporan; cek console/network dan angka. |
+| A9 | 1 Nov | Review & merge: PDO prepared statement, validasi input, CSRF, jangan tampilkan `password_hash`; rapikan kode dan commit final. |
+
+#### Arya Wira — Frontend / UI
+
+| Kode | Hari | Tugas |
+|---|---|---|
+| B1 | 30 Okt | Buat `index.html`: header, search, filter kategori, grid card produk; ambil data dari `api/products.php` (fallback dummy kalau API belum siap). |
+| B2 | 30 Okt | Buat `css/style.css`: warna dari `frontend/rencana.md`, font Lato, card, tombol, loading state, dan error state. |
+| B3 | 30 Okt | Buat kerangka `hpp.html`, `poin.html`, `laporan.html`: navbar + section + ID dari Tamam; siapkan `fetch()` kosong. |
+| B4 | 31 Okt | Selesaikan UI `hpp.html`: form bahan/tenaga/kemasan/overhead/unit; kirim ke `api/hpp.php`; tampilkan HPP, margin, harga saran; form diskon + warning dari `api/diskon.php`. |
+| B5 | 31 Okt | Selesaikan UI `poin.html` (saldo, reward, tukar, riwayat, chat) dan `laporan.html` (kartu omzet/HPP/laba, tabel, chart) dari API. |
+| B6 | 31 Okt | Responsive 360–390 px: navbar, form, card, tabel scroll; touch target 44 px. |
+| B7 | 1 Nov | Rapikan integrasi API: loading, error, empty state, format rupiah, dan jangan taruh token/secret di JavaScript. |
+| B8 | 1 Nov | Responsive final 360, 390, 768 px; tidak ada teks keluar card; tabel bisa scroll. |
+| B9 | 1 Nov | Perbaiki bug visual/API dari Tamam/Rasya Naufal; pastikan frontend tidak akses MySQL langsung. |
+
+#### Rasya Naufal — Fitur & Data
+
+| Kode | Hari | Tugas |
+|---|---|---|
+| C1 | 30 Okt | Buat `lib/poin.php`: saldo awal, `tambahPoin()`, `tukarPoin()`; pakai MySQL transaction; tolak kalau saldo kurang. |
+| C2 | 30 Okt | Buat `lib/laporan.php`: query omzet, HPP, laba dari orders/order_items/operational_expenses; simpan hasil ke `monthly_reports`. |
+| C3 | 30 Okt | Buat `lib/chat.php` + `api/chat.php` + tabel conversations/messages; isi 1 percakapan dummy. |
+| C4 | 31 Okt | Buat `api/poin.php`: earn, redeem, poin + uang, riwayat, validasi saldo, filter `store_id`; tulis ledger `point_transactions`. |
+| C5 | 31 Okt | Buat `api/laporan.php`: omzet, HPP, laba kotor/bersih, biaya, produk terlaris; balikin JSON. |
+| C6 | 31 Okt | Sambungkan API poin/laporan/chat ke UI Arya; samakan nama field dan format angka. |
+| C7 | 1 Nov | Test 3 data berbeda: saldo, riwayat, total laporan; cek transaksi rollback kalau gagal. |
+| C8 | 1 Nov | Samakan rumus PHP dan Python (`/hitung-hpp`, `/hitung-diskon`); test fallback kalau service Python mati. |
+| C9 | 1 Nov | Bantu Tamam integrasi dan bantu Arya Wira isi data; test chat; pastikan tidak ada data toko lain yang bocor. |
+
+**Target:** 9 tugas per orang selesai 5 November 2026. Buffer 2–5 November untuk bugfix dan commit final. Panduan Belajar, Tanya AI, Cek selesai, dan kolom status ada di masing-masing dokumen Word.
+
+## 14. Hal yang masih perlu diputuskan
 
 | Topik | Yang perlu diputuskan | Saran awal |
 |---|---|---|
@@ -775,7 +848,7 @@ Laporan tahunan tidak perlu menunggu akhir tahun. Penjual bisa melihat laporan b
 | Laporan | Berbasis kas sederhana atau akrual | Kas sederhana dulu |
 | Penyimpanan data | Satu database dengan `toko_id` atau database terpisah per penjual | Satu database dengan `toko_id` untuk MVP; siapkan migrasi ke database terpisah |
 | Akses admin | Seberapa luas admin platform boleh melihat data keuangan penjual | Hanya untuk dukungan, dengan audit log dan persetujuan bila memungkinkan |
-| Pemulihan akun | Reset lewat email, OTP WhatsApp, atau keduanya | Email dan OTP WhatsApp |
+| Pemulihan akun | Reset lewat email | Email |
 | Target awal | Kota, komunitas, atau kategori tertentu | Mulai dari satu wilayah |
 
 ---
