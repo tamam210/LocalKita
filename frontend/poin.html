@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Poin - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/poin.js" defer></script>
+</head>
+<body>
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+      <nav aria-label="Menu utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <li><a href="hpp.html">Kalkulator HPP</a></li>
+          <li><a href="poin.html" aria-current="page">Poin</a></li>
+          <li><a href="laporan.html">Laporan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <h1>Poin Pelanggan</h1>
+    <section id="saldo-poin" class="panel kaca" aria-labelledby="saldo-poin-j">
+      <h2 id="saldo-poin-j">Saldo poin</h2>
+      <p id="nilai-saldo" class="saldo" aria-live="polite">Memuat...</p>
+    </section>
+    <section id="daftar-reward" class="panel kaca" aria-labelledby="daftar-reward-j">
+      <h2 id="daftar-reward-j">Reward</h2>
+      <div id="isi-reward"></div>
+    </section>
+    <section id="riwayat-poin" class="panel kaca" aria-labelledby="riwayat-poin-j">
+      <h2 id="riwayat-poin-j">Riwayat</h2>
+      <div id="isi-riwayat" class="tabel-bungkus"></div>
+    </section>
+    <section id="chat" class="panel kaca" aria-labelledby="chat-j">
+      <h2 id="chat-j">Chat</h2>
+      <div id="isi-chat">
+        <div id="daftar-chat" class="chip-daftar" role="group" aria-label="Daftar percakapan"></div>
+        <div id="isi-pesan" aria-live="polite"></div>
+        <p id="pesan-chat" class="pesan-galat" role="alert" hidden></p>
+        <form id="form-chat" class="form-chat">
+          <label class="sr-only" for="in-body">Tulis pesan</label>
+          <input id="in-body" name="body" type="text" maxlength="1000" autocomplete="off" placeholder="Tulis pesan..." disabled>
+          <button class="tombol" type="submit" disabled>Kirim</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/laporan.js" defer></script>
+</head>
+<body>
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+      <nav aria-label="Menu utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <li><a href="hpp.html">Kalkulator HPP</a></li>
+          <li><a href="poin.html">Poin</a></li>
+          <li><a href="laporan.html" aria-current="page">Laporan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <h1>Laporan Usaha</h1>
+    <section id="kartu-laporan" class="panel kaca" aria-labelledby="kartu-laporan-j">
+      <h2 id="kartu-laporan-j">Ringkasan bulan terbaru</h2>
+      <div id="isi-kartu-laporan" aria-live="polite"></div>
+    </section>
+    <section id="tabel-laporan" class="panel kaca" aria-labelledby="tabel-laporan-j">
+      <h2 id="tabel-laporan-j">Rincian per bulan</h2>
+      <div id="isi-tabel-laporan" class="tabel-bungkus"></div>
+    </section>
+    <section id="grafik-laporan" class="panel kaca" aria-labelledby="grafik-laporan-j">
+      <h2 id="grafik-laporan-j">Grafik 6 bulan terakhir</h2>
+      <div id="isi-grafik"></div>
+    </section>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>
