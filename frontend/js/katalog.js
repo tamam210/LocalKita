@@ -84,19 +84,41 @@
     hasil.forEach(function (p) { $grid.appendChild(kartu(p)); });
   }
 
+  function normalisasi(p) {
+    return {
+      product_id: p.product_id,
+      name: p.name || 'Produk tanpa nama',
+      category_name: p.category_name || 'Lainnya',
+      price: p.min_price !== undefined && p.min_price !== null ? p.min_price : p.price,
+      stock: p.total_stock !== undefined && p.total_stock !== null ? p.total_stock : p.stock,
+      store_name: p.store_name || '',
+      image_url: p.primary_image_url || p.image_url || '',
+      image_alt: p.image_alt || p.name || '',
+      earns_points: p.earns_points
+    };
+  }
+
   function muat() {
     $info.hidden = true;
     tampilMemuat();
-    LK.apiGet('products.php').then(function (data) {
-      if (!Array.isArray(data)) { throw new Error('Format data produk tidak sesuai.'); }
-      semua = data;
+
+    LK.apiGet('products.php?per_page=50').then(function (data) {
+      var items = Array.isArray(data)
+        ? data
+        : (data && Array.isArray(data.items) ? data.items : null);
+
+      if (!items) { throw new Error('Format data produk tidak sesuai.'); }
+      semua = items.map(normalisasi);
     }).catch(function (err) {
-      semua = DUMMY;
+      semua = DUMMY.map(normalisasi);
       var ulang = LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', text: 'Coba lagi' });
       ulang.addEventListener('click', muat);
       $info.replaceChildren(LK.el('p', { text: 'Menampilkan data contoh. ' + err.message }), ulang);
       $info.hidden = false;
-    }).then(function () { buatChip(); render(); });
+    }).then(function () {
+      buatChip();
+      render();
+    });
   }
 
   $cari.addEventListener('input', render);

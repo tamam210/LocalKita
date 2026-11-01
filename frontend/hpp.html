@@ -8,20 +8,42 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script src="js/api.js" defer></script>
-  <script src="js/hpp.js" defer></script>
+ <script src="js/api.js" defer></script>
+<script src="js/sesi-ui.js" defer></script>
+<script src="js/hpp.js" defer></script>
 </head>
-<body>
+<body data-halaman="hpp" data-perlu-akun="akun">
   <header class="navbar kaca">
     <div class="wadah navbar-isi">
       <a class="merek" href="index.html">LokalKita</a>
       <nav aria-label="Menu utama">
-        <ul class="nav-daftar">
-          <li><a href="index.html">Etalase</a></li>
-          <li><a href="hpp.html" aria-current="page">Kalkulator HPP</a></li>
-          <li><a href="poin.html">Poin</a></li>
-          <li><a href="laporan.html">Laporan</a></li>
-        </ul>
+      <ul class="nav-daftar">
+  <li><a href="index.html">Etalase</a></li>
+
+  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+  <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
+  <li data-akun hidden><a href="poin.html">Poin</a></li>
+  <li data-akun hidden><a href="laporan.html">Laporan</a></li>
+
+  <li data-tamu><a href="login.html">Masuk</a></li>
+
+  <li data-akun hidden>
+    <button type="button" data-keluar>Keluar</button>
+  </li>
+</ul><ul class="nav-daftar">
+<li><a href="index.html" aria-current="page">Etalase</a></li>
+
+  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+  <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
+  <li data-akun hidden><a href="poin.html">Poin</a></li>
+  <li data-akun hidden><a href="laporan.html">Laporan</a></li>
+
+  <li data-tamu><a href="login.html">Masuk</a></li>
+
+  <li data-akun hidden>
+    <button type="button" data-keluar>Keluar</button>
+  </li>
+</ul>
       </nav>
     </div>
   </header>
@@ -50,6 +72,11 @@
           <div class="bidang">
             <label for="in-unit">Jumlah unit</label>
             <input id="in-unit" name="unit" type="number" inputmode="decimal" min="1" step="1" required>
+            <div class="bidang">
+            <label for="in-target_margin">Target margin (%)</label>
+            <input id="in-target_margin" name="target_margin" type="number"
+                   inputmode="decimal" min="0" max="99" step="0.1" value="30" required>
+          </div>
           </div>
         </div>
         <p id="pesan-hpp" class="pesan-galat" role="alert" hidden></p>
@@ -67,6 +94,11 @@
           <div class="bidang">
             <label for="dk-harga_jual">Harga jual (Rp)</label>
             <input id="dk-harga_jual" name="harga_jual" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+                    <div class="bidang">
+            <label for="dk-quantity">Jumlah</label>
+            <input id="dk-quantity" name="quantity" type="number"
+                   inputmode="numeric" min="1" step="1" value="1" required>
           </div>
           <div class="bidang">
             <label for="dk-discount_type">Jenis diskon</label>

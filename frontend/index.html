@@ -9,19 +9,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/api.js" defer></script>
-  <script src="js/katalog.js" defer></script>
+<script src="js/sesi-ui.js" defer></script>
+<script src="js/katalog.js" defer></script>
 </head>
-<body>
+<body data-halaman="etalase">
   <header class="navbar kaca">
     <div class="wadah navbar-isi">
       <a class="merek" href="index.html">LokalKita</a>
       <nav aria-label="Menu utama">
         <ul class="nav-daftar">
-          <li><a href="index.html" aria-current="page">Etalase</a></li>
-          <li><a href="hpp.html">Kalkulator HPP</a></li>
-          <li><a href="poin.html">Poin</a></li>
-          <li><a href="laporan.html">Laporan</a></li>
-        </ul>
+<li><a href="index.html" aria-current="page">Etalase</a></li>
+
+  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+  <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
+  <li data-akun hidden><a href="poin.html">Poin</a></li>
+  <li data-akun hidden><a href="laporan.html">Laporan</a></li>
+
+  <li data-tamu><a href="login.html">Masuk</a></li>
+
+  <li data-akun hidden>
+    <button type="button" data-keluar>Keluar</button>
+  </li>
+</ul>
       </nav>
     </div>
   </header>
