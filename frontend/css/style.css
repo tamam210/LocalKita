@@ -118,6 +118,8 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .kartu-angka .tombol{margin-top:8px}
 .saldo{margin:0;font-size:2rem;font-weight:900;color:var(--terra-tua)}
 .lencana-baris{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tautan-chat{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;font-weight:700;color:var(--terra-tua);text-decoration:none}
+.tautan-chat:hover{text-decoration:underline}
 .pesan-daftar{display:flex;flex-direction:column;gap:8px;max-height:320px;padding:4px;overflow-y:auto}
 .gelembung{max-width:85%;padding:8px 12px;border-radius:var(--r-md);background:var(--krem);color:var(--teks);overflow-wrap:anywhere}
 .gelembung p{margin:0}

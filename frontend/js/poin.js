@@ -4,10 +4,6 @@
   var $dc = document.getElementById('daftar-chat'), $ps = document.getElementById('isi-pesan'), $fc = document.getElementById('form-chat'), $pc = document.getElementById('pesan-chat');
   var saldo = 0, userId = null, cid = null, storeId = null;
 
-  // Sementara: kontrak butuh store_id, tetapi belum ada endpoint daftar toko.
-  // Untuk demo pembeli, pakai ?store_id=... atau toko seed di bawah.
-  var STORE_DEMO = '20000000-0000-4000-8000-000000000001';
-
   function th(t) { return LK.el('th', { scope: 'col', text: t }); }
   function td(t) { return LK.el('td', { text: t }); }
 
@@ -16,11 +12,19 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
 
+  // Toko diambil dari ?store_id= (tautan "Chat penjual" di kartu produk) atau
+  // dari sesi penjual. Tidak ada lagi toko demo diam-diam.
   function siapkanToko() {
     if (storeId) { return Promise.resolve(storeId); }
     return LK.sesi().then(function (u) {
+      if (!u || !u.user_id) {
+        throw new Error('Masuk dulu untuk melihat poin dan chat.');
+      }
       userId = u.user_id;
-      storeId = u.store_id || tokoDariUrl() || STORE_DEMO;
+      storeId = tokoDariUrl() || u.store_id || null;
+      if (!storeId) {
+        throw new Error('Toko belum dipilih. Buka halaman ini lewat tombol "Chat penjual" di kartu produk.');
+      }
       return storeId;
     });
   }
@@ -140,16 +144,26 @@
     ]));
   }
 
+  function potong(t, n) {
+    t = String(t || '').replace(/\s+/g, ' ').trim();
+    return t.length > n ? t.slice(0, n - 1) + '…' : t;
+  }
+
   function daftarChat(cs) {
     $dc.replaceChildren();
     cs.forEach(function (c, i) {
       var nama = c.store_name || c.buyer_name || ('Percakapan ' + (i + 1));
       var belum = Number(c.unread_count) || 0;
+      var akhir = potong(c.last_message, 40);
+      var teks = nama +
+        (akhir ? ': ' + akhir : '') +
+        (belum > 0 ? ' (' + belum + ')' : '');
       var b = LK.el('button', {
         type: 'button',
         'class': 'chip',
         'aria-pressed': String(String(c.conversation_id) === String(cid)),
-        text: nama + (belum > 0 ? ' (' + belum + ')' : '')
+        title: c.last_message || nama,
+        text: teks
       });
       b.addEventListener('click', function () {
         Array.prototype.forEach.call($dc.children, function (x) {
@@ -196,46 +210,66 @@
 
       return LK.apiGet('chat.php?action=conversations&store_id=' + encodeURIComponent(storeId)).then(function (d) {
         var cs = Array.isArray(d.items) ? d.items : [];
+        daftarChat(cs);
+
         if (!cs.length) {
-          $dc.replaceChildren();
           cid = null;
           pesan([]);
           return;
         }
-        cid = cs[0].conversation_id;
-        daftarChat(cs);
+
+        var cocok = cs.filter(function (c) {
+          return String(c.conversation_id) === String(cid);
+        })[0];
+        cid = cocok ? cocok.conversation_id : cs[0].conversation_id;
         return muatChat(cid);
       });
     }).catch(function (e) {
       LK.status($ps, 'galat', 'Chat gagal dimuat', e.message, LK.ulang(function () { muatChat(id); }));
     }).then(function () {
-      $fc.elements.body.disabled = !cid;
-      $fc.querySelector('button').disabled = !cid;
+      var bisa = !!storeId;
+      $fc.elements.body.disabled = !bisa;
+      $fc.querySelector('button').disabled = !bisa;
     });
   }
 
   $fc.addEventListener('submit', function (e) {
     e.preventDefault();
     var body = $fc.elements.body.value.trim();
-    if (!body || !cid) { return; }
+    if (!body) { return; }
 
     var tb = $fc.querySelector('button');
     tb.disabled = true;
     $pc.hidden = true;
 
-    LK.apiPost('chat.php', {
-      action: 'send',
-      conversation_id: cid,
-      type: 'text',
-      body: body
+    siapkanToko().then(function () {
+      if (cid) { return cid; }
+      return LK.apiPost('chat.php', {
+        action: 'create',
+        store_id: storeId,
+        order_id: null
+      }).then(function (d) {
+        if (!d || !d.conversation_id) {
+          throw new Error('Percakapan tidak berhasil dibuat.');
+        }
+        cid = d.conversation_id;
+        return cid;
+      });
+    }).then(function (id) {
+      return LK.apiPost('chat.php', {
+        action: 'send',
+        conversation_id: id,
+        type: 'text',
+        body: body
+      });
     }).then(function () {
       $fc.elements.body.value = '';
-      return muatChat(cid);
+      return muatChat();
     }).catch(function (err) {
       $pc.textContent = 'Pesan gagal dikirim: ' + err.message;
       $pc.hidden = false;
     }).then(function () {
-      tb.disabled = !cid;
+      tb.disabled = !storeId;
     });
   });
 

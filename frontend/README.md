@@ -1,5 +1,6 @@
 # Frontend LokalKita
 
+<<<<<<< HEAD
 Frontend LokalKita dibangun pakai **HTML, CSS, dan Vanilla JavaScript** tanpa framework. Tujuannya biar simpel, gampang dipahami, dan langsung nyambung ke Backend PHP API LokalKita.
 
 ## Daftar Isi
@@ -237,3 +238,37 @@ Semua pakai password: **`password123`**
 - **Jangan expose HPP**: Hanya owner toko/admin yang boleh liat `hpp_unit`
 - **Konsisten sama backend**: Frontend harus ikut aturan isolasi toko & validasi dari API
 - **Tes di local**: Disarankan tes bareng backend + flask biar semua fitur (HPP/Diskon/Laporan/Poin/Chat) bisa dicoba utuh
+=======
+Frontend statis (HTML/CSS/JS tanpa framework). Semua data diambil lewat `fetch()` ke
+`http://localhost:8000/api/` dan sesi memakai cookie PHP (`credentials: 'include'`).
+Tidak ada token atau secret yang disimpan di JavaScript.
+
+## Menjalankan
+
+```bash
+python3 -m http.server 5500 --directory frontend
+```
+
+Buka `http://localhost:5500/index.html`.
+
+Versi aset di HTML memakai `?v=3` supaya browser tidak memakai cache lama setelah
+perubahan CSS/JS.
+
+## Catatan integrasi backend (untuk Tamam/Rasya)
+
+Hal-hal berikut masih memblokir integrasi penuh dan bukan bagian frontend:
+
+- `backend/api/product.php`, `poin.php`, `chat.php`, `laporan.php` masih 0 byte.
+- Kontrak memakai `products.php`, tetapi file backend bernama `product.php`.
+- `backend/config.php` belum ada; MySQL/MariaDB dan ekstensi `pdo_mysql` belum tersedia.
+- CORS di `auth.php` memakai `Access-Control-Allow-Origin: *`, sedangkan frontend
+  mengirim cookie (`credentials: 'include'`). Origin harus di-echo dan
+  `Access-Control-Allow-Credentials: true` harus dikirim.
+- `hpp.php` memperlakukan `target_margin` > 1 sebagai persen dan <= 1 sebagai pecahan.
+  Frontend mengirim persen (contoh `30`), jadi sebaiknya disepakati satu satuan saja.
+- Chat memakai aksi `create`, `send`, dan `read` sesuai `API_CONTRACT.md`; daftar
+  percakapan sudah menampilkan `last_message` dan `unread_count`.
+- Laporan sudah menampilkan `top_products` dan `expenses` dari respons
+  `laporan.php`. Bulan yang belum punya laporan (404) ditampilkan sebagai kosong,
+  sedangkan error jaringan/server ditampilkan sebagai error.
+>>>>>>> 3837d6f (frontend: selesaikan B1-B9 (katalog, HPP, poin/chat, laporan, aksesibilitas))

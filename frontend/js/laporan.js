@@ -3,7 +3,9 @@
   var $k = document.getElementById('isi-kartu-laporan');
   var $t = document.getElementById('isi-tabel-laporan');
   var $g = document.getElementById('isi-grafik');
-  var semua = [$k, $t, $g];
+  var $p = document.getElementById('isi-produk-terlaris');
+  var $b = document.getElementById('isi-biaya');
+  var semua = [$k, $t, $g, $p, $b];
   var storeId = null;
 
   function th(t) { return LK.el('th', { scope: 'col', text: t }); }
@@ -16,6 +18,19 @@
   }
 
   function ringkasan(r) { return r.summary || {}; }
+
+  // 404 / "tidak ditemukan" berarti bulan itu memang belum punya laporan.
+  // Error jaringan atau server tetap dilempar supaya tidak tampil sebagai "kosong".
+  function bukanLaporan(e) {
+    var m = String((e && e.message) || '').toLowerCase();
+    return /tidak ditemukan|belum ada|not found|http 404/.test(m);
+  }
+
+  function tanggalSaja(s) {
+    var t = String(s || '').slice(0, 10);
+    var d = new Date(t ? t + 'T00:00:00' : '');
+    return isNaN(d) ? '-' : d.toLocaleDateString('id-ID', { dateStyle: 'medium' });
+  }
 
   function kartu(r) {
     var s = ringkasan(r);
@@ -45,6 +60,58 @@
       LK.el('caption', { 'class': 'sr-only', text: 'Laporan bulanan' }),
       LK.el('thead', {}, [
         LK.el('tr', {}, [th('Periode'), th('Omzet'), th('Laba bersih'), th('Margin')])
+      ]),
+      tb
+    ]));
+  }
+
+  function produkTerlaris(r) {
+    var list = Array.isArray(r.top_products) ? r.top_products : [];
+    if (!list.length) {
+      LK.status($p, 'kosong', 'Belum ada produk terjual', 'Produk terlaris muncul setelah ada pesanan.');
+      return;
+    }
+
+    var tb = LK.el('tbody');
+    list.forEach(function (x) {
+      tb.appendChild(LK.el('tr', {}, [
+        td(x.product_name || 'Produk'),
+        td(String(Number(x.qty_sold) || 0)),
+        td(LK.rupiah(x.revenue)),
+        td(LK.rupiah(x.profit))
+      ]));
+    });
+
+    $p.replaceChildren(LK.el('table', {}, [
+      LK.el('caption', { 'class': 'sr-only', text: 'Produk terlaris' }),
+      LK.el('thead', {}, [
+        LK.el('tr', {}, [th('Produk'), th('Terjual'), th('Omzet'), th('Laba')])
+      ]),
+      tb
+    ]));
+  }
+
+  function biaya(r) {
+    var list = Array.isArray(r.expenses) ? r.expenses : [];
+    if (!list.length) {
+      LK.status($b, 'kosong', 'Belum ada biaya', 'Biaya operasional yang dicatat akan muncul di sini.');
+      return;
+    }
+
+    var tb = LK.el('tbody');
+    list.forEach(function (x) {
+      tb.appendChild(LK.el('tr', {}, [
+        td(tanggalSaja(x.expense_date)),
+        td(x.category || '-'),
+        td(x.description || '-'),
+        td(LK.rupiah(x.amount))
+      ]));
+    });
+
+    $b.replaceChildren(LK.el('table', {}, [
+      LK.el('caption', { 'class': 'sr-only', text: 'Biaya operasional' }),
+      LK.el('thead', {}, [
+        LK.el('tr', {}, [th('Tanggal'), th('Kategori'), th('Keterangan'), th('Jumlah')])
       ]),
       tb
     ]));
@@ -101,7 +168,8 @@
           '&year=' + b.year + '&month=' + b.month
         ).catch(function (e) {
           if (/Sesi berakhir/.test(e.message)) { throw e; }
-          return null; // bulan belum punya laporan
+          if (bukanLaporan(e)) { return null; }
+          throw e;
         });
       }));
     }).then(function (list) {
@@ -117,9 +185,12 @@
         return;
       }
 
-      kartu(list[list.length - 1]);
+      var terbaru = list[list.length - 1];
+      kartu(terbaru);
       tabel(list);
       grafik(list);
+      produkTerlaris(terbaru);
+      biaya(terbaru);
     }).catch(function (e) {
       semua.forEach(function (b, i) {
         LK.status(b, 'galat', 'Laporan gagal dimuat', e.message, i === 0 ? LK.ulang(muat) : null);

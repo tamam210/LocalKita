@@ -7,10 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/api.js" defer></script>
-<script src="js/sesi-ui.js" defer></script>
-<script src="js/dashboard-penjual.js" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <script src="js/api.js?v=3" defer></script>
+<script src="js/sesi-ui.js?v=3" defer></script>
+<script src="js/dashboard-penjual.js?v=3" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -18,9 +18,9 @@
       <a class="merek" href="index.html">LokalKita</a>
       <nav aria-label="Menu utama">
         <ul class="nav-daftar">
-<li><a href="index.html" aria-current="page">Etalase</a></li>
+<li><a href="index.html">Etalase</a></li>
 
-  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+  <li data-akun hidden><a href="dashboard-penjual.html" aria-current="page">Dashboard</a></li>
   <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
   <li data-akun hidden><a href="poin.html">Poin</a></li>
   <li data-akun hidden><a href="laporan.html">Laporan</a></li>
@@ -82,7 +82,7 @@
       <section id="chat-masuk" class="panel kaca" aria-labelledby="chat-masuk-j">
         <div class="judul-baris">
           <h2 id="chat-masuk-j">Chat masuk</h2>
-          <a href="poin.html#chat">Buka chat</a>
+          <a class="tautan-chat" href="poin.html#chat">Buka chat</a>
         </div>
         <ul id="isi-chat-masuk" class="daftar-pesan" aria-live="polite"></ul>
       </section>

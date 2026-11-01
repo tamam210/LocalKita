@@ -3,12 +3,12 @@
   'use strict';
   // Asumsi bentuk data: {product_id, name, category_name, price, stock, store_name, image_url, image_alt}
   var DUMMY = [
-    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'UMKM Bandung' },
-    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'UMKM Yogyakarta' },
-    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'UMKM Aceh' },
-    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'UMKM Pekalongan' },
-    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'UMKM Ponorogo' },
-    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'UMKM Manado' }
+    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'UMKM Bandung', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'UMKM Yogyakarta', store_id: '20000000-0000-4000-8000-000000000002' },
+    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'UMKM Aceh', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'UMKM Pekalongan', store_id: '20000000-0000-4000-8000-000000000002' },
+    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'UMKM Ponorogo', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'UMKM Manado', store_id: '20000000-0000-4000-8000-000000000001' }
   ];
   var semua = [], kategoriAktif = 'Semua';
   var $grid = document.getElementById('grid-produk');
@@ -55,11 +55,19 @@
       ? LK.el('span', { 'class': 'lencana' + (stok <= 0 ? ' lencana-habis' : ''), text: stok <= 0 ? 'Stok habis' : 'Stok ' + stok })
       : null;
     var poin = (p.earns_points === true || Number(p.earns_points) === 1) ? LK.el('span', { 'class': 'lencana', text: 'Dapat poin' }) : null;
+    var chat = p.store_id
+      ? LK.el('a', {
+        'class': 'tautan-chat',
+        href: 'poin.html?store_id=' + encodeURIComponent(p.store_id),
+        text: 'Chat penjual'
+      })
+      : null;
     return LK.el('article', { 'class': 'kartu-produk' }, [gambar, LK.el('div', { 'class': 'kartu-isi' }, [
       LK.el('h3', { 'class': 'kartu-nama', text: p.name || 'Produk tanpa nama' }),
       LK.el('span', { 'class': 'kartu-toko', text: p.store_name || kategoriDari(p) }),
       LK.el('span', { 'class': 'kartu-harga', text: LK.rupiah(p.price) }),
-      LK.el('div', { 'class': 'lencana-baris' }, [lencana, poin])
+      LK.el('div', { 'class': 'lencana-baris' }, [lencana, poin]),
+      chat
     ])]);
   }
 
@@ -91,6 +99,7 @@
       category_name: p.category_name || 'Lainnya',
       price: p.min_price !== undefined && p.min_price !== null ? p.min_price : p.price,
       stock: p.total_stock !== undefined && p.total_stock !== null ? p.total_stock : p.stock,
+      store_id: p.store_id || '',
       store_name: p.store_name || '',
       image_url: p.primary_image_url || p.image_url || '',
       image_alt: p.image_alt || p.name || '',
