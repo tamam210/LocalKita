@@ -2,3 +2,24 @@ backend/config.php
 *.log
 __pycache__/
 .venv/
+# Rencana / dokumen internal
+rencana.md
+frontend/rencana.md
+backend/rencana.md
+
+# File konfigurasi lokal
+backend/config.php
+
+# Logs & cache
+*.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+
+# Uploads / temp
+uploads/
+tmp/
+cookies.txt

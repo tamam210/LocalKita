@@ -43,5 +43,6 @@ try {
         $exception->errorCode
     );
 } catch (Throwable $exception) {
+    error_log('[laporan] ' . $exception->getMessage() . ' in ' . $exception->getFile() . ':' . $exception->getLine());
     json_error('Terjadi kesalahan server.', 500, null, 'SERVER_ERROR');
 }
