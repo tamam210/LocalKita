@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Penjual - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+<script src="js/sesi-ui.js" defer></script>
+<script src="js/dashboard-penjual.js" defer></script>
+</head>
+<body data-halaman="dashboard" data-perlu-akun="akun">
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+      <nav aria-label="Menu utama">
+        <ul class="nav-daftar">
+<li><a href="index.html" aria-current="page">Etalase</a></li>
+
+  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+  <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
+  <li data-akun hidden><a href="poin.html">Poin</a></li>
+  <li data-akun hidden><a href="laporan.html">Laporan</a></li>
+
+  <li data-tamu><a href="login.html">Masuk</a></li>
+
+  <li data-akun hidden>
+    <button type="button" data-keluar>Keluar</button>
+  </li>
+</ul>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <section class="dashboard-kepala" aria-labelledby="judul-dashboard">
+      <div>
+        <p class="eyebrow">Dashboard penjual</p>
+        <h1 id="judul-dashboard">Halo, <span id="nama-toko">Dapur Bu Sari</span></h1>
+        <p>Pantau pesanan, pendapatan, dan kesehatan usaha tokomu bulan ini.</p>
+      </div>
+      <div class="aksi-cepat" role="group" aria-label="Aksi cepat">
+        <a class="tombol" href="hpp.html">Hitung HPP</a>
+        <a class="tombol tombol-garis" href="laporan.html">Lihat laporan</a>
+      </div>
+    </section>
+
+    <div id="info-dashboard" class="info-data" role="status">
+      <p>Menampilkan data contoh. Angka akan terisi otomatis setelah API dashboard tersedia.</p>
+    </div>
+
+    <section id="ringkasan" class="panel kaca" aria-labelledby="ringkasan-j">
+      <h2 id="ringkasan-j">Ringkasan bulan ini</h2>
+      <div id="isi-ringkasan" class="grid-kartu" aria-live="polite"></div>
+    </section>
+
+    <section id="pesanan" class="panel kaca" aria-labelledby="pesanan-j">
+      <div class="judul-baris">
+        <h2 id="pesanan-j">Pesanan terbaru</h2>
+        <span class="lencana" id="jumlah-perlu-aksi">0 perlu tindakan</span>
+      </div>
+      <div id="isi-pesanan" class="tabel-bungkus" aria-live="polite"></div>
+    </section>
+
+    <div class="dua-kolom">
+      <section id="poin-promo" class="panel kaca" aria-labelledby="poin-promo-j">
+        <h2 id="poin-promo-j">Poin &amp; promo</h2>
+        <div id="isi-poin-promo" class="grid-kartu" aria-live="polite"></div>
+        <div class="bar-baris" style="margin-top:16px">
+          <div class="kesehatan-baris">
+            <strong>Kuota promo terpakai</strong>
+            <span id="kuota-teks">32 dari 50</span>
+          </div>
+          <div class="bar-trek" role="img" aria-label="Kuota promo terpakai 32 dari 50">
+            <div class="bar bar-laba" id="kuota-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="chat-masuk" class="panel kaca" aria-labelledby="chat-masuk-j">
+        <div class="judul-baris">
+          <h2 id="chat-masuk-j">Chat masuk</h2>
+          <a href="poin.html#chat">Buka chat</a>
+        </div>
+        <ul id="isi-chat-masuk" class="daftar-pesan" aria-live="polite"></ul>
+      </section>
+    </div>
+
+    <div class="dua-kolom">
+      <section id="kesehatan" class="panel kaca" aria-labelledby="kesehatan-j">
+        <h2 id="kesehatan-j">Kesehatan usaha</h2>
+        <ul id="isi-kesehatan" class="daftar-kesehatan" aria-live="polite"></ul>
+      </section>
+
+      <section id="grafik" class="panel kaca" aria-labelledby="grafik-j">
+        <h2 id="grafik-j">Omzet 6 bulan terakhir</h2>
+        <div id="isi-grafik" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>
