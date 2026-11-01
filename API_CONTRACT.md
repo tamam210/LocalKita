@@ -85,8 +85,8 @@ Access-Control-Request-Headers: Content-Type
 | `204` | delete berhasil / preflight OPTIONS |
 | `400` | input tidak valid / JSON rusak |
 | `401` | belum login |
-| `403` | login, tapi bukan pemilik toko / tidak punya akses |
-| `404` | data tidak ditemukan |
+| `403` | login, tapi role/peserta tidak punya akses |
+| `404` | data tidak ditemukan, termasuk seller yang bukan pemilik toko |
 | `405` | method tidak diizinkan |
 | `409` | konflik, misal stok/poin tidak cukup |
 | `500` | error server |
@@ -128,12 +128,15 @@ Access-Control-Request-Headers: Content-Type
 
 - Auth memakai session cookie `PHPSESSID`.
 - Frontend `fetch()` wajib `credentials: 'include'`.
+- Auth mengikuti `backend/lib/auth.php` milik Tamam: session-only, memakai `require_auth()`, `require_role()`, dan `require_store_access()`.
 - Belum login → `401 UNAUTHORIZED`.
-- Sudah login tapi bukan pemilik `store_id` → `403 FORBIDDEN`.
+- Seller yang mengakses `store_id` bukan miliknya → `404 NOT_FOUND`.
+- Role yang tidak berhak (misalnya buyer ke endpoint seller) → `403 FORBIDDEN`.
 - Role:
   - `admin`: boleh akses semua toko.
   - `seller`: hanya toko miliknya.
   - `buyer`: hanya data poin/chat miliknya.
+- Data user auth mengikuti Tamam: `user_id`, `name`, `email`, `phone`, `role`, `store_id`.
 - `hpp_unit` tidak boleh dikirim ke pembeli publik. Hanya seller pemilik toko/admin.
 
 ---
@@ -305,8 +308,10 @@ Response `200`:
     "units_produced": 50,
     "hpp_per_unit": 9500,
     "target_margin_percent": 30,
-    "suggested_price": 13571,
-    "margin_percent": 30.0,
+    "suggested_price": 13600,
+    "margin_percent": 30.15,
+    "markup_percent": 43.16,
+    "engine": "python",
     "saved": false,
     "calculation_id": null
   },
@@ -314,7 +319,7 @@ Response `200`:
 }
 ```
 
-Kalau `save: true`, `saved` jadi `true` dan `calculation_id` berisi UUID hasil simpan.
+Harga saran dibulatkan ke kelipatan 100. Kalau `save: true`, `saved` jadi `true` dan `calculation_id` berisi UUID hasil simpan. `product_id`/`variant_id` hanya divalidasi dan dipakai saat `save: true`; keduanya harus milik `store_id`.
 
 Error: `400 VALIDATION_ERROR`, `401 UNAUTHORIZED`, `403 FORBIDDEN`, `404 NOT_FOUND`, `500 SERVER_ERROR`.
 
@@ -328,6 +333,7 @@ Request:
 
 ```json
 {
+  "store_id": "20000000-0000-4000-8000-000000000001",
   "normal_price": 15000,
   "discount_percent": 20,
   "quantity": 3,
@@ -348,26 +354,33 @@ Response `200`:
     "discount_amount_per_unit": 3000,
     "final_price_per_unit": 12000,
     "quantity": 3,
-    "total_revenue": 36000,
+    "additional_cost": 0,
     "effective_hpp_per_unit": 9500,
+    "total_revenue": 36000,
     "profit_per_unit": 2500,
     "total_profit": 7500,
     "margin_percent": 20.83,
     "target_margin_percent": 30,
+    "max_discount_percent_safe": 36.67,
+    "max_discount_percent_target": 9.52,
     "status": "below_target",
-    "message": "Masih untung, tetapi margin di bawah target."
+    "warning": "Masih untung, tetapi margin di bawah target yang diinginkan.",
+    "message": "Masih untung, tetapi margin di bawah target yang diinginkan.",
+    "engine": "python"
   },
   "message": "Simulasi diskon berhasil dihitung."
 }
 ```
 
+`additional_cost` diperlakukan sebagai biaya tambahan per unit.
+
 Aturan `status`:
 
 - `loss` jika `profit_per_unit < 0`.
-- `below_target` jika untung tetapi `margin_percent < target_margin_percent`.
+- `below_target` jika untung tetapi `margin_percent < target_margin_percent`, atau impas.
 - `safe` jika `margin_percent >= target_margin_percent`.
 
-Error: `400 VALIDATION_ERROR`, `401 UNAUTHORIZED`, `403 FORBIDDEN`.
+Error: `400 VALIDATION_ERROR`, `401 UNAUTHORIZED`, `403 FORBIDDEN`, `404 NOT_FOUND`.
 
 ---
 
@@ -734,10 +747,19 @@ Error: `400 VALIDATION_ERROR`, `401 UNAUTHORIZED`, `403 FORBIDDEN`, `404 NOT_FOU
 
 ## 7. Catatan Implementasi
 
-- `backend/lib/response.php` saat ini belum mengirim `error_code`. Tambahkan sebelum endpoint dibuat.
+- `backend/lib/response.php` sudah mengirim `ok`, `data`, `message`, dan `error_code`. Error validasi menambahkan `errors`.
 - `backend/lib/httpx.php` dipakai untuk helper CORS + preflight `OPTIONS`.
 - File `backend/api/product.php` sebaiknya di-rename menjadi `backend/api/products.php` agar sesuai kontrak.
 - Semua error harus tetap JSON, bukan HTML/PHP warning.
 - Jangan tampilkan stack trace, password hash, atau `hpp_unit` ke pembeli publik.
 - Semua query pakai prepared statement dan cek `store_id` untuk seller.
+- Auth/session memakai implementasi Tamam; kode C1–C9 memakai `require_auth()`, `require_role()`, dan `require_store_access()`.
 - Request POST membaca JSON dari `php://input`; JSON rusak → `400 VALIDATION_ERROR`.
+
+### Status implementasi backend
+
+- C3 chat: `create` hanya untuk buyer. Peserta toko/admin dapat melihat dan mengirim pesan. Daftar percakapan memuat `unread_count` dan `last_message`; pesan memakai urutan lama → baru dengan pagination. `file_url` berasal dari `files.storage_path`.
+- C4 poin: `earn` hanya seller/admin, menghitung `floor(orders.total_amount / point_settings.earn_rate_rp)`, lalu mengisi `orders.points_earned`. `redeem` hanya buyer, mendukung `quantity` (default 1, maksimal 100), poin penuh maupun poin + uang. Kuota dan batas per pembeli menghitung redemption `pending`, `approved`, dan `completed`. Saldo kurang → `409 INSUFFICIENT_POINTS`; kuota/batas/periode → `409 CONFLICT`. Daftar reward hanya untuk buyer dan hanya reward `active` dalam periode berlaku.
+- C4 riwayat poin: urutan terbaru → terlama. Field tetap `point_tx_id`, `type`, `points`, `balance_after`, `order_id`, `reference_id`, `created_at`.
+- C5 laporan: `refresh` opsional (default `1`). `refresh=0` memakai snapshot `monthly_reports` bila ada; jika belum ada, laporan dihitung ulang. `top_products` default 5. `net_margin` adalah persentase dua desimal.
+- C8 HPP/diskon: Python opsional lewat `HITUNG_BASE_URL`; jika service mati/timeout, PHP fallback dipakai dan field `engine` bernilai `php`. Harga saran HPP dibulatkan ke kelipatan 100. Endpoint memakai auth seller/admin + akses toko. Simpan HPP memakai transaksi dan memvalidasi `product_id`/`variant_id` terhadap `store_id`.

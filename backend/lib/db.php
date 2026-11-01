@@ -10,15 +10,29 @@ function db(): PDO
     }
 
     $configFile = __DIR__ . '/../config.php';
+    $config = is_file($configFile) ? require $configFile : [];
+    $fileDb = $config['db'] ?? [];
 
-    if (!is_file($configFile)) {
+    $env = static function (string $key, mixed $default): mixed {
+        $value = getenv($key);
+
+        return $value === false ? $default : $value;
+    };
+
+    $db = [
+        'host'    => (string) $env('DB_HOST', $fileDb['host'] ?? ''),
+        'port'    => (int) $env('DB_PORT', $fileDb['port'] ?? 3306),
+        'name'    => (string) $env('DB_NAME', $fileDb['name'] ?? ''),
+        'user'    => (string) $env('DB_USER', $fileDb['user'] ?? ''),
+        'pass'    => (string) $env('DB_PASS', $fileDb['pass'] ?? ''),
+        'charset' => (string) $env('DB_CHARSET', $fileDb['charset'] ?? 'utf8mb4'),
+    ];
+
+    if ($db['host'] === '' || $db['name'] === '' || $db['user'] === '') {
         throw new RuntimeException(
-            'config.php tidak ditemukan. Jalankan: cp backend/config.example.php backend/config.php'
+            'Konfigurasi database tidak ditemukan. Jalankan: cp backend/config.example.php backend/config.php'
         );
     }
-
-    $config = require $configFile;
-    $db = $config['db'];
 
     $dsn = sprintf(
         'mysql:host=%s;port=%d;dbname=%s;charset=%s',

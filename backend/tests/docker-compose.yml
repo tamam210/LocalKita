@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lokalkita
+      MYSQL_USER: lokalkita
+      MYSQL_PASSWORD: lokalkita
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - lokalkita_db:/var/lib/mysql
+
+  python:
+    build:
+      context: ../python
+      dockerfile: Dockerfile
+    environment:
+      PORT: "5001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5001/health')"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    environment:
+      APP_ENV: test
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: lokalkita
+      DB_USER: lokalkita
+      DB_PASS: lokalkita
+      HITUNG_BASE_URL: http://python:5001
+    volumes:
+      - ..:/app
+    ports:
+      - "18000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      python:
+        condition: service_started
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "."]
+
+volumes:
+  lokalkita_db:

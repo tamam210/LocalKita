@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/hitung_client.php';
+
 function hitungHppPhp(array $input): array
 {
     $unitCount = (int)($input['unit_count'] ?? $input['units_produced'] ?? 0);
@@ -15,15 +17,19 @@ function hitungHppPhp(array $input): array
     }
 
     if ($unitCount <= 0) {
-        throw new InvalidArgumentException("Jumlah unit harus lebih dari 0");
+        throw new InvalidArgumentException('Jumlah unit harus lebih dari 0');
+    }
+
+    if ($materialCost < 0 || $laborCost < 0 || $packagingCost < 0 || $overheadCost < 0) {
+        throw new InvalidArgumentException('Biaya tidak boleh negatif');
     }
 
     if ($targetMargin < 0 || $targetMargin >= 1.0) {
-        throw new InvalidArgumentException("Target margin harus >= 0 dan < 1.0");
+        throw new InvalidArgumentException('Target margin harus >= 0 dan < 1.0');
     }
 
     $totalCost = $materialCost + $laborCost + $packagingCost + $overheadCost;
-    $hppPerUnit = $unitCount > 0 ? ($totalCost / $unitCount) : 0;
+    $hppPerUnit = $totalCost / $unitCount;
 
     $suggestedPriceFloat = $hppPerUnit / (1 - $targetMargin);
     $suggestedPrice = (int)(ceil($suggestedPriceFloat / 100) * 100);
@@ -41,55 +47,45 @@ function hitungHppPhp(array $input): array
         'gross_profit_per_unit' => (int)$grossProfitPerUnit,
         'margin_percent' => round($marginPercent, 2),
         'markup_percent' => round($markupPercent, 2),
-        'engine' => 'php'
+        'engine' => 'php',
     ];
 }
 
 function hitungHpp(array $input): array
 {
-    $url = 'http://127.0.0.1:5001/hitung-hpp';
-    $payload = json_encode($input);
+    $decoded = hitung_service_post('/hitung-hpp', $input);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlErrno = curl_errno($ch);
-    curl_close($ch);
-
-    if ($curlErrno !== 0 || $response === false || $httpCode !== 200) {
-        try {
-            $result = hitungHppPhp($input);
-            $result['engine'] = 'php';
-            return ['ok' => true, 'engine' => 'php', 'data' => $result, 'message' => 'HPP berhasil dihitung (fallback PHP)'];
-        } catch (Throwable $e) {
-            return ['ok' => false, 'error_code' => 'VALIDATION_ERROR', 'data' => null, 'message' => $e->getMessage()];
+    if (is_array($decoded) && isset($decoded['ok']) && ($decoded['ok'] === false || isset($decoded['data']))) {
+        if ($decoded['ok'] && !isset($decoded['engine'])) {
+            $decoded['engine'] = 'python';
         }
+
+        return $decoded;
     }
 
-    $decoded = json_decode($response, true);
-    if (!is_array($decoded) || !isset($decoded['ok'])) {
-        try {
-            $result = hitungHppPhp($input);
-            $result['engine'] = 'php';
-            return ['ok' => true, 'engine' => 'php', 'data' => $result, 'message' => 'HPP berhasil dihitung (fallback PHP)'];
-        } catch (Throwable $e) {
-            return ['ok' => false, 'error_code' => 'SERVER_ERROR', 'data' => null, 'message' => $e->getMessage()];
-        }
-    }
+    try {
+        $result = hitungHppPhp($input);
+        $result['engine'] = 'php';
 
-    if ($decoded['ok'] && !isset($decoded['engine'])) {
-        $decoded['engine'] = 'python';
+        return [
+            'ok' => true,
+            'engine' => 'php',
+            'data' => $result,
+            'message' => 'HPP berhasil dihitung (fallback PHP)',
+        ];
+    } catch (InvalidArgumentException $e) {
+        return [
+            'ok' => false,
+            'error_code' => 'VALIDATION_ERROR',
+            'data' => null,
+            'message' => $e->getMessage(),
+        ];
+    } catch (Throwable $e) {
+        return [
+            'ok' => false,
+            'error_code' => 'SERVER_ERROR',
+            'data' => null,
+            'message' => $e->getMessage(),
+        ];
     }
-
-    return $decoded;
 }

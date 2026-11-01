@@ -1,8 +1,11 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../lib/httpx.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
+
+handle_preflight();
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     json_error('Metode tidak diizinkan. Gunakan GET.', 405);

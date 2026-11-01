@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/hitung_client.php';
+
 function hitungDiskonPhp(array $input): array
 {
     $normalPrice = (int)($input['normal_price'] ?? $input['harga_normal'] ?? 0);
@@ -25,6 +27,9 @@ function hitungDiskonPhp(array $input): array
     }
     if ($hppPerUnit < 0) {
         throw new InvalidArgumentException('HPP per unit tidak boleh negatif');
+    }
+    if ($additionalCost < 0) {
+        throw new InvalidArgumentException('Biaya tambahan tidak boleh negatif');
     }
     if ($targetMarginPercent < 0 || $targetMarginPercent >= 1.0) {
         throw new InvalidArgumentException('Target margin harus >= 0 dan < 1.0');
@@ -90,10 +95,10 @@ function hitungDiskonPhp(array $input): array
         'final_price_per_unit' => $finalPricePerUnit,
         'quantity' => $quantity,
         'additional_cost' => $additionalCost,
-        'effective_hpp_per_unit' => $effectiveCostPerUnit,
+        'effective_hpp_per_unit' => (int)$effectiveCostPerUnit,
         'total_revenue' => $totalRevenue,
-        'profit_per_unit' => $profitPerUnit,
-        'total_profit' => $totalProfit,
+        'profit_per_unit' => (int)$profitPerUnit,
+        'total_profit' => (int)$totalProfit,
         'margin_percent' => round($marginPercent, 2),
         'target_margin_percent' => round($targetMarginPercent * 100, 2),
         'max_discount_percent_safe' => round($maxDiscountPercentSafe, 2),
@@ -101,55 +106,45 @@ function hitungDiskonPhp(array $input): array
         'status' => $status,
         'warning' => $warningMessage,
         'message' => $warningMessage,
-        'engine' => 'php'
+        'engine' => 'php',
     ];
 }
 
 function hitungDiskon(array $input): array
 {
-    $url = 'http://127.0.0.1:5001/hitung-diskon';
-    $payload = json_encode($input);
+    $decoded = hitung_service_post('/hitung-diskon', $input);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlErrno = curl_errno($ch);
-    curl_close($ch);
-
-    if ($curlErrno !== 0 || $response === false || $httpCode !== 200) {
-        try {
-            $result = hitungDiskonPhp($input);
-            $result['engine'] = 'php';
-            return ['ok' => true, 'engine' => 'php', 'data' => $result, 'message' => 'Simulasi diskon berhasil dihitung (fallback PHP)'];
-        } catch (Throwable $e) {
-            return ['ok' => false, 'error_code' => 'VALIDATION_ERROR', 'data' => null, 'message' => $e->getMessage()];
+    if (is_array($decoded) && isset($decoded['ok']) && ($decoded['ok'] === false || isset($decoded['data']))) {
+        if ($decoded['ok'] && !isset($decoded['engine'])) {
+            $decoded['engine'] = 'python';
         }
+
+        return $decoded;
     }
 
-    $decoded = json_decode($response, true);
-    if (!is_array($decoded) || !isset($decoded['ok'])) {
-        try {
-            $result = hitungDiskonPhp($input);
-            $result['engine'] = 'php';
-            return ['ok' => true, 'engine' => 'php', 'data' => $result, 'message' => 'Simulasi diskon berhasil dihitung (fallback PHP)'];
-        } catch (Throwable $e) {
-            return ['ok' => false, 'error_code' => 'SERVER_ERROR', 'data' => null, 'message' => $e->getMessage()];
-        }
-    }
+    try {
+        $result = hitungDiskonPhp($input);
+        $result['engine'] = 'php';
 
-    if ($decoded['ok'] && !isset($decoded['engine'])) {
-        $decoded['engine'] = 'python';
+        return [
+            'ok' => true,
+            'engine' => 'php',
+            'data' => $result,
+            'message' => 'Simulasi diskon berhasil dihitung (fallback PHP)',
+        ];
+    } catch (InvalidArgumentException $e) {
+        return [
+            'ok' => false,
+            'error_code' => 'VALIDATION_ERROR',
+            'data' => null,
+            'message' => $e->getMessage(),
+        ];
+    } catch (Throwable $e) {
+        return [
+            'ok' => false,
+            'error_code' => 'SERVER_ERROR',
+            'data' => null,
+            'message' => $e->getMessage(),
+        ];
     }
-
-    return $decoded;
 }
