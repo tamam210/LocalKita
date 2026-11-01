@@ -269,7 +269,7 @@ function laporan_simpan(
         $summary['operating_expenses'],
         $summary['promo_costs'],
         $summary['net_profit'],
-        number_format((float) $summary['net_margin'], 2, '.', ''),
+        sprintf('%.2f', (float) $summary['net_margin']),
         json_encode(
             $detail,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR

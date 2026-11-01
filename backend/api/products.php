@@ -1,0 +1,292 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../lib/response.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/session.php';
+require_once __DIR__ . '/../lib/auth.php';
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    http_response_code(204);
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
+    header('Access-Control-Max-Age: 86400');
+    exit;
+}
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
+
+session_start_secure();
+
+try {
+    $pdo = db();
+} catch (Throwable $e) {
+    error_log('[products] db failed: ' . $e->getMessage());
+    json_error('Gagal terhubung ke database.', 500);
+}
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($method !== 'GET') {
+    json_error('Method tidak diizinkan.', 405, null);
+}
+
+$user = auth_user();
+$canSeeHpp = false;
+$ownerStoreIds = [];
+
+if ($user) {
+    $role = $user['role'] ?? null;
+    if ($role === 'admin') {
+        $canSeeHpp = true;
+    } elseif ($role === 'seller') {
+        $canSeeHpp = true;
+        if (!empty($user['user_id'])) {
+            $st = $pdo->prepare('SELECT store_id FROM stores WHERE owner_user_id = ?');
+            $st->execute([$user['user_id']]);
+            while ($r = $st->fetch()) {
+                if (!empty($r['store_id'])) {
+                    $ownerStoreIds[$r['store_id']] = true;
+                }
+            }
+            $sm = $pdo->prepare("SELECT store_id FROM store_members WHERE user_id = ? AND status = 'active'");
+            $sm->execute([$user['user_id']]);
+            while ($r = $sm->fetch()) {
+                if (!empty($r['store_id'])) {
+                    $ownerStoreIds[$r['store_id']] = true;
+                }
+            }
+        }
+        if (!empty($user['store_id'])) {
+            $ownerStoreIds[$user['store_id']] = true;
+        }
+    }
+}
+
+$productId = $_GET['product_id'] ?? null;
+if ($productId !== null && $productId !== '') {
+    $stmt = $pdo->prepare(
+        "SELECT p.product_id, p.store_id, p.category_id, p.slug, p.name, p.description, p.status, p.earns_points, p.point_multiplier, p.created_at, p.updated_at,
+                s.name AS store_name, c.name AS category_name
+         FROM products p
+         LEFT JOIN stores s ON s.store_id = p.store_id
+         LEFT JOIN categories c ON c.category_id = p.category_id
+         WHERE p.product_id = ?
+         LIMIT 1"
+    );
+    $stmt->execute([$productId]);
+    $product = $stmt->fetch();
+
+    if (!$product) {
+        json_error('Produk tidak ditemukan.', 404, null);
+    }
+
+    $isOwner = !empty($ownerStoreIds[$product['store_id']]);
+    if (!$isOwner && ($product['status'] ?? '') !== 'active') {
+        json_error('Produk tidak ditemukan.', 404, null);
+    }
+
+    $vstmt = $pdo->prepare(
+        'SELECT variant_id, sku, name, price, hpp_unit, stock, status
+         FROM product_variants
+         WHERE product_id = ?
+         ORDER BY created_at ASC, variant_id ASC'
+    );
+    $vstmt->execute([$productId]);
+    $variants = [];
+
+    while ($v = $vstmt->fetch()) {
+        $row = [
+            'variant_id' => $v['variant_id'],
+            'sku' => $v['sku'],
+            'name' => $v['name'],
+            'price' => (int)($v['price'] ?? 0),
+            'stock' => (int)($v['stock'] ?? 0),
+            'status' => $v['status'],
+        ];
+        if ($canSeeHpp && $isOwner) {
+            $row['hpp_unit'] = $v['hpp_unit'] === null ? null : (int)$v['hpp_unit'];
+        } else {
+            $row['hpp_unit'] = null;
+        }
+        $variants[] = $row;
+    }
+
+    $data = [
+        'product_id' => $product['product_id'],
+        'store_id' => $product['store_id'],
+        'store_name' => $product['store_name'],
+        'category_id' => $product['category_id'],
+        'category_name' => $product['category_name'],
+        'slug' => $product['slug'],
+        'name' => $product['name'],
+        'description' => $product['description'],
+        'status' => $product['status'],
+        'earns_points' => (bool)($product['earns_points'] ?? false),
+        'point_multiplier' => $product['point_multiplier'] !== null ? (float)$product['point_multiplier'] : 1.0,
+        'primary_image_url' => null,
+        'variants' => $variants,
+        'created_at' => $product['created_at'],
+        'updated_at' => $product['updated_at'],
+    ];
+
+    json_success($data, 'Detail produk berhasil diambil.');
+}
+
+$q = trim($_GET['q'] ?? '');
+$categoryId = $_GET['category_id'] ?? null;
+$storeId = $_GET['store_id'] ?? null;
+$status = $_GET['status'] ?? 'active';
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 12;
+if ($perPage < 1) {
+    $perPage = 12;
+}
+if ($perPage > 50) {
+    $perPage = 50;
+}
+$sort = $_GET['sort'] ?? 'newest';
+
+$where = [];
+$params = [];
+
+if ($q !== '') {
+    $where[] = '(p.name LIKE ? OR p.slug LIKE ?)';
+    $like = '%' . $q . '%';
+    $params[] = $like;
+    $params[] = $like;
+}
+if ($categoryId !== null && $categoryId !== '') {
+    $where[] = 'p.category_id = ?';
+    $params[] = $categoryId;
+}
+if ($storeId !== null && $storeId !== '') {
+    $where[] = 'p.store_id = ?';
+    $params[] = $storeId;
+}
+
+if ($user && ($user['role'] ?? null) === 'seller') {
+    if ($storeId !== null && $storeId !== '') {
+        if (empty($ownerStoreIds[$storeId])) {
+            json_error('Data tidak ditemukan.', 404, null);
+        }
+        if (isset($_GET['status']) && $_GET['status'] !== '') {
+            $where[] = 'p.status = ?';
+            $params[] = $_GET['status'];
+        }
+    } else {
+        if (!empty($ownerStoreIds)) {
+            $placeholders = implode(',', array_fill(0, count($ownerStoreIds), '?'));
+            $where[] = "p.store_id IN ($placeholders)";
+            foreach (array_keys($ownerStoreIds) as $sid) {
+                $params[] = $sid;
+            }
+            if (isset($_GET['status']) && $_GET['status'] !== '') {
+                $where[] = 'p.status = ?';
+                $params[] = $_GET['status'];
+            } else {
+                $where[] = "p.status IN ('active','draft','inactive')";
+            }
+        } else {
+            $where[] = "p.status = 'active'";
+        }
+    }
+} else {
+    $where[] = "p.status = 'active'";
+}
+
+$sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+$countSql = "SELECT COUNT(DISTINCT p.product_id) AS total FROM products p $sqlWhere";
+$cstmt = $pdo->prepare($countSql);
+$cstmt->execute($params);
+$total = (int)($cstmt->fetch()['total'] ?? 0);
+
+$orderBy = 'p.created_at DESC';
+if ($sort === 'price_asc') {
+    $orderBy = 'min_price ASC';
+} elseif ($sort === 'price_desc') {
+    $orderBy = 'min_price DESC';
+} elseif ($sort === 'name_asc') {
+    $orderBy = 'p.name ASC';
+} elseif ($sort === 'newest') {
+    $orderBy = 'p.created_at DESC';
+}
+
+$offset = ($page - 1) * $perPage;
+$listSql = "SELECT p.product_id, p.store_id, p.category_id, p.slug, p.name, p.description, p.status, p.earns_points, p.point_multiplier, p.created_at, p.updated_at,
+                  s.name AS store_name, c.name AS category_name,
+                  (SELECT MIN(price) FROM product_variants pv WHERE pv.product_id = p.product_id AND pv.status = 'active') AS min_price,
+                  (SELECT MAX(price) FROM product_variants pv WHERE pv.product_id = p.product_id AND pv.status = 'active') AS max_price,
+                  (SELECT COALESCE(SUM(stock),0) FROM product_variants pv WHERE pv.product_id = p.product_id AND pv.status = 'active') AS total_stock
+           FROM products p
+           LEFT JOIN stores s ON s.store_id = p.store_id
+           LEFT JOIN categories c ON c.category_id = p.category_id
+           $sqlWhere
+           ORDER BY $orderBy
+           LIMIT $perPage OFFSET $offset";
+$lstmt = $pdo->prepare($listSql);
+$lstmt->execute($params);
+
+$items = [];
+while ($row = $lstmt->fetch()) {
+    $pid = $row['product_id'];
+    $isOwner = !empty($ownerStoreIds[$row['store_id']]);
+    $vstmt = $pdo->prepare("SELECT variant_id, sku, name, price, hpp_unit, stock, status FROM product_variants WHERE product_id = ? AND status = 'active' ORDER BY created_at ASC, variant_id ASC");
+    $vstmt->execute([$pid]);
+    $variants = [];
+    while ($v = $vstmt->fetch()) {
+        $vr = [
+            'variant_id' => $v['variant_id'],
+            'sku' => $v['sku'],
+            'name' => $v['name'],
+            'price' => (int)($v['price'] ?? 0),
+            'stock' => (int)($v['stock'] ?? 0),
+            'status' => $v['status'],
+        ];
+        if ($canSeeHpp && $isOwner) {
+            $vr['hpp_unit'] = $v['hpp_unit'] === null ? null : (int)$v['hpp_unit'];
+        } else {
+            $vr['hpp_unit'] = null;
+        }
+        $variants[] = $vr;
+    }
+
+    $items[] = [
+        'product_id' => $row['product_id'],
+        'store_id' => $row['store_id'],
+        'store_name' => $row['store_name'],
+        'category_id' => $row['category_id'],
+        'category_name' => $row['category_name'],
+        'slug' => $row['slug'],
+        'name' => $row['name'],
+        'description' => $row['description'],
+        'status' => $row['status'],
+        'earns_points' => (bool)($row['earns_points'] ?? false),
+        'point_multiplier' => $row['point_multiplier'] !== null ? (float)$row['point_multiplier'] : 1.0,
+        'primary_image_url' => null,
+        'min_price' => $row['min_price'] !== null ? (int)$row['min_price'] : null,
+        'max_price' => $row['max_price'] !== null ? (int)$row['max_price'] : null,
+        'total_stock' => (int)($row['total_stock'] ?? 0),
+        'variants' => $variants,
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at'],
+    ];
+}
+
+$totalPages = $perPage > 0 ? (int)ceil($total / $perPage) : 1;
+
+json_success([
+    'items' => $items,
+    'pagination' => [
+        'page' => $page,
+        'per_page' => $perPage,
+        'total' => $total,
+        'total_pages' => $totalPages,
+    ],
+], 'Daftar produk berhasil diambil.');
