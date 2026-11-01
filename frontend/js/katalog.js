@@ -2,13 +2,15 @@
 (function () {
   'use strict';
   // Asumsi bentuk data: {product_id, name, category_name, price, stock, store_name, image_url, image_alt}
+  // Nama toko disamakan dengan seed backend supaya tautan chat tidak
+  // menampilkan toko yang berbeda dari store_id-nya.
   var DUMMY = [
-    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'UMKM Bandung', store_id: '20000000-0000-4000-8000-000000000001' },
-    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'UMKM Yogyakarta', store_id: '20000000-0000-4000-8000-000000000002' },
-    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'UMKM Aceh', store_id: '20000000-0000-4000-8000-000000000001' },
-    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'UMKM Pekalongan', store_id: '20000000-0000-4000-8000-000000000002' },
-    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'UMKM Ponorogo', store_id: '20000000-0000-4000-8000-000000000001' },
-    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'UMKM Manado', store_id: '20000000-0000-4000-8000-000000000001' }
+    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002' },
+    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002' },
+    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001' },
+    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001' }
   ];
   var semua = [], kategoriAktif = 'Semua';
   var $grid = document.getElementById('grid-produk');
