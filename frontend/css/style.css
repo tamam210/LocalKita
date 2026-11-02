@@ -37,7 +37,8 @@ a{color:var(--terra-tua)}
 /* Navbar */
 .navbar{z-index:10;border-radius:0 0 var(--r-lg) var(--r-lg);border-top:0}
 .navbar-isi{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;padding-block:8px}
-.merek{display:inline-flex;align-items:center;min-height:44px;font-size:1.4rem;font-weight:900;color:var(--sogan);text-decoration:none}
+.merek{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:1.4rem;font-weight:900;color:var(--sogan);text-decoration:none}
+.merek-logo{width:36px;height:36px;object-fit:contain;border-radius:8px;flex-shrink:0}
 .nav-daftar{display:flex;flex-wrap:wrap;gap:4px;margin:0;padding:0;list-style:none}
 .nav-daftar a,.nav-daftar button{
   display:inline-flex;align-items:center;min-height:44px;padding:0 14px;
@@ -73,7 +74,7 @@ main{padding-block:16px 40px}
 /* Grid + card produk (solid, tanpa blur, supaya ringan di HP murah) */
 .grid-produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .kartu-produk{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.08)}
-.kartu-gambar{display:grid;place-items:center;aspect-ratio:1/1;background:linear-gradient(135deg,var(--krem),#F6ECDB);font-size:2.5rem;font-weight:900;color:var(--terra-tua)}
+.kartu-gambar{display:grid;place-items:center;aspect-ratio:1/1;background:linear-gradient(135deg,var(--krem),#F6ECDB);font-size:2.5rem;font-weight:900;color:var(--terra-tua);overflow:hidden}
 .kartu-gambar img{width:100%;height:100%;object-fit:cover}
 .kartu-isi{display:flex;flex:1;flex-direction:column;gap:4px;padding:12px}
 .kartu-nama{margin:0;color:var(--sogan);overflow-wrap:anywhere}
