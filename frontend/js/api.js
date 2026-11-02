@@ -8,7 +8,7 @@
   function urai(res) {
     if (res.status === 401) {
       sesiCache = null;
-      throw new Errorgit ('Sesi berakhir. Silakan masuk lagi.');
+      throw new Error ('Sesi berakhir. Silakan masuk lagi.');
     }
     return res.json().catch(function () {
       throw new Error('Respons server bukan JSON yang valid (HTTP ' + res.status + ').');
