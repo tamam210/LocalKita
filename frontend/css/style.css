@@ -37,8 +37,8 @@ a{color:var(--terra-tua)}
 /* Navbar */
 .navbar{z-index:10;border-radius:0 0 var(--r-lg) var(--r-lg);border-top:0}
 .navbar-isi{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;padding-block:8px}
-.merek{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:1.4rem;font-weight:900;color:var(--sogan);text-decoration:none}
-.merek-logo{width:36px;height:36px;object-fit:contain;border-radius:8px;flex-shrink:0}
+.merek{display:inline-flex;align-items:center;gap:10px;min-height:48px;font-size:1.6rem;font-weight:900;color:var(--sogan);text-decoration:none}
+.merek-logo{height:40px;width:auto;object-fit:contain;border-radius:0;flex-shrink:0}
 .nav-daftar{display:flex;flex-wrap:wrap;gap:4px;margin:0;padding:0;list-style:none}
 .nav-daftar a,.nav-daftar button{
   display:inline-flex;align-items:center;min-height:44px;padding:0 14px;
