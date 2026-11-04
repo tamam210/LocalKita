@@ -23,6 +23,11 @@
     $grid.setAttribute('aria-busy', 'true');
     $grid.replaceChildren();
     for (var i = 0; i < 6; i++) { $grid.appendChild(LK.el('div', { 'class': 'skeleton', 'aria-hidden': 'true' })); }
+    if (!semua.some(function (p) { return p.image_url; })) {
+    semua = DUMMY.map(normalisasi);
+    $info.replaceChildren(LK.el('p', { text: 'Menampilkan data contoh dengan foto produk.' }));
+    $info.hidden = false;
+    }
   }
 
   function buatChip() {
