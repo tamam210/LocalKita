@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalkulator HPP - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/hpp.js" defer></script>
+</head>
+<body>
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html">LokalKita</a>
+      <nav aria-label="Menu utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <li><a href="hpp.html" aria-current="page">Kalkulator HPP</a></li>
+          <li><a href="poin.html">Poin</a></li>
+          <li><a href="laporan.html">Laporan</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <h1>Kalkulator HPP</h1>
+    <section id="bagian-hpp" class="panel kaca" aria-labelledby="bagian-hpp-j">
+      <h2 id="bagian-hpp-j">Hitung HPP</h2>
+      <form id="form-hpp" novalidate>
+        <div class="form-grid">
+          <div class="bidang">
+            <label for="in-bahan">Bahan (Rp)</label>
+            <input id="in-bahan" name="bahan" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+          <div class="bidang">
+            <label for="in-tenaga">Tenaga kerja (Rp)</label>
+            <input id="in-tenaga" name="tenaga" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+          <div class="bidang">
+            <label for="in-kemasan">Kemasan (Rp)</label>
+            <input id="in-kemasan" name="kemasan" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+          <div class="bidang">
+            <label for="in-overhead">Overhead (Rp)</label>
+            <input id="in-overhead" name="overhead" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+          <div class="bidang">
+            <label for="in-unit">Jumlah unit</label>
+            <input id="in-unit" name="unit" type="number" inputmode="decimal" min="1" step="1" required>
+          </div>
+        </div>
+        <p id="pesan-hpp" class="pesan-galat" role="alert" hidden></p>
+        <button id="tombol-hpp" class="tombol" type="submit">Hitung HPP</button>
+      </form>
+    </section>
+    <section id="hasil-hpp" class="panel kaca" aria-labelledby="hasil-hpp-j">
+      <h2 id="hasil-hpp-j">Hasil perhitungan</h2>
+      <div id="isi-hasil-hpp" aria-live="polite"><p>Isi form lalu tekan Hitung HPP.</p></div>
+    </section>
+    <section id="bagian-diskon" class="panel kaca" aria-labelledby="bagian-diskon-j">
+      <h2 id="bagian-diskon-j">Simulasi diskon</h2>
+      <form id="form-diskon" novalidate>
+        <div class="form-grid">
+          <div class="bidang">
+            <label for="dk-harga_jual">Harga jual (Rp)</label>
+            <input id="dk-harga_jual" name="harga_jual" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+          <div class="bidang">
+            <label for="dk-discount_type">Jenis diskon</label>
+            <select id="dk-discount_type" name="discount_type"><option value="percent">Persen (%)</option><option value="fixed">Nominal (Rp)</option></select>
+          </div>
+          <div class="bidang">
+            <label for="dk-discount_value">Nilai diskon</label>
+            <input id="dk-discount_value" name="discount_value" type="number" inputmode="decimal" min="0" step="any" required>
+          </div>
+        </div>
+        <p id="pesan-diskon" class="pesan-galat" role="alert" hidden></p>
+        <button id="tombol-diskon" class="tombol" type="submit">Cek diskon</button>
+      </form>
+      <div id="peringatan-diskon" aria-live="polite"></div>
+    </section>
+  </main>
+  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+</body>
+</html>
