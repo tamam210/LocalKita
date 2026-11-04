@@ -5,6 +5,7 @@ require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/session.php';
 require_once __DIR__ . '/../lib/auth.php';
+require_once __DIR__ . '/../lib/image.php';
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -129,7 +130,7 @@ if ($productId !== null && $productId !== '') {
         'status' => $product['status'],
         'earns_points' => (bool)($product['earns_points'] ?? false),
         'point_multiplier' => $product['point_multiplier'] !== null ? (float)$product['point_multiplier'] : 1.0,
-        'primary_image_url' => null,
+        'primary_image_url' => product_primary_image_url($pdo, $product['product_id']),
         'variants' => $variants,
         'created_at' => $product['created_at'],
         'updated_at' => $product['updated_at'],
@@ -269,7 +270,7 @@ while ($row = $lstmt->fetch()) {
         'status' => $row['status'],
         'earns_points' => (bool)($row['earns_points'] ?? false),
         'point_multiplier' => $row['point_multiplier'] !== null ? (float)$row['point_multiplier'] : 1.0,
-        'primary_image_url' => null,
+        'primary_image_url' => product_primary_image_url($pdo, $row['product_id']),
         'min_price' => $row['min_price'] !== null ? (int)$row['min_price'] : null,
         'max_price' => $row['max_price'] !== null ? (int)$row['max_price'] : null,
         'total_stock' => (int)($row['total_stock'] ?? 0),

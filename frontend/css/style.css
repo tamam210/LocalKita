@@ -228,3 +228,84 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
   .bar-jalur span:last-child{text-align:right}
   .popup-aksi .tombol{flex-basis:100%}
 }
+
+.grid-produk-saya {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kartu-produk-saya {
+  border: 1px solid var(--garis);
+  border-radius: var(--r-md);
+  background: var(--kartu);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.kartu-produk-saya .kartu-gambar {
+  aspect-ratio: 4 / 3;
+  background: var(--krem);
+}
+
+.kartu-produk-saya .kartu-gambar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kartu-produk-saya .placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 12px;
+  color: var(--teks-lembut);
+  font-size: .9rem;
+  text-align: center;
+}
+
+.kartu-produk-saya .kartu-isi {
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.kartu-produk-saya .kartu-nama {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.kartu-produk-saya .kartu-harga {
+  font-weight: 700;
+  color: var(--terra-tua);
+}
+
+.kartu-produk-saya .kartu-toko {
+  font-size: .85rem;
+  color: var(--teks-lembut);
+}
+
+.kartu-produk-saya .upload-baris {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.kartu-produk-saya .upload-baris input[type="file"] {
+  font-size: .8rem;
+  max-width: 100%;
+}
+
+.kartu-produk-saya .upload-status {
+  font-size: .8rem;
+  color: var(--teks-lembut);
+  min-height: 1.2em;
+}
+
+.info-data.info-galat {
+  color: var(--galat);
+}
