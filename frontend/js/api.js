@@ -1,7 +1,12 @@
 /* LokalKita - helper bersama. Hanya fetch ke API PHP; tanpa token/secret di sini. */
 (function (w) {
   'use strict';
-    var BASE = 'http://localhost:8000/api/';
+  // Kalau frontend dibuka dari origin yang sama dengan API
+  // (http://localhost:8000/frontend/), pakai jalur relatif supaya
+  // bebas CORS dan cookie sesi tetap terkirim.
+  var BASE = location.origin === 'http://localhost:8000'
+    ? '/backend/api/'
+    : 'http://localhost:8000/backend/api/';
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   
@@ -22,7 +27,9 @@
 
   function jaringan(e) {
     if (e && e.name === 'AbortError') { throw new Error('Server terlalu lama merespons. Coba lagi.'); }
-    if (e instanceof TypeError) { throw new Error('Tidak bisa terhubung ke server. Periksa koneksi internet.'); }
+    if (e instanceof TypeError) {
+      throw new Error('Tidak bisa menghubungi API. Pastikan backend berjalan dan buka aplikasi lewat http://localhost:8000/frontend/.');
+    }
     throw e;
   }
   // fetch dengan batas waktu 15 detik supaya loading tidak menggantung selamanya

@@ -52,6 +52,65 @@
       img.addEventListener('error', function () { img.remove(); gambar.appendChild(awal); });
       gambar.appendChild(img);
     } else { gambar.appendChild(awal); }
+    // Tombol keranjang kecil di gambar
+    if (p.product_id) {
+      var keranjangBtn = LK.el('button', { type: 'button', 'class': 'tombol-keranjang-kecil', 'aria-label': 'Masukkan ke keranjang', text: '🛒' });
+      keranjangBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        try {
+          var KEY = 'lokalkita_keranjang';
+          var items = JSON.parse(localStorage.getItem(KEY) || '[]');
+          // Cek sudah ada
+          var ada = false;
+          for (var i = 0; i < items.length; i++) {
+            if (String(items[i].product_id) === String(p.product_id)) { items[i].qty = (items[i].qty || 1) + 1; ada = true; break; }
+          }
+          if (!ada) {
+            items.push({
+              product_id: p.product_id,
+              name: p.name,
+              price: p.price,
+              image: p.image_url,
+              store_id: p.store_id,
+              store_name: p.store_name,
+              qty: 1
+            });
+          }
+          localStorage.setItem(KEY, JSON.stringify(items));
+        } catch(ex) {}
+        LK.notif('Produk dimasukkan ke keranjang', 'sukses', 'Keranjang');
+      });
+      gambar.appendChild(keranjangBtn);
+    }
+    var pesanBtn = null;
+    if (p.store_id) {
+      pesanBtn = LK.el('button', { type: 'button', 'class': 'tautan-chat', text: 'Pesan Barang' });
+      pesanBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        try {
+          var pesananKey = 'lokalkita_pesanan';
+          var pesanan = JSON.parse(localStorage.getItem(pesananKey) || '[]');
+          pesanan.unshift({
+            id: 'PSN-' + Date.now().toString().slice(-6),
+            product_id: p.product_id,
+            name: p.name,
+            image: p.image_url,
+            price: p.price,
+            qty: 1,
+            store_id: p.store_id,
+            store_name: p.store_name,
+            status: 'menunggu',
+            tanggal: new Date().toISOString()
+          });
+          localStorage.setItem(pesananKey, JSON.stringify(pesanan));
+        } catch(ex) {}
+        LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
+        window.location.href = 'pesanan.html';
+      });
+    }
+    var kartuAttr = { 'class': 'kartu-produk' };
+    if (p.product_id) { kartuAttr['data-product-id'] = p.product_id; }
+    var judulProduk = LK.el('h3', { 'class': 'kartu-nama', text: p.name || 'Produk tanpa nama' });
     var stok = p.stock === null || p.stock === undefined ? NaN : Number(p.stock);
     var lencana = isFinite(stok)
       ? LK.el('span', { 'class': 'lencana' + (stok <= 0 ? ' lencana-habis' : ''), text: stok <= 0 ? 'Stok habis' : 'Stok ' + stok })
@@ -60,16 +119,16 @@
     var chat = p.store_id
       ? LK.el('a', {
         'class': 'tautan-chat',
-        href: 'poin.html?store_id=' + encodeURIComponent(p.store_id),
-        text: 'Chat penjual'
+        href: 'pesanan.html?pesan=' + encodeURIComponent(p.product_id || '') + '&store_id=' + encodeURIComponent(p.store_id),
+        text: 'Pesan Barang'
       })
       : null;
-    return LK.el('article', { 'class': 'kartu-produk' }, [gambar, LK.el('div', { 'class': 'kartu-isi' }, [
-      LK.el('h3', { 'class': 'kartu-nama', text: p.name || 'Produk tanpa nama' }),
+    return LK.el('article', kartuAttr, [gambar, LK.el('div', { 'class': 'kartu-isi' }, [
+      judulProduk,
       LK.el('span', { 'class': 'kartu-toko', text: p.store_name || kategoriDari(p) }),
       LK.el('span', { 'class': 'kartu-harga', text: LK.rupiah(p.price) }),
       LK.el('div', { 'class': 'lencana-baris' }, [lencana, poin]),
-      chat
+      pesanBtn
     ])]);
   }
 
@@ -94,17 +153,41 @@
     hasil.forEach(function (p) { $grid.appendChild(kartu(p)); });
   }
 
+  // Peta gambar lokal untuk produk yang belum punya foto dari API
+  // (backend mengirim primary_image_url null sampai upload file aktif).
+  var GAMBAR_LOKAL = [
+    { cocok: ['keripik', 'singkong'], file: 'img/produk/keripik-singkong.jpg' },
+    { cocok: ['tas anyaman', 'anyaman', 'tas pandan'], file: 'img/produk/tas-anyaman.jpg' },
+    { cocok: ['kopi'], file: 'img/produk/kopi-lokal.jpg' },
+    { cocok: ['batik'], file: 'img/produk/kain-batik-tulis.jpg' },
+    { cocok: ['laundry'], file: 'img/produk/laundry-kiloan.jpg' },
+    { cocok: ['sambal'], file: 'img/produk/sambal-roa.jpg' }
+  ];
+
+  function gambarLokal(nama) {
+    var k = String(nama || '').toLowerCase();
+    for (var i = 0; i < GAMBAR_LOKAL.length; i++) {
+      var kata = GAMBAR_LOKAL[i].cocok;
+      for (var j = 0; j < kata.length; j++) {
+        if (k.indexOf(kata[j]) !== -1) { return GAMBAR_LOKAL[i].file; }
+      }
+    }
+    return '';
+  }
+
   function normalisasi(p) {
+    var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
+    if (!img) { img = gambarLokal(p.name || p.product_name); }
     return {
       product_id: p.product_id,
-      name: p.name || 'Produk tanpa nama',
-      category_name: p.category_name || 'Lainnya',
+      name: p.name || p.product_name || 'Produk tanpa nama',
+      category_name: p.category_name || p.category || 'Lainnya',
       price: p.min_price !== undefined && p.min_price !== null ? p.min_price : p.price,
       stock: p.total_stock !== undefined && p.total_stock !== null ? p.total_stock : p.stock,
       store_id: p.store_id || '',
       store_name: p.store_name || '',
-      image_url: p.primary_image_url || p.image_url || '',
-      image_alt: p.image_alt || p.name || '',
+      image_url: img,
+      image_alt: p.image_alt || p.alt_text || p.name || p.product_name || '',
       earns_points: p.earns_points
     };
   }
