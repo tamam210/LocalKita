@@ -11,10 +11,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=3">
-  <script src="js/api.js?v=3" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <script src="js/api.js?v=4" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
 <script src="js/dashboard-penjual.js?v=3" defer></script>
+<script src="js/dashboard-produk.js?v=1" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -59,6 +60,15 @@
       <h2 id="ringkasan-j">Ringkasan bulan ini</h2>
       <div id="isi-ringkasan" class="grid-kartu" aria-live="polite"></div>
     </section>
+
+    <section id="produk-saya" class="panel kaca" aria-labelledby="produk-saya-j">
+      <div class="judul-baris">
+        <h2 id="produk-saya-j">Produk Saya</h2>
+        <span class="lencana" id="jumlah-produk">0 produk</span>
+      </div>
+      <div id="info-produk" class="info-data" role="status" hidden></div>
+      <div id="isi-produk" class="grid-produk-saya" aria-live="polite"></div>
+    </section>    
 
     <section id="pesanan" class="panel kaca" aria-labelledby="pesanan-j">
       <div class="judul-baris">

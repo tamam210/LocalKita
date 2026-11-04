@@ -57,6 +57,20 @@
       body: JSON.stringify(body || {})
     }).then(urai).catch(jaringan);
   }
+
+ function apiUpload(path, fields) {
+    var fd = new FormData();
+    Object.keys(fields || {}).forEach(function (k) {
+      fd.append(k, fields[k]);
+    });
+    return minta(BASE + path, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' },
+      body: fd
+    }).then(urai).catch(jaringan);
+  }
+
   function rupiah(n) { n = Number(n); return isFinite(n) ? fmt.format(n) : fmt.format(0); }
   // Buat elemen DOM tanpa innerHTML (aman dari XSS). attrs.text = textContent.
   function el(tag, attrs, children) {
