@@ -1,7 +1,7 @@
 /* LokalKita - helper bersama. Hanya fetch ke API PHP; tanpa token/secret di sini. */
 (function (w) {
   'use strict';
-    var BASE = 'http://localhost:8000/api/';
+    var BASE = window.location.origin + '/backend/api/';
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   
