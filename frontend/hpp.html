@@ -14,31 +14,96 @@
   <link rel="stylesheet" href="css/style.css">
  <script src="js/api.js" defer></script>
 <script src="js/sesi-ui.js" defer></script>
+<script src="js/navbar-swipe.js" defer></script>
 <script src="js/hpp.js" defer></script>
 </head>
 <body data-halaman="hpp" data-perlu-akun="akun">
   <header class="navbar kaca">
     <div class="wadah navbar-isi">
       <a class="merek" href="index.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
-      <nav aria-label="Menu utama">
-</ul><ul class="nav-daftar">
-<li><a href="index.html" aria-current="page">Etalase</a></li>
-
-  <li data-akun hidden><a href="dashboard-penjual.html">Dashboard</a></li>
-  <li data-akun hidden><a href="hpp.html">Kalkulator HPP</a></li>
-  <li data-akun hidden><a href="poin.html">Poin</a></li>
-  <li data-akun hidden><a href="laporan.html">Laporan</a></li>
-
-  <li data-tamu><a href="login.html">Masuk</a></li>
-
-  <li data-akun hidden>
-    <button type="button" data-keluar>Keluar</button>
-  </li>
-</ul>
+      <nav aria-label="Menu utama" class="nav-utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <!-- Penjual -->
+          <li data-penjual hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+          <li data-penjual hidden><a href="hpp.html" aria-current="page">Kalkulator HPP</a></li>
+          <li data-penjual hidden><a href="laporan.html">Laporan</a></li>
+          <!-- Pembeli -->
+          <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+          <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+          <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+          <li data-tamu><a href="login.html">Masuk</a></li>
+        </ul>
+        <div class="nav-swipe" aria-label="Menu geser">
+          <ul class="nav-daftar">
+            <li><a href="index.html">Etalase</a></li>
+            <li data-penjual hidden><a href="dashboard-penjual.html">Dashboard</a></li>
+            <li data-penjual hidden><a href="hpp.html" aria-current="page">Kalkulator HPP</a></li>
+            <li data-penjual hidden><a href="laporan.html">Laporan</a></li>
+            <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+            <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+            <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+            <li data-tamu><a href="login.html">Masuk</a></li>
+          </ul>
+        </div>
+        <div class="nav-profil">
+          <div data-penjual hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info">
+                <span class="profil-nama" data-nama-user>Pengguna</span>
+                <span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span>
+              </span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head">
+                <span class="avatar-nav besar" data-avatar>U</span>
+                <div>
+                  <div class="dropdown-nama" data-nama-user>Pengguna</div>
+                  <div class="dropdown-email" data-email-user>-</div>
+                </div>
+              </li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="katalog.html#favorit">Favorit Pembelian</a></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+          <div data-pembeli hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info">
+                <span class="profil-nama" data-nama-user>Pengguna</span>
+                <span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span>
+              </span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head">
+                <span class="avatar-nav besar" data-avatar>U</span>
+                <div>
+                  <div class="dropdown-nama" data-nama-user>Pengguna</div>
+                  <div class="dropdown-email" data-email-user>-</div>
+                </div>
+              </li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="katalog.html#favorit">Favorit Pembelian</a></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+        </div>
       </nav>
     </div>
   </header>
-  <main class="wadah">
+  <mainmain class="wadah">
     <h1>Kalkulator HPP</h1>
     <section id="bagian-hpp" class="panel kaca" aria-labelledby="bagian-hpp-j">
       <h2 id="bagian-hpp-j">Hitung HPP</h2>

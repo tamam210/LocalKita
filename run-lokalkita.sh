@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROJECT_DIR="/home/t-n-r-p-w/Documents/lomba/LocalKita"
+PROJECT_DIR="/home/kurakura/Developer/proyek/LocalKita"
 PYTHON_DIR="$PROJECT_DIR/backend/python"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 
