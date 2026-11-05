@@ -84,7 +84,7 @@
     }
     var pesanBtn = null;
     if (p.store_id) {
-      pesanBtn = LK.el('button', { type: 'button', 'class': 'tautan-chat', text: 'Pesan Barang' });
+      pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Pesan Barang' });
       pesanBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         try {
@@ -118,7 +118,7 @@
     var poin = (p.earns_points === true || Number(p.earns_points) === 1) ? LK.el('span', { 'class': 'lencana', text: 'Dapat poin' }) : null;
     var chat = p.store_id
       ? LK.el('a', {
-        'class': 'tautan-chat',
+        'class': 'tombol-lunak',
         href: 'pesanan.html?pesan=' + encodeURIComponent(p.product_id || '') + '&store_id=' + encodeURIComponent(p.store_id),
         text: 'Pesan Barang'
       })

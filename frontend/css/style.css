@@ -4,7 +4,7 @@
   --sogan:#5B3A29; --krem:#EADCC6; --terra:#C86B45; --terra-tua:#A9522F;
   --terra-hover:#8F4426;
   --bg:#FBF4E8; --kartu:#FFFBF4; --teks:#3A2418; --teks-lembut:#7A5A47;
-  --krem-muda:#F6ECDB;
+  --krem-muda:#F6ECDB; --krem-tua:#EFE0C7;
   --garis:rgba(91,58,41,.16); --galat:#9B2C1F;
   --r-sm:12px; --r-md:18px; --r-lg:24px;
   --bayang-sm:0 2px 8px rgba(91,58,41,.08);
@@ -120,6 +120,11 @@ main{padding-block:16px 40px}
 .tombol-garis{background:transparent;color:var(--terra-tua)}
 .tombol-garis:hover{background:var(--krem);color:var(--sogan);border-color:var(--sogan)}
 .tombol[disabled]{opacity:.55;cursor:not-allowed}
+/* Varian lembut: untuk aksi sekunder di dalam kartu produk */
+.tombol-lunak{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid var(--garis);border-radius:999px;background:var(--krem);color:var(--terra-tua);font:inherit;font-weight:700;text-decoration:none;cursor:pointer;transition:background var(--transisi),border-color var(--transisi),color var(--transisi)}
+.tombol-lunak:hover{background:var(--krem-tua);border-color:rgba(169,82,47,.35);color:var(--terra-tua)}
+.tombol-lunak:active{transform:translateY(1px)}
+.tombol-lunak:focus-visible{outline-offset:1px}
 
 /* Grid + card produk (solid, tanpa blur, supaya ringan di HP murah) */
 .grid-produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
