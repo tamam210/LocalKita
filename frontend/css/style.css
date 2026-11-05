@@ -85,6 +85,27 @@ a{color:var(--terra-tua)}
 }
 .nav-daftar a:hover,.nav-daftar button:hover{background:rgba(234,220,198,.8)}
 .nav-daftar a[aria-current="page"]{background:var(--sogan);color:#fff}
+.nav-profil{position:relative}
+.nav-daftar .profil-tombol{
+  width:44px;height:44px;min-height:44px;padding:0;border:2px solid transparent;border-radius:50%;
+  background:var(--sogan);color:#fff;font:inherit;font-weight:900
+}
+.nav-daftar .profil-tombol:hover{background:#432A1E}
+.profil-avatar{font-size:.9rem;letter-spacing:.02em}
+.profil-menu{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:min(240px,calc(100vw - 32px));
+  padding:6px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);
+  box-shadow:var(--bayang)
+}
+.profil-kepala{display:flex;flex-direction:column;gap:2px;padding:10px 12px 8px;margin-bottom:4px;border-bottom:1px solid var(--garis)}
+.profil-nama{color:var(--sogan);font-size:.95rem;overflow-wrap:anywhere}
+.profil-peran{color:var(--teks-lembut);font-size:.8rem;font-weight:700}
+.nav-daftar .profil-aksi{
+  display:flex;align-items:center;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:var(--r-sm);
+  background:transparent;color:var(--sogan);font:inherit;font-weight:700;text-align:left;text-decoration:none;cursor:pointer
+}
+.nav-daftar .profil-aksi:hover{background:var(--krem)}
+.nav-daftar .profil-keluar{color:var(--galat)}
 
 /* Menu profil dropdown */
 .menu-profil{position:relative}

@@ -14,8 +14,7 @@
   <link rel="stylesheet" href="css/style.css?v=5">
   <script src="js/api.js?v=4" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
-<script src="js/dashboard-penjual.js?v=3" defer></script>
-<script src="js/dashboard-produk.js?v=2" defer></script>
+<script src="js/dashboard-penjual.js?v=6" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -86,11 +85,18 @@
     </div>
   </header>
   <main class="wadah">
+    <section id="pilih-toko-admin" class="panel kaca" aria-labelledby="pilih-toko-admin-j" hidden>
+      <h2 id="pilih-toko-admin-j">Pilih toko</h2>
+      <div class="bidang">
+        <label for="toko-admin">Toko yang dilihat</label>
+        <select id="toko-admin"></select>
+      </div>
+    </section>
     <section class="dashboard-kepala" aria-labelledby="judul-dashboard">
       <div>
         <p class="eyebrow">Dashboard penjual</p>
-        <h1 id="judul-dashboard">Halo, <span id="nama-toko">Dapur Bu Sari</span></h1>
-        <p>Pantau pesanan, pendapatan, dan kesehatan usaha tokomu bulan ini.</p>
+        <h1 id="judul-dashboard">Halo, <span id="nama-toko">Toko saya</span></h1>
+        <p>Pantau omzet, laba, produk, dan aktivitas tokomu bulan ini.</p>
       </div>
       <div class="aksi-cepat" role="group" aria-label="Aksi cepat">
         <a class="tombol" href="hpp.html">Hitung HPP</a>
@@ -99,7 +105,7 @@
     </section>
 
     <div id="info-dashboard" class="info-data" role="status">
-      <p>Menampilkan data contoh. Angka akan terisi otomatis setelah API dashboard tersedia.</p>
+      <p>Memuat data toko...</p>
     </div>
 
     <section id="ringkasan" class="panel kaca" aria-labelledby="ringkasan-j">
@@ -107,36 +113,18 @@
       <div id="isi-ringkasan" class="grid-kartu" aria-live="polite"></div>
     </section>
 
-    <section id="produk-saya" class="panel kaca" aria-labelledby="produk-saya-j">
+    <section id="produk-terlaris" class="panel kaca" aria-labelledby="produk-terlaris-j">
       <div class="judul-baris">
-        <h2 id="produk-saya-j">Produk Saya</h2>
-        <span class="lencana" id="jumlah-produk">0 produk</span>
+        <h2 id="produk-terlaris-j">Produk terlaris</h2>
+        <span class="label">Bulan ini</span>
       </div>
-      <div id="info-produk" class="info-data" role="status" hidden></div>
-      <div id="isi-produk" class="grid-produk-saya" aria-live="polite"></div>
-    </section>    
-
-    <section id="pesanan" class="panel kaca" aria-labelledby="pesanan-j">
-      <div class="judul-baris">
-        <h2 id="pesanan-j">Pesanan terbaru</h2>
-        <span class="lencana" id="jumlah-perlu-aksi">0 perlu tindakan</span>
-      </div>
-      <div id="isi-pesanan" class="tabel-bungkus" aria-live="polite"></div>
+      <div id="isi-produk-terlaris" class="tabel-bungkus" aria-live="polite"></div>
     </section>
 
     <div class="dua-kolom">
       <section id="poin-promo" class="panel kaca" aria-labelledby="poin-promo-j">
         <h2 id="poin-promo-j">Poin &amp; promo</h2>
         <div id="isi-poin-promo" class="grid-kartu" aria-live="polite"></div>
-        <div class="bar-baris" style="margin-top:16px">
-          <div class="kesehatan-baris">
-            <strong>Kuota promo terpakai</strong>
-            <span id="kuota-teks">32 dari 50</span>
-          </div>
-          <div class="bar-trek" role="img" aria-label="Kuota promo terpakai 32 dari 50">
-            <div class="bar bar-laba" id="kuota-bar"></div>
-          </div>
-        </div>
       </section>
 
       <section id="chat-masuk" class="panel kaca" aria-labelledby="chat-masuk-j">

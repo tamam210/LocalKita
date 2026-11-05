@@ -22,3 +22,6 @@ venv/
 uploads/
 tmp/
 cookies.txt
+
+# Clone tidak sengaja di dalam repo
+/LocalKita/

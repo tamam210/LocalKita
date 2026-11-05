@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../lib/httpx.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/session.php';
@@ -9,18 +10,7 @@ require_once __DIR__ . '/../lib/auth.php';
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
-    http_response_code(204);
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
-    header('Access-Control-Max-Age: 86400');
-    exit;
-}
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
+handle_preflight();
 
 session_start_secure();
 
@@ -73,13 +63,15 @@ if ($method === 'POST' && $action === 'login') {
     $_SESSION['user_email'] = $user['email'];
     $_SESSION['user_phone'] = $user['phone'];
     $_SESSION['user_role'] = $user['role'];
+    unset($_SESSION['store_id'], $_SESSION['store_name']);
 
     if ($user['role'] === 'seller') {
-        $s = $pdo->prepare('SELECT store_id FROM stores WHERE owner_user_id = ? LIMIT 1');
+        $s = $pdo->prepare('SELECT store_id, name FROM stores WHERE owner_user_id = ? AND deleted_at IS NULL LIMIT 1');
         $s->execute([$user['user_id']]);
         $st = $s->fetch();
         if ($st && !empty($st['store_id'])) {
             $_SESSION['store_id'] = $st['store_id'];
+            $_SESSION['store_name'] = $st['name'];
         }
     }
 

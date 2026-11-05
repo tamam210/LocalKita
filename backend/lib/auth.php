@@ -47,6 +47,7 @@ function auth_user(): ?array
         'phone' => $_SESSION['user_phone'] ?? null,
         'role' => $_SESSION['user_role'] ?? null,
         'store_id' => $_SESSION['store_id'] ?? null,
+        'store_name' => $_SESSION['store_name'] ?? null,
     ];
 }
 

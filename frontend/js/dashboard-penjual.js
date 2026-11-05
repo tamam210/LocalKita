@@ -1,206 +1,272 @@
-/* dashboard-penjual.html. Tampilan data contoh sampai endpoint dashboard tersedia. */
 (function () {
   'use strict';
-
-  // Ganti bagian ini dengan data dari API dashboard saat backend sudah menyediakannya.
-  var DEMO = {
-    toko: 'Dapur Bu Sari',
-    ringkasan: [
-      { label: 'Pesanan masuk', nilai: '12', tren: '+3 dari bulan lalu', arah: 'naik', ket: '3 lagi nunggu konfirmasi' },
-      { label: 'Transaksi selesai', nilai: '8', tren: '+2 dari bulan lalu', arah: 'naik', ket: '67% dari pesanan masuk' },
-      { label: 'Pendapatan', nilai: 4850000, tren: '+12,4% dari bulan lalu', arah: 'naik', ket: 'Dari 8 transaksi tercatat' },
-      { label: 'Estimasi keuntungan', nilai: 1920000, tren: 'Margin 39,6%', arah: 'naik', ket: 'Setelah HPP dan biaya reward' },
-      { label: 'Kunjungan toko', nilai: '486', tren: '+18% dari bulan lalu', arah: 'naik', ket: '42 datang dari chat' }
-    ],
-    pesanan: [
-      { id: 'LK-1042', pembeli: 'Rina', produk: 'Sambal Roa × 2', total: 70000, status: 'menunggu', waktu: '5 menit lalu' },
-      { id: 'LK-1041', pembeli: 'Bagas', produk: 'Keripik Singkong × 4', total: 60000, status: 'menunggu', waktu: '18 menit lalu' },
-      { id: 'LK-1040', pembeli: 'Sari', produk: 'Kopi Lokal × 1', total: 45000, status: 'diproses', waktu: '1 jam lalu' },
-      { id: 'LK-1039', pembeli: 'Dewi', produk: 'Paket Oleh-oleh × 1', total: 125000, status: 'selesai', waktu: 'Kemarin' },
-      { id: 'LK-1038', pembeli: 'Andi', produk: 'Sambal Roa × 1', total: 35000, status: 'batal', waktu: 'Kemarin' }
-    ],
-    poin: [
-      { label: 'Poin diberikan', nilai: '1.240 poin' },
-      { label: 'Poin ditukar', nilai: '320 poin' },
-      { label: 'Biaya reward', nilai: 96000 },
-      { label: 'Sisa kuota promo', nilai: '18 slot' }
-    ],
-    chat: [
-      { nama: 'Rina', pesan: 'Kak, sambal roa-nya masih ada?', belum: 2 },
-      { nama: 'Bagas', pesan: 'Bisa dikirim hari ini?', belum: 1 },
-      { nama: 'Dewi', pesan: 'Terima kasih, paketnya sudah sampai.', belum: 0 }
-    ],
-    kesehatan: [
-      { label: 'Margin laba', nilai: '39,6%', ket: 'Di atas target 35%', persen: 100, kelas: 'bar-omzet', status: 'Sehat', statusKelas: 'tren-naik' },
-      { label: 'Promo masih untung', nilai: '7 dari 8', ket: '1 promo mendekati HPP', persen: 87.5, kelas: 'bar-laba', status: 'Perlu dicek', statusKelas: 'tren-turun' },
-      { label: 'Stok menipis', nilai: '3 produk', ket: 'Stok di bawah 5 unit', persen: 60, kelas: 'bar-laba', status: 'Perlu restock', statusKelas: 'tren-turun' }
-    ],
-    grafik: [
-      { bulan: 'Mei', omzet: 3200000, laba: 1100000 },
-      { bulan: 'Jun', omzet: 3750000, laba: 1320000 },
-      { bulan: 'Jul', omzet: 3500000, laba: 1240000 },
-      { bulan: 'Agu', omzet: 4100000, laba: 1550000 },
-      { bulan: 'Sep', omzet: 4400000, laba: 1710000 },
-      { bulan: 'Okt', omzet: 4850000, laba: 1920000 }
-    ]
-  };
-
-  var STATUS = {
-    menunggu: { teks: 'Lagi Nunggu', kelas: 'status-menunggu' },
-    diproses: { teks: 'Lagi Disiapin', kelas: 'status-diproses' },
-    selesai: { teks: 'Beres, Poin Dikasih', kelas: 'status-selesai' },
-    batal: { teks: 'Dibatalkan', kelas: 'status-batal' }
-  };
-
+  var $namaToko = document.getElementById('nama-toko');
+  var $info = document.getElementById('info-dashboard');
   var $ringkasan = document.getElementById('isi-ringkasan');
-  var $pesanan = document.getElementById('isi-pesanan');
-  var $perlu = document.getElementById('jumlah-perlu-aksi');
+  var $produk = document.getElementById('isi-produk-terlaris');
   var $poin = document.getElementById('isi-poin-promo');
   var $chat = document.getElementById('isi-chat-masuk');
   var $kesehatan = document.getElementById('isi-kesehatan');
   var $grafik = document.getElementById('isi-grafik');
-  var $kuotaBar = document.getElementById('kuota-bar');
+  var $pilihAdmin = document.getElementById('pilih-toko-admin');
+  var $tokoAdmin = document.getElementById('toko-admin');
+  var $tautanChat = document.querySelector('.tautan-chat');
 
-  document.getElementById('nama-toko').textContent = DEMO.toko;
+  function th(t) { return LK.el('th', { scope: 'col', text: t }); }
+  function td(t) { return LK.el('td', { text: t }); }
 
-  function nilaiTampil(n) {
-    return typeof n === 'number' ? LK.rupiah(n) : n;
-  }
-  function kartuAngka(label, nilai, tren, arah, ket) {
-    var isi = [
+  function kartu(label, nilai, ket) {
+    return LK.el('article', { 'class': 'kartu-angka' }, [
       LK.el('span', { 'class': 'label', text: label }),
-      LK.el('strong', { 'class': 'nilai', text: nilaiTampil(nilai) })
-    ];
-    if (tren) { isi.push(LK.el('span', { 'class': 'tren ' + (arah === 'turun' ? 'tren-turun' : 'tren-naik'), text: tren })); }
-    if (ket) { isi.push(LK.el('span', { 'class': 'label', text: ket })); }
-    return LK.el('article', { 'class': 'kartu-angka' }, isi);
+      LK.el('strong', { 'class': 'nilai', text: nilai }),
+      ket ? LK.el('span', { 'class': 'label', text: ket }) : null
+    ]);
   }
 
-  function renderRingkasan() {
-    $ringkasan.replaceChildren.apply($ringkasan, DEMO.ringkasan.map(function (r) {
-      return kartuAngka(r.label, r.nilai, r.tren, r.arah, r.ket);
-    }));
+  function periode(r) {
+    return r.period && r.period.label
+      ? r.period.label
+      : LK.bulan(r.period_year, r.period_month);
   }
 
-  function th(teks) { return LK.el('th', { scope: 'col', text: teks }); }
-  function td(teks) { return LK.el('td', { text: teks }); }
-
-  function tombolAksi(p) {
-    var bungkus = LK.el('div', { 'class': 'tabel-aksi' });
-    if (p.status === 'menunggu') {
-      bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol', 'data-aksi': 'terima', 'data-id': p.id, text: 'Terima' }));
-      bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', 'data-aksi': 'tolak', 'data-id': p.id, text: 'Tolak' }));
-    } else if (p.status === 'diproses') {
-      bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol', 'data-aksi': 'selesai', 'data-id': p.id, text: 'Tandai Beres' }));
-    } else {
-      bungkus.appendChild(LK.el('span', { 'class': 'label', text: '—' }));
+  function daftarBulan(n) {
+    var hasil = [], sekarang = new Date();
+    for (var i = n - 1; i >= 0; i--) {
+      var d = new Date(sekarang.getFullYear(), sekarang.getMonth() - i, 1);
+      hasil.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
     }
-    return bungkus;
+    return hasil;
   }
 
-  function renderPesanan() {
-    var perlu = DEMO.pesanan.filter(function (p) { return p.status === 'menunggu'; }).length;
-    $perlu.textContent = perlu + ' lagi nunggu konfirmasi';
+  function bukanLaporan(e) {
+    var m = String((e && e.message) || '').toLowerCase();
+    return /tidak ditemukan|belum ada|not found|http 404/.test(m);
+  }
+
+  function aman(p) {
+    return p.then(
+      function (data) { return { ok: true, data: data }; },
+      function (error) { return { ok: false, error: error }; }
+    );
+  }
+
+  function muatLaporan(storeId) {
+    var sekarang = new Date();
+    var bulanIni = { year: sekarang.getFullYear(), month: sekarang.getMonth() + 1 };
+
+    return Promise.all(daftarBulan(6).map(function (b) {
+      var refresh = b.year === bulanIni.year && b.month === bulanIni.month ? '1' : '0';
+      return LK.apiGet(
+        'laporan.php?store_id=' + encodeURIComponent(storeId) +
+        '&year=' + b.year + '&month=' + b.month + '&refresh=' + refresh
+      ).catch(function (e) {
+        if (/Sesi berakhir/.test(e.message)) { throw e; }
+        if (bukanLaporan(e)) { return null; }
+        throw e;
+      });
+    })).then(function (list) {
+      return list.filter(Boolean).sort(function (a, b) {
+        var pa = a.period || {}, pb = b.period || {};
+        return (pa.year - pb.year) || (pa.month - pb.month);
+      });
+    });
+  }
+
+  function muatProduk(storeId) {
+    return LK.apiGet(
+      'products.php?store_id=' + encodeURIComponent(storeId) +
+      '&status=active&page=1&per_page=50'
+    );
+  }
+
+  function muatChat(storeId) {
+    return LK.apiGet('chat.php?action=conversations&store_id=' + encodeURIComponent(storeId));
+  }
+
+  function renderRingkasan(laporan, produk, chat) {
+    if (!laporan.ok) {
+      LK.status($ringkasan, 'galat', 'Ringkasan gagal dimuat', laporan.error.message);
+      return;
+    }
+
+    var list = laporan.data;
+    if (!list.length) {
+      LK.status($ringkasan, 'kosong', 'Belum ada laporan', 'Laporan muncul setelah ada pesanan selesai.');
+      return;
+    }
+
+    var s = list[list.length - 1].summary || {};
+    var jumlahProduk = produk.ok
+      ? Number((produk.data.pagination || {}).total || (produk.data.items || []).length)
+      : null;
+    var belum = chat.ok
+      ? (chat.data.items || []).reduce(function (n, c) {
+        return n + (Number(c.unread_count) || 0);
+      }, 0)
+      : null;
+
+    $ringkasan.replaceChildren.apply($ringkasan, [
+      kartu('Omzet bulan ini', LK.rupiah(s.gross_revenue), 'Dari pesanan selesai'),
+      kartu('Laba bersih', LK.rupiah(s.net_profit), 'Setelah HPP, biaya, dan reward'),
+      kartu('Margin', LK.persen(s.net_margin), 'Laba bersih dibagi pendapatan'),
+      kartu('Produk aktif', jumlahProduk === null ? '-' : String(jumlahProduk), 'Produk yang tampil di etalase'),
+      kartu('Chat belum dibaca', belum === null ? '-' : String(belum), 'Pesan dari pembeli')
+    ]);
+  }
+
+  function renderProdukTerlaris(laporan) {
+    if (!laporan.ok) {
+      LK.status($produk, 'galat', 'Produk terlaris gagal dimuat', laporan.error.message);
+      return;
+    }
+
+    var list = laporan.data;
+    if (!list.length) {
+      LK.status($produk, 'kosong', 'Belum ada produk terjual', 'Produk terlaris muncul setelah ada pesanan selesai.');
+      return;
+    }
+
+    var terlaris = Array.isArray(list[list.length - 1].top_products)
+      ? list[list.length - 1].top_products
+      : [];
+    if (!terlaris.length) {
+      LK.status($produk, 'kosong', 'Belum ada produk terjual', 'Produk terlaris muncul setelah ada pesanan selesai.');
+      return;
+    }
 
     var tb = LK.el('tbody');
-    DEMO.pesanan.forEach(function (p) {
-      var st = STATUS[p.status] || STATUS.menunggu;
+    terlaris.forEach(function (x) {
       tb.appendChild(LK.el('tr', {}, [
-        LK.el('td', {}, [LK.el('strong', { text: p.id }), LK.el('br'), LK.el('span', { 'class': 'label', text: p.waktu })]),
-        td(p.pembeli),
-        td(p.produk),
-        td(LK.rupiah(p.total)),
-        LK.el('td', {}, [LK.el('span', { 'class': 'lencana-status ' + st.kelas, text: st.teks })]),
-        LK.el('td', {}, [tombolAksi(p)])
+        td(x.product_name || 'Produk'),
+        td(String(Number(x.qty_sold) || 0)),
+        td(LK.rupiah(x.revenue)),
+        td(LK.rupiah(x.profit))
       ]));
     });
-    $pesanan.replaceChildren(LK.el('table', {}, [
-      LK.el('caption', { 'class': 'sr-only', text: 'Pesanan terbaru' }),
-      LK.el('thead', {}, [LK.el('tr', {}, [th('Pesanan'), th('Pembeli'), th('Produk'), th('Total'), th('Status'), th('Aksi')])]),
+
+    $produk.replaceChildren(LK.el('table', {}, [
+      LK.el('caption', { 'class': 'sr-only', text: 'Produk terlaris bulan ini' }),
+      LK.el('thead', {}, [
+        LK.el('tr', {}, [th('Produk'), th('Terjual'), th('Omzet'), th('Laba')])
+      ]),
       tb
     ]));
   }
 
-  var KONFIRMASI = {
-    terima: {
-      label: 'Pesanan masuk',
-      judul: 'Terima pesanan',
-      pesan: 'Gaskeun diterima? Pembeli bakal lihat status jadi "Lagi Disiapin".',
-      teksYa: 'Ya, gaskeun'
-    },
-    tolak: {
-      label: 'Pesanan masuk',
-      judul: 'Tolak pesanan',
-      pesan: 'Pembeli bakal lihat status jadi "Dibatalkan". Nggak bisa dibatalin lagi, lho.',
-      teksYa: 'Ya, tolak',
-      jenis: 'bahaya'
-    },
-    selesai: {
-      label: 'Transaksi',
-      judul: 'Tandai beres',
-      pesan: 'Setelah ini poin pembeli langsung dicatat.',
-      teksYa: 'Yakin, beresin'
+  function renderPoinPromo(laporan, produk) {
+    if (!laporan.ok) {
+      LK.status($poin, 'galat', 'Data promo gagal dimuat', laporan.error.message);
+      return;
     }
-  };
 
-  $pesanan.addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-aksi]');
-    if (!b) { return; }
-    var id = b.dataset.id;
-    var aksi = b.dataset.aksi;
-    var pesanan = DEMO.pesanan.filter(function (p) { return p.id === id; })[0];
-    var opsi = KONFIRMASI[aksi];
-    if (!pesanan || !opsi) { return; }
+    var list = laporan.data;
+    if (!list.length) {
+      LK.status($poin, 'kosong', 'Belum ada data promo', 'Data muncul setelah ada transaksi.');
+      return;
+    }
 
-    LK.konfirmasi({
-      label: opsi.label,
-      judul: opsi.judul + ' ' + id + '?',
-      pesan: opsi.pesan,
-      teksYa: opsi.teksYa,
-      jenis: opsi.jenis
-    }).then(function (lanjut) {
-      if (!lanjut) { return; }
-      if (aksi === 'terima') {
-        pesanan.status = 'diproses';
-        LK.notif('Pesanan ' + id + ' diterima — gaskeun disiapin!', 'sukses', 'Pesanan diterima');
-      } else if (aksi === 'tolak') {
-        pesanan.status = 'batal';
-        LK.notif('Pesanan ' + id + ' ditolak. Pembeli lihatnya "Dibatalkan".', 'bahaya', 'Pesanan ditolak');
-      } else if (aksi === 'selesai') {
-        pesanan.status = 'selesai';
-        LK.notif('Transaksi ' + id + ' beres. Poin pembeli udah dicatat.', 'sukses', 'Transaksi beres');
-      }
-      renderPesanan();
-    });
-  });
+    var s = list[list.length - 1].summary || {};
+    var berpoin = produk.ok
+      ? (produk.data.items || []).filter(function (x) { return !!x.earns_points; }).length
+      : null;
 
-  function renderPoinPromo() {
-    $poin.replaceChildren.apply($poin, DEMO.poin.map(function (p) {
-      return kartuAngka(p.label, p.nilai);
-    }));
-    var terpakai = 32, total = 50;
-    document.getElementById('kuota-teks').textContent = terpakai + ' dari ' + total;
-    $kuotaBar.style.width = (terpakai / total * 100).toFixed(1) + '%';
+    $poin.replaceChildren.apply($poin, [
+      kartu('Diskon', LK.rupiah(s.discounts), 'Diskon pesanan bulan ini'),
+      kartu('Biaya reward', LK.rupiah(s.promo_costs), 'Poin yang diberikan ke pembeli'),
+      kartu('Biaya operasional', LK.rupiah(s.operating_expenses), 'Pengeluaran toko bulan ini'),
+      kartu('Produk berpoin', berpoin === null ? '-' : String(berpoin), 'Produk aktif yang memberi poin')
+    ]);
   }
 
-  function renderChat() {
-    $chat.replaceChildren.apply($chat, DEMO.chat.map(function (c) {
+  function renderChat(chat) {
+    if (!chat.ok) {
+      LK.status($chat, 'galat', 'Chat gagal dimuat', chat.error.message);
+      return;
+    }
+
+    var list = Array.isArray(chat.data.items) ? chat.data.items : [];
+    if (!list.length) {
+      LK.status($chat, 'kosong', 'Belum ada chat', 'Percakapan dari pembeli akan muncul di sini.');
+      return;
+    }
+
+    $chat.replaceChildren.apply($chat, list.map(function (c) {
+      var nama = c.buyer_name || 'Pembeli';
       var isi = [
-        LK.el('span', { 'class': 'avatar', 'aria-hidden': 'true', text: c.nama.charAt(0).toUpperCase() }),
+        LK.el('span', { 'class': 'avatar', 'aria-hidden': 'true', text: String(nama).charAt(0).toUpperCase() || '?' }),
         LK.el('div', { 'class': 'item-chat-isi' }, [
-          LK.el('strong', { text: c.nama }),
-          LK.el('span', { text: c.pesan })
+          LK.el('strong', { text: nama }),
+          LK.el('span', { text: c.last_message || 'Belum ada pesan' })
         ])
       ];
-      if (c.belum > 0) {
-        isi.push(LK.el('span', { 'class': 'lencana-unread', text: String(c.belum), 'aria-label': c.belum + ' pesan belum dibaca' }));
+      var belum = Number(c.unread_count) || 0;
+      if (belum > 0) {
+        isi.push(LK.el('span', {
+          'class': 'lencana-unread',
+          text: String(belum),
+          'aria-label': belum + ' pesan belum dibaca'
+        }));
       }
-      return LK.el('li', {}, [LK.el('a', { 'class': 'item-chat', href: 'poin.html#chat' }, isi)]);
+      return LK.el('li', {}, [
+        LK.el('a', { 'class': 'item-chat', href: 'poin.html#chat' }, isi)
+      ]);
     }));
   }
 
-  function renderKesehatan() {
-    $kesehatan.replaceChildren.apply($kesehatan, DEMO.kesehatan.map(function (k) {
+  function renderKesehatan(laporan, produk) {
+    if (!laporan.ok) {
+      LK.status($kesehatan, 'galat', 'Kesehatan usaha gagal dimuat', laporan.error.message);
+      return;
+    }
+
+    var list = laporan.data;
+    if (!list.length) {
+      LK.status($kesehatan, 'kosong', 'Belum ada data', 'Data kesehatan muncul setelah ada laporan.');
+      return;
+    }
+
+    var s = list[list.length - 1].summary || {};
+    var margin = Number(s.net_margin) || 0;
+    var netRevenue = Number(s.net_revenue) || 0;
+    var opex = Number(s.operating_expenses) || 0;
+    var opexPersen = netRevenue > 0 ? Math.min(100, opex / netRevenue * 100) : 0;
+    var produkList = produk.ok ? (produk.data.items || []) : [];
+    var stok = produk.ok
+      ? produkList.filter(function (x) { return Number(x.total_stock) < 5; }).length
+      : null;
+    var stokPersen = stok === null ? 0 : Math.min(100, stok / Math.max(1, produkList.length) * 100);
+
+    var data = [
+      {
+        label: 'Margin laba',
+        nilai: LK.persen(margin),
+        ket: 'Dari laporan bulan ini',
+        persen: Math.max(0, Math.min(100, margin)),
+        kelas: 'bar-omzet',
+        status: margin >= 0 ? 'Positif' : 'Negatif',
+        statusKelas: margin >= 0 ? 'tren-naik' : 'tren-turun'
+      },
+      {
+        label: 'Stok menipis',
+        nilai: stok === null ? '-' : stok + ' produk',
+        ket: 'Stok di bawah 5 unit',
+        persen: stokPersen,
+        kelas: 'bar-laba',
+        status: stok === null ? 'Data gagal' : (stok > 0 ? 'Perlu restock' : 'Aman'),
+        statusKelas: stok === null ? '' : (stok > 0 ? 'tren-turun' : 'tren-naik')
+      },
+      {
+        label: 'Biaya operasional',
+        nilai: LK.rupiah(opex),
+        ket: 'Dari laporan bulan ini',
+        persen: opexPersen,
+        kelas: 'bar-laba',
+        status: 'Tercatat',
+        statusKelas: 'tren-naik'
+      }
+    ];
+
+    $kesehatan.replaceChildren.apply($kesehatan, data.map(function (k) {
       var bar = LK.el('div', { 'class': 'bar ' + k.kelas });
       bar.style.width = Math.max(0, Math.min(100, k.persen)) + '%';
       return LK.el('li', {}, [
@@ -217,8 +283,22 @@
     }));
   }
 
-  function renderGrafik() {
-    var max = Math.max.apply(null, DEMO.grafik.map(function (g) { return g.omzet; })) || 1;
+  function renderGrafik(laporan) {
+    if (!laporan.ok) {
+      LK.status($grafik, 'galat', 'Grafik gagal dimuat', laporan.error.message);
+      return;
+    }
+
+    var list = laporan.data;
+    if (!list.length) {
+      LK.status($grafik, 'kosong', 'Belum ada grafik', 'Grafik muncul setelah ada laporan bulanan.');
+      return;
+    }
+
+    var max = Math.max.apply(null, list.map(function (r) {
+      return Number((r.summary || {}).gross_revenue) || 0;
+    })) || 1;
+
     function bar(label, kelas, nilai) {
       var isi = LK.el('div', { 'class': 'bar ' + kelas });
       isi.style.width = Math.max(0, Math.min(100, nilai / max * 100)).toFixed(1) + '%';
@@ -228,19 +308,114 @@
         LK.el('span', { text: LK.rupiah(nilai) })
       ]);
     }
-    $grafik.replaceChildren.apply($grafik, DEMO.grafik.map(function (g) {
+
+    $grafik.replaceChildren.apply($grafik, list.map(function (r) {
+      var s = r.summary || {};
       return LK.el('div', { 'class': 'bar-baris' }, [
-        LK.el('strong', { text: g.bulan }),
-        bar('Omzet', 'bar-omzet', g.omzet),
-        bar('Laba', 'bar-laba', g.laba)
+        LK.el('strong', { text: periode(r) }),
+        bar('Omzet', 'bar-omzet', Number(s.gross_revenue) || 0),
+        bar('Laba bersih', 'bar-laba', Number(s.net_profit) || 0)
       ]);
     }));
   }
 
-  renderRingkasan();
-  renderPesanan();
-  renderPoinPromo();
-  renderChat();
-  renderKesehatan();
-  renderGrafik();
+  function renderSemua(hasil) {
+    var laporan = hasil[0], produk = hasil[1], chat = hasil[2];
+
+    renderRingkasan(laporan, produk, chat);
+    renderProdukTerlaris(laporan);
+    renderPoinPromo(laporan, produk);
+    renderChat(chat);
+    renderKesehatan(laporan, produk);
+    renderGrafik(laporan);
+
+    var gagal = !laporan.ok || !produk.ok || !chat.ok;
+    $info.hidden = !gagal;
+    if (gagal) {
+      $info.replaceChildren(LK.el('p', { text: 'Sebagian data gagal dimuat. Coba muat ulang halaman.' }));
+    }
+  }
+
+  function tokoDariUrl() {
+    var m = /[?&]store_id=([^&]+)/.exec(window.location.search);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function tokoDipilih(items) {
+    var id = tokoDariUrl();
+    return items.filter(function (x) {
+      return String(x.store_id) === String(id);
+    })[0] || items[0];
+  }
+
+  function muatData(storeId, storeName) {
+    $namaToko.textContent = storeName || 'Toko saya';
+    return Promise.all([
+      aman(muatLaporan(storeId)),
+      aman(muatProduk(storeId)),
+      aman(muatChat(storeId))
+    ]).then(renderSemua);
+  }
+
+  function muat() {
+    [$ringkasan, $produk, $poin, $chat, $kesehatan, $grafik].forEach(function (b) {
+      LK.status(b, 'memuat', 'Memuat data...');
+    });
+    $info.hidden = false;
+    $info.replaceChildren(LK.el('p', { text: 'Memuat data toko...' }));
+
+    LK.sesi().then(function (u) {
+      if (!u || !u.user_id) {
+        throw new Error('Masuk sebagai penjual atau admin untuk melihat dashboard.');
+      }
+
+      if (u.role === 'seller') {
+        if (!u.store_id) {
+          throw new Error('Akun ini belum terhubung ke toko.');
+        }
+        if ($pilihAdmin) { $pilihAdmin.hidden = true; }
+        return muatData(u.store_id, u.store_name);
+      }
+
+      if (u.role !== 'admin') {
+        throw new Error('Dashboard ini hanya untuk akun penjual atau admin.');
+      }
+
+      return LK.apiGet('stores.php').then(function (d) {
+        var items = Array.isArray(d.items) ? d.items : [];
+        if (!items.length) {
+          throw new Error('Belum ada toko yang dapat dilihat.');
+        }
+
+        var pilih = tokoDipilih(items);
+        if ($pilihAdmin) { $pilihAdmin.hidden = false; }
+        if ($tautanChat) { $tautanChat.hidden = true; }
+        if ($tokoAdmin) {
+          $tokoAdmin.replaceChildren.apply($tokoAdmin, items.map(function (x) {
+            return LK.el('option', { value: x.store_id, text: x.name || 'Toko' });
+          }));
+          $tokoAdmin.value = pilih.store_id;
+        }
+
+        return muatData(pilih.store_id, pilih.name);
+      });
+    }).catch(function (e) {
+      $info.hidden = false;
+      $info.replaceChildren(LK.el('p', { text: 'Data toko gagal dimuat: ' + e.message }));
+      [$ringkasan, $produk, $poin, $chat, $kesehatan, $grafik].forEach(function (b) {
+        LK.status(b, 'galat', 'Data gagal dimuat', e.message, LK.ulang(muat));
+      });
+    });
+  }
+
+  if ($tokoAdmin) {
+    $tokoAdmin.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('store_id', $tokoAdmin.value);
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      muat();
+    });
+  }
+
+  muat();
 })();

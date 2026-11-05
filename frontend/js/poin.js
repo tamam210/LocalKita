@@ -2,7 +2,9 @@
   'use strict';
   var $s = document.getElementById('nilai-saldo'), $rw = document.getElementById('isi-reward'), $rv = document.getElementById('isi-riwayat');
   var $dc = document.getElementById('daftar-chat'), $ps = document.getElementById('isi-pesan'), $fc = document.getElementById('form-chat'), $pc = document.getElementById('pesan-chat');
-  var saldo = 0, userId = null, cid = null, storeId = null;
+  var $pilih = document.getElementById('pilih-toko-poin'), $toko = document.getElementById('toko-poin'), $judul = document.getElementById('judul-poin');
+  var $saldo = document.getElementById('saldo-poin'), $reward = document.getElementById('daftar-reward'), $riwayat = document.getElementById('riwayat-poin');
+  var saldo = 0, userId = null, cid = null, storeId = null, role = null;
 
   function th(t) { return LK.el('th', { scope: 'col', text: t }); }
   function td(t) { return LK.el('td', { text: t }); }
@@ -12,34 +14,64 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
 
-  // Toko diambil dari ?store_id= (tautan "Chat penjual" di kartu produk) atau
-  // dari sesi penjual. Tidak ada lagi toko demo diam-diam.
-  function siapkanToko() {
-    if (storeId) { return Promise.resolve(storeId); }
-    return LK.sesi().then(function (u) {
-      if (!u || !u.user_id) {
-        throw new Error('Masuk dulu untuk melihat poin dan chat.');
+  function aturTampilan(peran) {
+    var pembeli = peran === 'buyer';
+    [$saldo, $reward, $riwayat].forEach(function (bagian) {
+      if (bagian) { bagian.hidden = !pembeli; }
+    });
+    if ($pilih) { $pilih.hidden = !pembeli; }
+    if ($judul) { $judul.textContent = pembeli ? 'Poin Pelanggan' : 'Chat'; }
+    document.title = (pembeli ? 'Poin' : 'Chat') + ' - LokalKita';
+  }
+
+  function bisaKirim() {
+    return !!storeId && (role === 'buyer' || !!cid);
+  }
+
+  function aturTombolChat() {
+    var bisa = bisaKirim();
+    $fc.elements.body.disabled = !bisa;
+    $fc.querySelector('button').disabled = !bisa;
+  }
+
+  function muatToko() {
+    return LK.apiGet('poin.php?action=stores').then(function (d) {
+      var items = Array.isArray(d.items) ? d.items : [];
+      if (!items.length) {
+        throw new Error('Belum ada toko dengan poin aktif.');
       }
-      userId = u.user_id;
-      storeId = tokoDariUrl() || u.store_id || null;
-      if (!storeId) {
-        throw new Error('Toko belum dipilih. Buka halaman ini lewat tombol "Chat penjual" di kartu produk.');
-      }
+
+      var dariUrl = tokoDariUrl();
+      var dipilih = items.filter(function (x) {
+        return String(x.store_id) === String(dariUrl);
+      })[0] || items[0];
+
+      storeId = dipilih.store_id;
+      $toko.replaceChildren.apply($toko, items.map(function (x) {
+        var poin = Number(x.available_balance) || 0;
+        return LK.el('option', {
+          value: x.store_id,
+          text: (x.store_name || 'Toko') + ' · ' + poin.toLocaleString('id-ID') + ' poin'
+        });
+      }));
+      $toko.value = storeId;
+      if ($pilih) { $pilih.hidden = items.length <= 1; }
       return storeId;
     });
   }
 
-  function muat() {
+  function muatPoin() {
+    if (role !== 'buyer' || !storeId) { return Promise.resolve(); }
+
+    $s.textContent = 'Memuat...';
     LK.status($rw, 'memuat', 'Memuat reward...');
     LK.status($rv, 'memuat', 'Memuat riwayat...');
 
-    return siapkanToko().then(function (id) {
-      return Promise.all([
-        LK.apiGet('poin.php?action=balance&store_id=' + encodeURIComponent(id)),
-        LK.apiGet('poin.php?action=rewards&store_id=' + encodeURIComponent(id)),
-        LK.apiGet('poin.php?action=history&store_id=' + encodeURIComponent(id) + '&page=1&per_page=20')
-      ]);
-    }).then(function (hasil) {
+    return Promise.all([
+      LK.apiGet('poin.php?action=balance&store_id=' + encodeURIComponent(storeId)),
+      LK.apiGet('poin.php?action=rewards&store_id=' + encodeURIComponent(storeId)),
+      LK.apiGet('poin.php?action=history&store_id=' + encodeURIComponent(storeId) + '&page=1&per_page=20')
+    ]).then(function (hasil) {
       var b = hasil[0] || {}, r = hasil[1] || {}, h = hasil[2] || {};
       saldo = Number(b.available_balance !== undefined ? b.available_balance : b.balance) || 0;
       $s.textContent = saldo.toLocaleString('id-ID') + ' poin';
@@ -47,8 +79,8 @@
       riwayat(Array.isArray(h.items) ? h.items : []);
     }).catch(function (e) {
       $s.textContent = '-';
-      $rv.replaceChildren();
-      LK.status($rw, 'galat', 'Data poin gagal dimuat', e.message, LK.ulang(muat));
+      LK.status($rw, 'galat', 'Data poin gagal dimuat', e.message, LK.ulang(muatPoin));
+      LK.status($rv, 'galat', 'Data riwayat gagal dimuat', e.message);
     });
   }
 
@@ -96,16 +128,14 @@
       if (!lanjut) { return; }
       b.disabled = true;
 
-      siapkanToko().then(function (id) {
-        return LK.apiPost('poin.php', {
-          action: 'redeem',
-          store_id: id,
-          reward_id: r.reward_id,
-          quantity: 1
-        });
+      LK.apiPost('poin.php', {
+        action: 'redeem',
+        store_id: storeId,
+        reward_id: r.reward_id,
+        quantity: 1
       }).then(function () {
         LK.notif('Poin berhasil ditukar dengan ' + (r.name || 'reward') + '.', 'sukses', 'Penukaran berhasil');
-        return muat();
+        return muatPoin();
       }).catch(function (e) {
         LK.notif('Gagal menukar: ' + e.message, 'bahaya', 'Penukaran gagal');
         b.disabled = false;
@@ -121,8 +151,10 @@
 
     var JENIS = {
       earn: 'Poin masuk',
+      reserve: 'Poin ditahan',
+      release: 'Poin dilepas',
       redeem: 'Poin ditukar',
-      adjust: 'Penyesuaian',
+      adjustment: 'Penyesuaian',
       expire: 'Poin hangus'
     };
 
@@ -152,10 +184,12 @@
   function daftarChat(cs) {
     $dc.replaceChildren();
     cs.forEach(function (c, i) {
-      var nama = c.store_name || c.buyer_name || ('Percakapan ' + (i + 1));
+      var nama = role === 'seller'
+        ? (c.buyer_name || 'Pembeli')
+        : (c.store_name || 'Toko');
       var belum = Number(c.unread_count) || 0;
       var akhir = potong(c.last_message, 40);
-      var teks = nama +
+      var teks = (nama || ('Percakapan ' + (i + 1))) +
         (akhir ? ': ' + akhir : '') +
         (belum > 0 ? ' (' + belum + ')' : '');
       var b = LK.el('button', {
@@ -177,7 +211,10 @@
 
   function pesan(list) {
     if (!list.length) {
-      LK.status($ps, 'kosong', 'Belum ada pesan', 'Tulis pesan pertama di bawah.');
+      var petunjuk = role === 'seller'
+        ? 'Belum ada pesan untuk toko ini.'
+        : 'Tulis pesan pertama di bawah.';
+      LK.status($ps, 'kosong', 'Belum ada pesan', petunjuk);
       return;
     }
     var w = LK.el('div', { 'class': 'pesan-daftar' });
@@ -195,56 +232,82 @@
 
   function muatChat(id) {
     if (id) { cid = id; }
+    if (!storeId) {
+      LK.status($ps, 'galat', 'Chat gagal dimuat', 'Toko belum dipilih.');
+      aturTombolChat();
+      return Promise.resolve();
+    }
+
     LK.status($ps, 'memuat', 'Memuat percakapan...');
 
-    return siapkanToko().then(function () {
-      if (id) {
-        return LK.apiGet('chat.php?action=messages&conversation_id=' + encodeURIComponent(id)).then(function (d) {
-          pesan(Array.isArray(d.items) ? d.items : []);
-          return LK.apiPost('chat.php', {
-            action: 'read',
-            conversation_id: id
-          }).catch(function () {});
-        });
+    if (id) {
+      return LK.apiGet('chat.php?action=messages&conversation_id=' + encodeURIComponent(id)).then(function (d) {
+        pesan(Array.isArray(d.items) ? d.items : []);
+        return LK.apiPost('chat.php', {
+          action: 'read',
+          conversation_id: id
+        }).catch(function () {});
+      }).catch(function (e) {
+        LK.status($ps, 'galat', 'Chat gagal dimuat', e.message, LK.ulang(function () { muatChat(id); }));
+      }).then(aturTombolChat);
+    }
+
+    return LK.apiGet('chat.php?action=conversations&store_id=' + encodeURIComponent(storeId)).then(function (d) {
+      var cs = Array.isArray(d.items) ? d.items : [];
+      daftarChat(cs);
+
+      if (!cs.length) {
+        cid = null;
+        pesan([]);
+        return;
       }
 
-      return LK.apiGet('chat.php?action=conversations&store_id=' + encodeURIComponent(storeId)).then(function (d) {
-        var cs = Array.isArray(d.items) ? d.items : [];
-        daftarChat(cs);
-
-        if (!cs.length) {
-          cid = null;
-          pesan([]);
-          return;
-        }
-
-        var cocok = cs.filter(function (c) {
-          return String(c.conversation_id) === String(cid);
-        })[0];
-        cid = cocok ? cocok.conversation_id : cs[0].conversation_id;
-        return muatChat(cid);
-      });
+      var cocok = cs.filter(function (c) {
+        return String(c.conversation_id) === String(cid);
+      })[0];
+      cid = cocok ? cocok.conversation_id : cs[0].conversation_id;
+      return muatChat(cid);
     }).catch(function (e) {
       LK.status($ps, 'galat', 'Chat gagal dimuat', e.message, LK.ulang(function () { muatChat(id); }));
-    }).then(function () {
-      var bisa = !!storeId;
-      $fc.elements.body.disabled = !bisa;
-      $fc.querySelector('button').disabled = !bisa;
-    });
+    }).then(aturTombolChat);
   }
+
+  $toko.addEventListener('change', function () {
+    storeId = $toko.value;
+    cid = null;
+
+    var url = new URL(window.location.href);
+    url.searchParams.set('store_id', storeId);
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+
+    muatPoin();
+    muatChat();
+  });
 
   $fc.addEventListener('submit', function (e) {
     e.preventDefault();
     var body = $fc.elements.body.value.trim();
     if (!body) { return; }
 
+    if (!storeId) {
+      $pc.textContent = 'Toko belum dipilih.';
+      $pc.hidden = false;
+      return;
+    }
+
+    if (!cid && role !== 'buyer') {
+      $pc.textContent = 'Pilih percakapan terlebih dahulu.';
+      $pc.hidden = false;
+      return;
+    }
+
     var tb = $fc.querySelector('button');
     tb.disabled = true;
     $pc.hidden = true;
 
-    siapkanToko().then(function () {
-      if (cid) { return cid; }
-      return LK.apiPost('chat.php', {
+    var siap = cid
+      ? Promise.resolve(cid)
+      : LK.apiPost('chat.php', {
         action: 'create',
         store_id: storeId,
         order_id: null
@@ -255,7 +318,8 @@
         cid = d.conversation_id;
         return cid;
       });
-    }).then(function (id) {
+
+    siap.then(function (id) {
       return LK.apiPost('chat.php', {
         action: 'send',
         conversation_id: id,
@@ -268,11 +332,44 @@
     }).catch(function (err) {
       $pc.textContent = 'Pesan gagal dikirim: ' + err.message;
       $pc.hidden = false;
-    }).then(function () {
-      tb.disabled = !storeId;
-    });
+    }).then(aturTombolChat);
   });
 
-  muat();
-  muatChat();
+  function mulai() {
+    LK.sesi().then(function (u) {
+      if (!u || !u.user_id) {
+        throw new Error('Masuk dulu untuk melihat poin dan chat.');
+      }
+
+      userId = u.user_id;
+      role = u.role;
+
+      if (role === 'seller') {
+        storeId = u.store_id || null;
+        if (!storeId) {
+          throw new Error('Akun ini belum terhubung ke toko.');
+        }
+        aturTampilan('seller');
+        return muatChat();
+      }
+
+      if (role !== 'buyer') {
+        throw new Error('Halaman ini hanya untuk pembeli atau penjual.');
+      }
+
+      aturTampilan('buyer');
+      return muatToko().then(function () {
+        return Promise.all([muatPoin(), muatChat()]);
+      });
+    }).catch(function (e) {
+      $s.textContent = '-';
+      LK.status($rw, 'galat', 'Data gagal dimuat', e.message, LK.ulang(mulai));
+      LK.status($rv, 'galat', 'Data gagal dimuat', e.message);
+      LK.status($ps, 'galat', 'Chat gagal dimuat', e.message);
+      $fc.elements.body.disabled = true;
+      $fc.querySelector('button').disabled = true;
+    });
+  }
+
+  mulai();
 })();

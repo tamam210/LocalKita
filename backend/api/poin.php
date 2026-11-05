@@ -17,8 +17,50 @@ try {
         $action = validate_enum(
             $_GET['action'] ?? null,
             'action',
-            ['balance', 'history', 'rewards']
+            ['balance', 'history', 'rewards', 'stores']
         );
+
+        if ($action === 'stores') {
+            if ($user['role'] !== 'buyer') {
+                json_error(
+                    'Hanya pembeli yang dapat melihat daftar toko poin.',
+                    403,
+                    null,
+                    'FORBIDDEN'
+                );
+            }
+
+            $stmt = db()->prepare(
+                "SELECT s.store_id, s.name AS store_name,
+                        COALESCE(pa.balance, 0) AS balance,
+                        COALESCE(pa.reserved_balance, 0) AS reserved_balance
+                 FROM stores s
+                 INNER JOIN point_settings ps
+                    ON ps.store_id = s.store_id AND ps.is_active = 1
+                 LEFT JOIN point_accounts pa
+                    ON pa.store_id = s.store_id AND pa.buyer_user_id = ?
+                 WHERE s.status = 'active' AND s.deleted_at IS NULL
+                 ORDER BY s.name ASC"
+            );
+            $stmt->execute([$user['user_id']]);
+
+            $items = [];
+
+            foreach ($stmt->fetchAll() as $row) {
+                $balance = (int) $row['balance'];
+                $reserved = (int) $row['reserved_balance'];
+                $items[] = [
+                    'store_id' => $row['store_id'],
+                    'store_name' => $row['store_name'],
+                    'balance' => $balance,
+                    'reserved_balance' => $reserved,
+                    'available_balance' => $balance - $reserved,
+                ];
+            }
+
+            json_success(['items' => $items], 'Daftar toko poin berhasil diambil.');
+        }
+
         $storeId = validate_uuid($_GET['store_id'] ?? null, 'store_id');
 
         if ($action === 'balance') {

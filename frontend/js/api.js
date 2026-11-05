@@ -6,9 +6,11 @@
   // bebas CORS dan cookie sesi tetap terkirim.
   // Jika tidak, cocokkan host (localhost/127.0.0.1) dengan port API (8000)
   // agar tidak ada mismatched origin yang pemicu CORS.
-  var BASE = location.origin === 'http://localhost:8000'
-    ? '/backend/api/'
-    : location.origin.replace(/:5500$/, ':8000') + '/backend/api/';
+  var BASE = location.port === '5500'
+    ? '/api/'
+    : (location.origin === 'http://localhost:8000'
+      ? '/backend/api/'
+      : location.origin.replace(/:5500$/, ':8000') + '/backend/api/');
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   

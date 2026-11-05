@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/style.css?v=5">
   <script src="js/api.js?v=3" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
-<script src="js/laporan.js?v=3" defer></script>
+<script src="js/laporan.js?v=4" defer></script>
 </head>
 <body data-halaman="laporan" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -85,6 +85,13 @@
   <main class="wadah">
     <h1>Laporan Usaha</h1>
     <button type="button" class="tombol" data-penjual onclick="window.open('struk.html','_blank','width=360,height=640')">Cetak Struk Pesanan</button>
+    <section id="pilih-toko-admin" class="panel kaca" aria-labelledby="pilih-toko-admin-j" hidden>
+      <h2 id="pilih-toko-admin-j">Pilih toko</h2>
+      <div class="bidang">
+        <label for="toko-admin">Toko yang dilihat</label>
+        <select id="toko-admin"></select>
+      </div>
+    </section>
     <section id="kartu-laporan" class="panel kaca" aria-labelledby="kartu-laporan-j">
       <h2 id="kartu-laporan-j">Ringkasan bulan terbaru</h2>
       <div id="isi-kartu-laporan" aria-live="polite"></div>

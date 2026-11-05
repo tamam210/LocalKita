@@ -15,7 +15,7 @@
  <script src="js/api.js" defer></script>
 <script src="js/sesi-ui.js" defer></script>
 <script src="js/navbar-swipe.js" defer></script>
-<script src="js/hpp.js" defer></script>
+<script src="js/hpp.js?v=4" defer></script>
 </head>
 <body data-halaman="hpp" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -105,6 +105,13 @@
   </header>
   <main class="wadah">
     <h1>Kalkulator HPP</h1>
+    <section id="pilih-toko-admin" class="panel kaca" aria-labelledby="pilih-toko-admin-j" hidden>
+      <h2 id="pilih-toko-admin-j">Pilih toko</h2>
+      <div class="bidang">
+        <label for="toko-admin">Toko yang dilihat</label>
+        <select id="toko-admin"></select>
+      </div>
+    </section>
     <section id="bagian-hpp" class="panel kaca" aria-labelledby="bagian-hpp-j">
       <h2 id="bagian-hpp-j">Hitung HPP</h2>
       <form id="form-hpp" novalidate>

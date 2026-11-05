@@ -13,8 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=5">
   <script src="js/api.js?v=3" defer></script>
-  <script src="js/sesi-ui.js?v=3" defer></script>
-  <script src="js/poin.js?v=3" defer></script>
+  <script src="js/sesi-ui.js?v=5" defer></script>
+  <script src="js/poin.js?v=4" defer></script>
 </head>
 <body data-halaman="poin" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -83,7 +83,14 @@
     </div>
   </header>
   <main class="wadah">
-    <h1>Poin Pelanggan</h1>
+    <h1 id="judul-poin">Poin Pelanggan</h1>
+    <section id="pilih-toko-poin" class="panel kaca" aria-labelledby="pilih-toko-j" hidden>
+      <h2 id="pilih-toko-j">Toko</h2>
+      <div class="bidang">
+        <label for="toko-poin">Pilih toko untuk poin dan chat</label>
+        <select id="toko-poin"></select>
+      </div>
+    </section>
     <section id="saldo-poin" class="panel kaca" aria-labelledby="saldo-poin-j">
       <h2 id="saldo-poin-j">Saldo poin</h2>
       <p id="nilai-saldo" class="saldo" aria-live="polite">Memuat...</p>
