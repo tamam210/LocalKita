@@ -2,10 +2,17 @@
    --terra-tua dipakai untuk tombol/teks agar kontras putih >= 4,5:1 (terracotta asli hanya ~3,7:1). */
 :root{
   --sogan:#5B3A29; --krem:#EADCC6; --terra:#C86B45; --terra-tua:#A9522F;
+  --terra-hover:#8F4426;
   --bg:#FBF4E8; --kartu:#FFFBF4; --teks:#3A2418; --teks-lembut:#7A5A47;
+  --krem-muda:#F6ECDB;
   --garis:rgba(91,58,41,.16); --galat:#9B2C1F;
   --r-sm:12px; --r-md:18px; --r-lg:24px;
-  --bayang:0 6px 20px rgba(91,58,41,.12);
+  --bayang-sm:0 2px 8px rgba(91,58,41,.08);
+  --bayang-md:0 6px 20px rgba(91,58,41,.12);
+  --bayang-lg:0 12px 28px rgba(91,58,41,.18);
+  /* Kompatibilitas: --bayang = md */
+  --bayang:var(--bayang-md);
+  --transisi:.18s ease-out;
   --kaca:rgba(255,251,244,.62); --kaca-garis:rgba(255,255,255,.75);
   --font:"Lato",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   /* motif kawung sederhana (SVG inline, tanpa request tambahan) */
@@ -109,29 +116,29 @@ main{padding-block:16px 40px}
 
 /* Tombol */
 .tombol{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;border:2px solid var(--terra-tua);border-radius:999px;background:var(--terra-tua);color:#fff;font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
-.tombol:hover{background:#8F4426;border-color:#8F4426}
+.tombol:hover{background:var(--terra-hover);border-color:var(--terra-hover)}
 .tombol-garis{background:transparent;color:var(--terra-tua)}
 .tombol-garis:hover{background:var(--krem);color:var(--sogan);border-color:var(--sogan)}
 .tombol[disabled]{opacity:.55;cursor:not-allowed}
 
 /* Grid + card produk (solid, tanpa blur, supaya ringan di HP murah) */
 .grid-produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.kartu-produk{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.08);transition:transform .25s ease,box-shadow .25s ease,border-bottom-color .25s ease,border-color .25s ease;border-bottom:2px solid transparent}
+.kartu-produk{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.08);transition:transform var(--transisi),box-shadow var(--transisi),border-bottom-color var(--transisi),border-color var(--transisi);border-bottom:2px solid transparent}
 .kartu-produk:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(91,58,41,.16);border-color:rgba(169,82,47,.4);border-bottom-color:var(--terra-tua);will-change:transform}
 .kartu-produk:hover .kartu-gambar img{transform:scale(1.04)}
-.kartu-gambar{position:relative;overflow:hidden;aspect-ratio:1/1;background:linear-gradient(135deg,var(--krem),#F6ECDB);font-size:2.5rem;font-weight:900;color:var(--terra-tua);isolation:isolate}
+.kartu-gambar{position:relative;overflow:hidden;aspect-ratio:1/1;background:linear-gradient(135deg,var(--krem),var(--krem-muda));font-size:2.5rem;font-weight:900;color:var(--terra-tua);isolation:isolate}
 .kartu-gambar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
 .kartu-gambar > span{position:absolute;inset:0;display:grid;place-items:center}
 .kartu-gambar .tombol-keranjang-kecil{position:absolute;top:6px;right:6px;z-index:2}
 .kartu-isi{display:flex;flex:1;flex-direction:column;gap:4px;padding:12px}
-.kartu-nama{margin:0;color:var(--sogan);overflow-wrap:anywhere}
+.kartu-nama{margin:0;color:var(--sogan);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .kartu-toko{font-size:.85rem;color:var(--teks-lembut);overflow-wrap:anywhere}
-.kartu-harga{overflow-wrap:anywhere;font-size:1.05rem;font-weight:900;color:var(--terra-tua)}
+.kartu-harga{overflow-wrap:anywhere;font-size:1.05rem;font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .lencana{padding:2px 10px;border-radius:999px;background:var(--krem);color:var(--sogan);font-size:.8rem;font-weight:700}
 .lencana-habis{background:#EFD9D3;color:var(--galat)}
 
 /* State: loading, error, empty, info */
-.skeleton{min-height:230px;border-radius:var(--r-md);background:linear-gradient(90deg,var(--krem) 25%,#F6ECDB 50%,var(--krem) 75%);background-size:200% 100%;animation:kilau 1.4s linear infinite}
+.skeleton{min-height:230px;border-radius:var(--r-md);background:linear-gradient(90deg,var(--krem) 25%,var(--krem-muda) 50%,var(--krem) 75%);background-size:200% 100%;animation:kilau 1.4s linear infinite}
 @keyframes kilau{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
 .status{grid-column:1/-1;padding:28px 16px;border:1px dashed var(--garis);border-radius:var(--r-md);background:var(--kartu);text-align:center}
@@ -162,10 +169,9 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .kartu-angka{display:flex;flex-direction:column;gap:4px;min-width:0;padding:14px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu)}
 .kartu-angka h3{margin:0}
 .label{font-size:.85rem;color:var(--teks-lembut);overflow-wrap:anywhere}
-.kartu-angka .label{font-size:.85rem;color:var(--teks-lembut);overflow-wrap:anywhere}
 .kartu-angka .nilai{font-size:clamp(1.05rem,4.5vw,1.4rem);font-weight:900;color:var(--sogan);overflow-wrap:anywhere}
 .kartu-angka .tombol{margin-top:8px}
-.saldo{margin:0;font-size:2rem;font-weight:900;color:var(--terra-tua)}
+.saldo{margin:0;font-size:2rem;font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .lencana-baris{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
 .tautan-chat{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;font-weight:700;color:var(--terra-tua);text-decoration:none}
 .tautan-chat:hover{text-decoration:underline}
@@ -290,6 +296,13 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--bayang-sm);
+  transition: transform var(--transisi), box-shadow var(--transisi);
+}
+
+.kartu-produk-saya:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bayang-lg);
 }
 
 .kartu-produk-saya .kartu-gambar {
@@ -323,6 +336,10 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .kartu-produk-saya .kartu-nama {
   font-size: 1rem;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .kartu-produk-saya .kartu-harga {
@@ -360,7 +377,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 /* Detail produk (dua kolom: gambar + info) */
 .detail-konten{display:flex;flex-direction:column;gap:20px;padding:20px;border-radius:var(--r-lg)}
 .detail-dua-kolom{display:grid;grid-template-columns:1fr;gap:16px}
-.detail-gambar{position:relative;border-radius:var(--r-md);overflow:hidden;background:linear-gradient(135deg,var(--krem),#F6ECDB);aspect-ratio:1/1;display:grid;place-items:center}
+.detail-gambar{position:relative;border-radius:var(--r-md);overflow:hidden;background:linear-gradient(135deg,var(--krem),var(--krem-muda));aspect-ratio:1/1;display:grid;place-items:center}
 .detail-gambar img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:transform .2s}
 .detail-gambar img:hover{transform:scale(1.02)}
 .detail-zoom{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:0;border-radius:999px;padding:6px 10px;font-size:.8rem;cursor:pointer}
@@ -368,7 +385,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .detail-nama{font-size:clamp(1.4rem,5vw,2rem);font-weight:900;color:var(--sogan);margin:0}
 .detail-toko{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--terra-tua);text-decoration:none}
 .detail-toko:hover{text-decoration:underline}
-.detail-harga{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:900;color:var(--terra-tua)}
+.detail-harga{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .detail-stok{font-size:.9rem;color:var(--teks-lembut)}
 .detail-varian{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
 .detail-varian button{min-height:40px;padding:6px 14px;border:1px solid var(--garis);border-radius:999px;background:var(--kartu);color:var(--sogan);font:inherit;font-weight:700;cursor:pointer}
@@ -395,13 +412,12 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
   font-size:1.1rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);
   display:grid;place-items:center;z-index:2
 }
-.tombol-keranjang-kecil:hover{background:#8F4426}
-.kartu-gambar{position:relative}
+.tombol-keranjang-kecil:hover{background:var(--terra-hover)}
 
 .daftar-keranjang, .daftar-pesanan{display:flex;flex-direction:column;gap:12px;margin-top:16px}
 .item-keranjang, .item-pesanan{
   display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;
-  padding:12px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.06)
+  padding:12px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:var(--bayang-sm)
 }
 .item-keranjang img, .item-pesanan img{
   width:80px;height:80px;object-fit:cover;border-radius:var(--r-sm);background:var(--krem);border:1px solid var(--garis)
@@ -409,7 +425,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .item-keranjang-info, .item-pesanan-info{display:flex;flex-direction:column;gap:4px;min-width:0}
 .item-keranjang-nama, .item-pesanan-nama{font-weight:700;color:var(--sogan);overflow-wrap:anywhere}
 .item-keranjang-toko, .item-pesanan-toko{font-size:.85rem;color:var(--teks-lembut);overflow-wrap:anywhere}
-.item-keranjang-harga, .item-pesanan-harga{font-weight:900;color:var(--terra-tua)}
+.item-keranjang-harga, .item-pesanan-harga{font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .item-keranjang-aksi{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .jumlah-keranjang{display:flex;align-items:center;gap:6px}
 .jumlah-keranjang button{
@@ -420,7 +436,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .jumlah-keranjang span{min-width:24px;text-align:center;font-weight:700}
 .hapus-keranjang{background:transparent;border:0;color:var(--galat);cursor:pointer;font-size:.85rem;font-weight:700}
 .ringkasan-keranjang{
-  margin-top:16px;padding:16px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.06)
+  margin-top:16px;padding:16px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:var(--bayang-sm)
 }
 .ringkasan-baris{display:flex;justify-content:space-between;margin-bottom:12px;font-size:1.05rem}
 .ringkasan-baris strong{font-size:1.2rem;color:var(--terra-tua)}
