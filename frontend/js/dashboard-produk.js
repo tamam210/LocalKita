@@ -42,53 +42,17 @@
 
     pasangGambar(p.primary_image_url);
 
-    var input = LK.el('input', {
-      type: 'file',
-      accept: 'image/jpeg,image/png,image/webp'
-    });
-    var tombol = LK.el('button', {
-      type: 'button',
-      'class': 'tombol',
-      text: 'Upload foto'
-    });
-    var status = LK.el('span', { 'class': 'upload-status', text: '' });
-
-    tombol.addEventListener('click', function () {
-      var file = input.files && input.files[0];
-      if (!file) {
-        status.textContent = 'Pilih foto dulu.';
-        return;
-      }
-
-      tombol.disabled = true;
-      status.textContent = 'Mengunggah...';
-
-      LK.apiUpload('product_image.php', {
-        product_id: p.product_id,
-        image: file
-      }).then(function (d) {
-        if (d && d.image_url) {
-          pasangGambar(d.image_url);
-        }
-        status.textContent = 'Foto berhasil diunggah.';
-        LK.notif('Foto produk berhasil diunggah.', 'sukses', 'Upload berhasil');
-      }).catch(function (e) {
-        status.textContent = e.message || 'Gagal upload.';
-        LK.notif(e.message || 'Gagal upload.', 'bahaya', 'Upload gagal');
-      }).then(function () {
-        tombol.disabled = false;
-      });
-    });
+    var status = LK.el('span', { 'class': 'upload-status', text: 'Upload foto akan tersedia saat backend menyediakan endpoint.' });
+    status.className = 'upload-status info';
 
     return LK.el('article', { 'class': 'kartu-produk-saya' }, [
       gambar,
       LK.el('div', { 'class': 'kartu-isi' }, [
         LK.el('h3', { 'class': 'kartu-nama', text: p.name || 'Produk tanpa nama' }),
-        LK.el('span', { 'class': 'kartu-harga', text: LK.rupiah(p.min_price || 0) }),
-        LK.el('span', { 'class': 'kartu-toko', text: statusTeks(p) }),
-        LK.el('div', { 'class': 'upload-baris' }, [input, tombol]),
-        status
-      ])
+    LK.el('span', { 'class': 'kartu-harga', text: LK.rupiah(p.min_price || 0) }),
+    LK.el('span', { 'class': 'kartu-toko', text: statusTeks(p) }),
+    status
+  ])
     ]);
   }
 

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Struk Pesanan - LokalKita</title>
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <script src="js/api.js?v=3" defer></script>
+  <script src="js/sesi-ui.js?v=3" defer></script>
+</head>
+<body data-halaman="struk">
+  <div class="wadah" style="max-width:340px;margin:24px auto;padding:0 16px">
+    <a href="laporan.html" class="tombol tombol-garis" style="margin-bottom:16px;display:inline-block">&larr; Kembali ke Laporan</a>
+
+    <div id="struk-list" class="panel kaca" style="padding:16px;display:none"></div>
+    <div id="struk-view" class="panel kaca" style="padding:0;display:none">
+      <div class="struk-kertas">
+        <div class="struk-header">
+          <div class="struk-toko" id="s-toko">Nama Toko</div>
+          <div class="struk-alamat" id="s-alamat">Alamat Toko, Kota</div>
+          <div class="struk-telp" id="s-telp">Telp: -</div>
+          <div class="struk-garis"></div>
+        </div>
+        <div class="struk-isi">
+          <div class="struk-baris"><span class="struk-label">No Struk</span><span class="struk-nilai" id="s-no">-</span></div>
+          <div class="struk-baris"><span class="struk-label">Tanggal</span><span class="struk-nilai" id="s-tgl">-</span></div>
+          <div class="struk-baris"><span class="struk-label">Kasir</span><span class="struk-nilai" id="s-kasir">Penjual</span></div>
+          <div class="struk-baris"><span class="struk-label">Pembeli</span><span class="struk-nilai" id="s-pembeli">Pembeli</span></div>
+          <div class="struk-garis"></div>
+
+          <div class="struk-tabel">
+            <div class="struk-baris struk-baris-header">
+              <span class="kolom-produk">Produk</span>
+              <span class="kolom-qty">Qty</span>
+              <span class="kolom-harga">Harga</span>
+              <span class="kolom-total">Total</span>
+            </div>
+            <div class="struk-garis-pendek"></div>
+            <div id="s-items"></div>
+          </div>
+
+          <div class="struk-garis"></div>
+          <div class="struk-total">
+            <div class="struk-baris-total"><span class="struk-label">Subtotal</span><span class="struk-nilai" id="s-subtotal">Rp 0</span></div>
+            <div class="struk-baris-total"><span class="struk-label">Diskon</span><span class="struk-nilai" id="s-diskon">Rp 0</span></div>
+            <div class="struk-baris-total struk-tebal"><span class="struk-label-besar">Total Bayar</span><span class="struk-nilai-besar" id="s-total">Rp 0</span></div>
+          </div>
+
+          <div class="struk-garis"></div>
+          <div class="struk-baris"><span class="struk-label">Metode</span><span class="struk-nilai" id="s-metode">Tunai</span></div>
+          <div class="struk-baris"><span class="struk-label">Kembali</span><span class="struk-nilai" id="s-kembali">Rp 0</span></div>
+          <div class="struk-garis"></div>
+
+          <div class="struk-footer">
+            <div>Terima kasih sudah berbelanja</div>
+            <div>Kunjungi kami lagi!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="struk-aksi" style="margin-top:16px;text-align:center">
+        <button type="button" class="tombol" onclick="window.print()">Cetak Struk</button>
+        <button type="button" class="tombol tombol-garis" onclick="window.close()">Tutup</button>
+      </div>
+    </div>
+
+    <div id="struk-empty" class="status" style="text-align:center;display:none">
+      <h3>Belum ada pesanan</h3>
+      <p>Pesanan akan muncul di sini setelah ada transaksi.</p>
+      <a href="index.html" class="tombol">Ke Etalase</a>
+    </div>
+  </div>
+  <script>
+    (function(){
+      'use strict';
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id') || null;
+      var listEl = document.getElementById('struk-list');
+      var viewEl = document.getElementById('struk-view');
+      var emptyEl = document.getElementById('struk-empty');
+
+      // Coba ambil dari backend dulu; kalau gagal, fallback ke localStorage (dummy)
+      var API_BASE = location.origin === 'http://localhost:8000'
+        ? '/backend/api/'
+        : location.origin.replace(/:5500$/, ':8000') + '/backend/api/';
+
+      function rupiah(n){
+        return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Number(n||0));
+      }
+      function tanggal(s){
+        var d = new Date(s);
+        return isNaN(d) ? '-' : d.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+      }
+
+      async function muatDummy(){
+        try {
+          return JSON.parse(localStorage.getItem('lokalkita_pesanan') || '[]');
+        } catch(e){ return []; }
+      }
+
+      // Ambil data dari backend; kalau gagal, return null supaya dipakai dummy
+      function ambilDariBackend(idPesanan){
+        var url = API_BASE + 'pesanan.php';
+        if (idPesanan) { url += '?id=' + encodeURIComponent(idPesanan); }
+        return fetch(url, {
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' }
+        }).then(function(res){
+          if (!res.ok) { throw new Error('HTTP ' + res.status); }
+          return res.json();
+        }).then(function(data){
+          if (data && data.ok && data.data) {
+            return data.data;
+          }
+          throw new Error('Format respons tidak sesuai');
+        }).catch(function(err){
+          console.warn('Backend tidak tersedia, pakai dummy:', err.message);
+          return null;
+        });
+      }
+
+      function tampilList(data){
+        listEl.replaceChildren();
+        if (!data.length) {
+          emptyEl.style.display = 'block';
+          return;
+        }
+        var judul = document.createElement('h3');
+        judul.textContent = 'Pilih Pesanan untuk Cetak Struk';
+        listEl.appendChild(judul);
+        data.forEach(function(p){
+          var item = document.createElement('div');
+          item.className = 'struk-item-list';
+          item.style.padding = '10px 14px';
+          item.style.borderBottom = '1px solid var(--garis)';
+          item.style.cursor = 'pointer';
+          item.innerHTML =
+            '<div><strong>' + (p.name || 'Produk') + '</strong> x ' + (p.qty||1) + '</div>' +
+            '<div style="font-size:0.85rem;color:var(--teks-lembut)">' + (p.store_name||'-') + ' &#8226; ' + tanggal(p.tanggal) + '</div>';
+          item.addEventListener('click', function(){
+            location.href = 'struk.html?id=' + encodeURIComponent(p.id);
+          });
+          listEl.appendChild(item);
+        });
+        listEl.style.display = 'block';
+      }
+
+      function tampilStruk(p){
+        viewEl.style.display = 'block';
+        document.getElementById('s-toko').textContent = p.store_name || 'Toko LokalKita';
+        document.getElementById('s-alamat').textContent = 'Alamat Toko, Kota';
+        document.getElementById('s-telp').textContent = 'Telp: -';
+        document.getElementById('s-no').textContent = p.id || '-';
+        document.getElementById('s-tgl').textContent = tanggal(p.tanggal);
+        document.getElementById('s-kasir').textContent = 'Penjual';
+        document.getElementById('s-pembeli').textContent = 'Pembeli';
+        document.getElementById('s-metode').textContent = 'Tunai';
+
+        var itemsEl = document.getElementById('s-items');
+        itemsEl.replaceChildren();
+        var subtotal = 0;
+
+        var items = [];
+        if (p.items && Array.isArray(p.items)) {
+          items = p.items;
+        } else {
+          items = [{ name: p.name || 'Produk', price: p.price || 0, qty: p.qty || 1 }];
+        }
+
+        items.forEach(function(it){
+          var total = Number(it.price||0) * Number(it.qty||1);
+          subtotal += total;
+          var nama = String(it.name||'Produk').substring(0,16);
+          var qty = String(it.qty||1);
+          var harga = rupiah(it.price||0).replace('Rp ','');
+          var totalStr = rupiah(total).replace('Rp ','');
+
+          var line = document.createElement('div');
+          line.className = 'struk-baris struk-item';
+          line.style.fontFamily = "'Courier New',Courier,monospace";
+          line.style.fontSize = '12px';
+          line.style.display = 'flex';
+          line.style.justifyContent = 'space-between';
+          line.style.margin = '2px 0';
+          line.innerHTML =
+            '<span style="display:inline-block;width:14ch">' + nama.padEnd(16) + '</span>' +
+            '<span style="text-align:right;display:inline-block;width:4ch">' + qty.padStart(3) + '</span>' +
+            '<span style="text-align:right;display:inline-block;width:9ch">' + harga.padStart(9) + '</span>' +
+            '<span style="text-align:right;display:inline-block;width:9ch">' + totalStr.padStart(9) + '</span>';
+          itemsEl.appendChild(line);
+        });
+
+        document.getElementById('s-subtotal').textContent = rupiah(subtotal);
+        document.getElementById('s-diskon').textContent = rupiah(0);
+        document.getElementById('s-total').textContent = rupiah(subtotal);
+        document.getElementById('s-kembali').textContent = rupiah(0);
+      }
+
+      // Inisialisasi async: coba backend dulu, kalau gagal pakai dummy
+      (function init(){
+        if (id) {
+          ambilDariBackend(id).then(function(data){
+            if (data && !Array.isArray(data)) {
+              tampilStruk(data);
+            } else {
+              // Backend kembali array padahal diminta detail -> fallback dummy
+              muatDummy().then(function(dummy){
+                var found = null;
+                for (var i = 0; i < dummy.length; i++) {
+                  if (String(dummy[i].id) === String(id)) { found = dummy[i]; break; }
+                }
+                if (found) { tampilStruk(found); }
+                else {
+                  emptyEl.querySelector('h3').textContent = 'Pesanan tidak ditemukan';
+                  emptyEl.style.display = 'block';
+                }
+              });
+            }
+          }).catch(function(){
+            muatDummy().then(function(dummy){
+              var found = null;
+              for (var i = 0; i < dummy.length; i++) {
+                if (String(dummy[i].id) === String(id)) { found = dummy[i]; break; }
+              }
+              if (found) { tampilStruk(found); }
+              else {
+                emptyEl.querySelector('h3').textContent = 'Pesanan tidak ditemukan';
+                emptyEl.style.display = 'block';
+              }
+            });
+          });
+        } else {
+          ambilDariBackend(null).then(function(data){
+            if (data && Array.isArray(data)) {
+              tampilList(data);
+            } else {
+              tampilList(muatDummy());
+            }
+          }).catch(function(){
+            tampilList(muatDummy());
+          });
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

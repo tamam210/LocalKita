@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="favicon.ico?v=10" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=10">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/brand/logo-32.png?v=4">
+  <link rel="apple-touch-icon" href="img/brand/logo-256.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panduan Penjual - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api.js" defer></script>
+  <script src="js/sesi-ui.js" defer></script>
+  <script src="js/navbar-swipe.js" defer></script>
+</head>
+<body data-halaman="panduan">
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="index.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+      <nav aria-label="Menu utama" class="nav-utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <!-- Penjual -->
+          <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+          <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+          <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+          <!-- Pembeli -->
+          <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+          <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+          <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+          <li data-tamu><a href="login.html">Masuk</a></li>
+        </ul>
+        <div class="nav-swipe" aria-label="Menu geser">
+          <ul class="nav-daftar">
+            <li><a href="index.html">Etalase</a></li>
+            <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+            <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+            <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+            <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+            <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+            <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+            <li data-tamu><a href="login.html">Masuk</a></li>
+          </ul>
+        </div>
+        <div class="nav-profil">
+          <div data-penjual hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info">
+                <span class="profil-nama" data-nama-user>Pengguna</span>
+                <span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span>
+              </span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head">
+                <span class="avatar-nav besar" data-avatar>U</span>
+                <div>
+                  <div class="dropdown-nama" data-nama-user>Pengguna</div>
+                  <div class="dropdown-email" data-email-user>-</div>
+                </div>
+              </li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+          <div data-pembeli hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info">
+                <span class="profil-nama" data-nama-user>Pengguna</span>
+                <span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span>
+              </span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head">
+                <span class="avatar-nav besar" data-avatar>U</span>
+                <div>
+                  <div class="dropdown-nama" data-nama-user>Pengguna</div>
+                  <div class="dropdown-email" data-email-user>-</div>
+                </div>
+              </li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <header class="dashboard-kepala">
+      <div>
+        <p class="eyebrow">Panduan Penjual</p>
+        <h1>Tata cara jadi penjual, dari nol sampai untung.</h1>
+        <p>Semua langkah dijelasin di sini: daftar, atur toko, masukkan produk, hitung HPP, kasih poin, sampe baca laporan. Klik pertanyaannya buat liat jawaban.</p>
+      </div>
+      <div class="aksi-cepat">
+        <a class="tombol" href="login.html?peran=penjual">Masuk sebagai Penjual</a>
+        <a class="tombol tombol-garis" href="dashboard-penjual.html">Ke Warung Saya</a>
+      </div>
+    </header>
+
+    <section class="panel kaca" aria-labelledby="seksi-daftar">
+      <p class="eyebrow">Langkah 1</p>
+      <h2 id="seksi-daftar">Daftar &amp; Mulai</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Gimana cara daftar jadi penjual di LokalKita?</summary>
+          <div class="faq-isi">
+            <p>Siapkan dulu: <strong>username, email, kata sandi, nama toko, dan jenis jualan</strong> (Makanan, Minuman, Barang, Jasa, atau Lain-lain).</p>
+            <ol>
+              <li>Buka link "Daftarkan Usaha" di footer halaman mana pun.</li>
+              <li>Di halaman login, tab <strong>Penjual</strong> udah kepilih otomatis.</li>
+              <li>Isi form, lalu pilih tab <strong>Daftar</strong>.</li>
+            </ol>
+            <p><strong>Catatan penting:</strong> di versi lomba ini, tombol Daftar belum aktif di backend (muncul pesan "Pendaftaran belum tersedia di backend"). Jadi buat nyoba, pakai <strong>akun demo penjual</strong> (contoh: <code>tamam@lokalkita.test</code> / <code>password123</code>) atau minta admin bikin akun.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Setelah login, saya dibawa ke mana?</summary>
+          <div class="faq-isi">
+            <p>Langsung masuk ke halaman <strong>Warung Saya</strong> (dashboard penjual). Di situ ada ringkasan pesanan, pendapatan, kesehatan usaha, poin &amp; promo, chat, dan grafik omzet.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Data usaha saya aman nggak?</summary>
+          <div class="faq-isi">
+            <p>Aman kalau kamu jaga. Sesi login dikelola server pakai cookie (PHP) — frontend <strong>nggak nyimpen kata sandi</strong>. Jangan kasih username &amp; sandi ke siapa pun, dan jangan login di perangkat umum tanpa logout.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-produk">
+      <p class="eyebrow">Langkah 2</p>
+      <h2 id="seksi-produk">Daftarkan Produk ke Etalase</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Gimana cara nambah produk ke etalase?</summary>
+          <div class="faq-isi">
+            <p>Dari halaman <strong>Warung Saya</strong>, buka bagian produk. Di kartu produk ada:</p>
+            <ul>
+              <li>Upload foto produk (opsional),</li>
+              <li>Nama produk,</li>
+              <li>Harga jual,</li>
+              <li>Stok.</li>
+            </ul>
+            <p>Setelah diisi, produk langsung tampil di etalase pembeli (halaman Etalase).</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Foto produk wajib nggak?</summary>
+          <div class="faq-isi">
+            <p><strong>Nggak wajib.</strong> Kalau belum upload foto, kartu produk tampil placeholder huruf awal, lalu etalase otomatis nyariin gambar lokal berdasarkan nama produk (contoh: nama mengandung "keripik" → muncul foto keripik). Foto yang kamu upload bakal jadi gambar utama.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Stok harus diisi berapa?</summary>
+          <div class="faq-isi">
+            <p>Isi sesuai stok asli di warung. Aturan yang berlaku:</p>
+            <ul>
+              <li>Stok di bawah 5 unit → muncul tanda <strong>"stok menipis"</strong> di dashboard.</li>
+              <li>Stok 0 → di etalase muncul lencana <strong>"Stok habis"</strong> dan pembeli nggak bisa checkout produk itu.</li>
+            </ul>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Kenapa produk saya nggak muncul di etalase?</summary>
+          <div class="faq-isi">
+            <p>Cek satu-satu:</p>
+            <ol>
+              <li>Nama produk &amp; kategori udah keisi bener?</li>
+              <li>Backend API nyala? (halaman Etalase minta data ke <code>products.php</code>).</li>
+              <li>Kalau API mati, etalase otomatis pakai <strong>data contoh</strong> — produk asli kamu memang nggak akan tampil. Jalanin ulang <code>./run-lokalkita.sh</code> dan pastikan terminal nunjukin <code>OK</code>.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Kenapa harga tampil "Rp 0"?</summary>
+          <div class="faq-isi">
+            <p>Harga 0 berarti data produk dari backend nggak ngirim <code>price</code> atau <code>min_price</code>. Pastikan harga keisi di data produk, baru refresh etalase.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-hpp">
+      <p class="eyebrow">Langkah 3</p>
+      <h2 id="seksi-hpp">Hitung HPP &amp; Tentukan Harga Jual</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Apa itu HPP?</summary>
+          <div class="faq-isi">
+            <p><strong>HPP = Harga Pokok Penjualan.</strong> Total biaya buat bikin satu produk: <strong>bahan + tenaga kerja + kemasan + overhead</strong> (listrik, gas, sewa, dll), dibagi jumlah unit yang diproduksi.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Gimana cara hitung HPP di LokalKita?</summary>
+          <div class="faq-isi">
+            <p>Buka halaman <strong>Hitung HPP</strong>:</p>
+            <ol>
+              <li>Isi <strong>Bahan, Tenaga kerja, Kemasan, Overhead</strong> (semua dalam Rupiah).</li>
+              <li>Isi <strong>Jumlah unit</strong> hasil produksi.</li>
+              <li>Isi <strong>Target margin (%)</strong> — patokan umum 30%.</li>
+              <li>Tekan <strong>Hitung HPP</strong>.</li>
+            </ol>
+            <p>Hasilnya: HPP per unit + harga jual yang disarankan + perkiraan laba.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Harga jual yang aman itu gimana?</summary>
+          <div class="faq-isi">
+            <p>Harga jual harus <strong>di atas HPP</strong>. Kalau target margin 30% hasilnya masih tipis atau minus, artinya overhead terlalu berat — cek lagi biaya produksi atau naikin harga jual.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Simulasi diskon itu buat apa?</summary>
+          <div class="faq-isi">
+            <p>Buat nyoba-nyoba <strong>"masih untung nggak kalau aku diskon sekian?"</strong>. Isi harga jual, jumlah, jenis diskon (persen/nominal), dan nilai diskon. Kalau harga setelah diskon jatuh <strong>di bawah HPP</strong>, aplikasi kasih peringatan biar kamu nggak jual rugi.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Diskon gede-gedean boleh nggak?</summary>
+          <div class="faq-isi">
+            <p>Boleh, asal harga setelah diskon masih di atas HPP. Di dashboard ada indikator <strong>"Promo masih untung"</strong> — kalau statusnya "Perlu dicek", berarti ada promo yang mepet (mendekati HPP). Mending disesuaikan biar nggak jual rugi.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-poin">
+      <p class="eyebrow">Langkah 4</p>
+      <h2 id="seksi-poin">Kasih Poin &amp; Promo</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Gimana cara kasih poin ke pembeli?</summary>
+          <div class="faq-isi">
+            <p>Poin dicatat <strong>otomatis</strong> pas pesanan kamu tandai <strong>"Beres"</strong> (tombol "Tandai Beres" di Warung Saya). Alurnya:</p>
+            <ol>
+              <li>Terima pesanan.</li>
+              <li>Siapin barangnya.</li>
+              <li>Tekan <strong>Tandai Beres</strong> → poin pembeli langsung masuk.</li>
+            </ol>
+            <p>Nggak perlu input manual. Kalau poin pembeli belum nambah, cek dulu pesanannya udah beres atau belum.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Pembeli bisa pakai poin buat apa?</summary>
+          <div class="faq-isi">
+            <p>Poin bisa dipakai buat belanja berikutnya (potongan), tergantung promo poin yang kamu aktifkan. Poin yang udah dipakai pembeli tercatat sebagai <strong>"poin ditukar"</strong> di dashboard.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Kasih poin bikin rugi nggak?</summary>
+          <div class="faq-isi">
+            <p>Poin itu ada harganya (<strong>biaya reward</strong>). Di dashboard bagian "Poin" ada 4 angka:</p>
+            <ul>
+              <li>Poin diberikan,</li>
+              <li>Poin ditukar,</li>
+              <li>Biaya reward,</li>
+              <li>Sisa kuota promo.</li>
+            </ul>
+            <p>Pantau biar anggarannya masuk akal. Jangan sampai promo + poin bikin harga jual efektif jatuh di bawah HPP.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Sisa kuota promo habis, gimana?</summary>
+          <div class="faq-isi">
+            <p>Kuota promo diatur di dashboard (bar kuota + angka "X dari Y"). Kalau habis, promo poin <strong>berhenti otomatis</strong> — pembeli nggak bisa pakai poin. Isi ulang kuota sesuai rencana budget-mu.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-pesanan">
+      <p class="eyebrow">Langkah 5</p>
+      <h2 id="seksi-pesanan">Kelola Pesanan</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Di mana lihat pesanan masuk?</summary>
+          <div class="faq-isi">
+            <p>Di <strong>Warung Saya</strong> ada tabel "Pesanan" berisi: nomor pesanan, waktu, pembeli, produk, total, status, dan tombol aksi.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Alur proses pesanan gimana?</summary>
+          <div class="faq-isi">
+            <p>Status berubah sepanjang perjalanan pesanan:</p>
+            <ol>
+              <li><strong>Lagi Nunggu</strong> → pesanan baru masuk. Kamu pilih <strong>Terima</strong> atau <strong>Tolak</strong>.</li>
+              <li><strong>Lagi Disiapin</strong> → pesanan diterima, lagi disiapkan.</li>
+              <li><strong>Beres, Poin Dikasih</strong> → barang udah dikasih ke pembeli, poin otomatis dicatat.</li>
+              <li><strong>Dibatalkan</strong> → pesanan ditolak/dibatalkan.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Pesanan yang ditolak bisa dibatalin nggak?</summary>
+          <div class="faq-isi">
+            <p><strong>Nggak bisa.</strong> Di dialog tolak ada peringatan "Nggak bisa dibatalin lagi, lho". Jadi pastiin dulu (misal stok habis atau pembeli minta batal) sebelum pencet <strong>Tolak</strong>.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Kenapa pesanan nggak muncul di dashboard?</summary>
+          <div class="faq-isi">
+            <p>Dashboard versi ini menampilkan <strong>data contoh</strong> sampai backend nyediain endpoint dashboard asli. Kalau pesanan asli belum muncul, cek: service backend nyala? Endpoint dashboard udah ada? Pesanan beneran dibuat lewat etalase (tombol "Beli Langsung") di perangkat yang sama?</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-laporan">
+      <p class="eyebrow">Langkah 6</p>
+      <h2 id="seksi-laporan">Baca Laporan &amp; Kesehatan Usaha</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Laporan Warung isinya apa?</summary>
+          <div class="faq-isi">
+            <p>Ringkasan keuangan bulanan: <strong>omzet, laba, transaksi, kategori, dan keterangan</strong>. Cocok buat liat tren naik/turun usaha dari bulan ke bulan.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Itu "Kesehatan usaha" maksudnya apa?</summary>
+          <div class="faq-isi">
+            <p>Tiga indikator penting di dashboard:</p>
+            <ul>
+              <li><strong>Margin laba</strong> — target 35%.</li>
+              <li><strong>Promo masih untung?</strong> — promo mepet HPP atau aman.</li>
+              <li><strong>Stok menipis</strong> — produk yang stoknya tinggal sedikit.</li>
+            </ul>
+            <p>Ijo = aman, merah/kuning = perlu dicek.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="seksi-masalah">
+      <p class="eyebrow">Siap-siap</p>
+      <h2 id="seksi-masalah">Masalah Umum &amp; Solusinya</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Halaman blank atau nggak bisa login?</summary>
+          <div class="faq-isi">
+            <ol>
+              <li>Pastiin semua service nyala: <code>./run-lokalkita.sh</code>, cek terminal ada pesan <code>OK</code>.</li>
+              <li>Port udah kepake? Jalanin <code>./stop-lokalkita.sh</code> dulu, terus run lagi.</li>
+              <li>Buka frontend di <code>http://127.0.0.1:5500</code> dan pastikan backend di <code>:8000</code> nyala.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Foto produk nggak tampil?</summary>
+          <div class="faq-isi">
+            <p>Wajar kalau backend belum ngirim foto. Etalase otomatis pakai <strong>foto lokal</strong> berdasarkan nama produk, dan kamu bisa upload foto manual dari kartu produk di dashboard buat jadi gambar utama.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Poin pembeli nggak nambah?</summary>
+          <div class="faq-isi">
+            <p>Poin dicatat <strong>pas pesanan ditandai Beres</strong>, bukan pas pesanan masuk. Cek status pesanannya — kalau masih "Lagi Nunggu"/"Lagi Disiapin", tandai beres dulu.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Tampilan berantakan di HP?</summary>
+          <div class="faq-isi">
+            <p>Semua halaman udah responsif (menu utama jadi bisa digeser di layar kecil). Kalau masih aneh, coba refresh halamannya, atau buka di Chrome/perangkat lain.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Masih bingung, gimana?</summary>
+          <div class="faq-isi">
+            <p>Semua jawaban soal alur inti udah ada di halaman ini dari langkah 1 sampai 6. Kalau ada kendala teknis di luar itu, hubungi admin LokalKita — jangan dijawab pake tebakan.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="merek" href="index.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+        <p class="footer-tagline">Dukung UMKM, bangun ekonomi lokal.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Pelaku usaha">
+        <h3>Pelaku Usaha</h3>
+        <a href="login.html?peran=penjual">Daftarkan Usaha</a>
+        <a href="panduan-penjual.html">Panduan Penjual</a>
+        <a href="legalitas.html">Legalitas</a>
+      </nav>
+      <div class="footer-sosmed">
+        <h3>Sosial Media</h3>
+        <a href="https://www.instagram.com/lokalkita.market/">Instagram</a>
+        <a href="#">TikTok</a>
+        <a href="https://www.facebook.com/profile.php?id=61596278730528&sk=about_details">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 LokalKita. Dukung UMKM, bangun ekonomi lokal.</p>
+  </footer>
+</body>
+</html>

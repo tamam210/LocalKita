@@ -3,10 +3,12 @@
 :root{
   --sogan:#5B3A29; --krem:#EADCC6; --terra:#C86B45; --terra-tua:#A9522F;
   --terra-hover:#8F4426;
-  --bg:#FBF4E8; --kartu:#FFFBF4; --teks:#3A2418; --teks-lembut:#7A5A47;
+  --bg:#FBF4E8; --kartu:#FFFBF4; --teks:#3A2418; --teks-lembut:#6B5442;
   --krem-muda:#F6ECDB; --krem-tua:#EFE0C7;
   --garis:rgba(91,58,41,.16); --galat:#9B2C1F;
   --r-sm:12px; --r-md:18px; --r-lg:24px;
+  /* Skala spasi terstruktur untuk rythme visual yang konsisten */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:28px; --space-7:36px;
   --bayang-sm:0 2px 8px rgba(91,58,41,.08);
   --bayang-md:0 6px 20px rgba(91,58,41,.12);
   --bayang-lg:0 12px 28px rgba(91,58,41,.18);
@@ -14,9 +16,11 @@
   --bayang:var(--bayang-md);
   --transisi:.18s ease-out;
   --kaca:rgba(255,251,244,.62); --kaca-garis:rgba(255,255,255,.75);
-  --font:"Lato",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font:"Plus Jakarta Sans","Lato",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   /* motif kawung sederhana (SVG inline, tanpa request tambahan) */
   --motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23C86B45' stroke-opacity='.3' stroke-width='1.5'%3E%3Cellipse cx='24' cy='12' rx='7' ry='11'/%3E%3Cellipse cx='24' cy='36' rx='7' ry='11'/%3E%3Cellipse cx='12' cy='24' rx='11' ry='7'/%3E%3Cellipse cx='36' cy='24' rx='11' ry='7'/%3E%3C/g%3E%3C/svg%3E");
+  /* anyaman halus (crosshatch) — kulit kartu biar kerasa handmade */
+  --motif-anyam:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M0 4h16M0 8h16M0 12h16M4 0v16M8 0v16M12 0v16' stroke='%23C86B45' stroke-opacity='.08'/%3E%3C/svg%3E");
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -43,6 +47,7 @@ h3{font-size:1.05rem;font-weight:700}
 p{margin:0 0 .75rem}
 a{color:var(--terra-tua)}
 :focus-visible{outline:3px solid var(--terra-tua);outline-offset:2px}
+.nav-daftar a:focus-visible,.tombol:focus-visible,.chip:focus-visible,.detail-varian button:focus-visible,.tab-satu:focus-visible{outline:3px solid var(--terra-tua);outline-offset:2px}
 .wadah{width:100%;max-width:1100px;margin-inline:auto;padding-inline:16px}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -99,7 +104,7 @@ a{color:var(--terra-tua)}
 
 /* Hero + pencarian */
 main{padding-block:16px 40px}
-.hero{position:relative;overflow:hidden;padding:20px;border-radius:var(--r-lg)}
+.hero{position:relative;overflow:hidden;padding:20px;border-radius:var(--r-lg);background:var(--krem)}
 .hero::before{content:"";position:absolute;inset:0;background:var(--motif);pointer-events:none;
   -webkit-mask-image:linear-gradient(to left,#000,transparent 65%);mask-image:linear-gradient(to left,#000,transparent 65%)}
 .hero>*{position:relative}
@@ -107,9 +112,9 @@ main{padding-block:16px 40px}
 .cari{width:100%;min-height:48px;padding:0 20px;border:1px solid var(--garis);border-radius:999px;background:var(--kartu);color:var(--teks);font:inherit}
 .cari::placeholder{color:var(--teks-lembut)}
 
-/* Chip kategori */
-.chip-daftar{display:flex;gap:8px;margin:16px 0 4px;padding-bottom:8px;overflow-x:auto;position:relative}
-.chip-daftar::after{content:'';position:sticky;right:0;top:0;bottom:0;width:24px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;flex-shrink:0;margin-left:-24px}
+/* Chip kategori (bisa digeser, tanpa fade abu-abu) */
+.chip-daftar{display:flex;gap:8px;margin:16px 0 4px;padding-bottom:8px;overflow-x:auto;position:relative;scrollbar-width:none}
+.chip-daftar::-webkit-scrollbar{display:none}
 .chip{flex:none;min-height:44px;padding:0 18px;border:1px solid var(--garis);border-radius:999px;background:var(--kartu);color:var(--sogan);font:inherit;font-weight:700;white-space:nowrap;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--sogan);border-color:var(--sogan);color:#fff}
 .jumlah{margin:8px 0 12px;font-size:.9rem;color:var(--teks-lembut)}
@@ -131,7 +136,7 @@ main{padding-block:16px 40px}
 
 /* Grid + card produk (solid, tanpa blur, supaya ringan di HP murah) */
 .grid-produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.kartu-produk{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:0 2px 8px rgba(91,58,41,.08);transition:transform var(--transisi),box-shadow var(--transisi),border-bottom-color var(--transisi),border-color var(--transisi);border-bottom:2px solid transparent}
+.kartu-produk{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--garis);border-radius:var(--r-md);background-color:var(--kartu);background-image:var(--motif-anyam);box-shadow:0 2px 8px rgba(91,58,41,.08);transition:transform var(--transisi),box-shadow var(--transisi),border-bottom-color var(--transisi),border-color var(--transisi);border-bottom:2px solid transparent}
 .kartu-produk:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(91,58,41,.16);border-color:rgba(169,82,47,.4);border-bottom-color:var(--terra-tua);will-change:transform}
 .kartu-produk:hover .kartu-gambar img{transform:scale(1.04)}
 .kartu-gambar{position:relative;overflow:hidden;aspect-ratio:1/1;background:linear-gradient(135deg,var(--krem),var(--krem-muda));font-size:2.5rem;font-weight:900;color:var(--terra-tua);isolation:isolate}
@@ -150,7 +155,10 @@ main{padding-block:16px 40px}
 @keyframes kilau{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
 .status{grid-column:1/-1;padding:28px 16px;border:1px dashed var(--garis);border-radius:var(--r-md);background:var(--kartu);text-align:center}
-.status::before{content:'\1F4E6';display:block;font-size:2.5rem;margin-bottom:8px;opacity:.7}
+.status::before{
+  content:"";display:block;width:54px;height:64px;margin:0 auto 10px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='64' viewBox='0 0 54 64'%3E%3Cpath fill='%23C86B45' d='M27 3C25 11 12 16 9.5 26C7.5 34 11 39 16 39.5C13.5 45 15 51 19 53.5C17 57.5 19.5 61 27 61C34.5 61 37 57.5 35 53.5C39 51 40.5 45 38 39.5C43 39 46.5 34 44.5 26C42 16 29 11 27 3Z'/%3E%3Cpath fill='none' stroke='%23FFFBF4' stroke-width='2' stroke-linecap='round' d='M27 10v42M18 18l9 8 9-8M19 30l8 7 8-7'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 .status-galat{border-color:var(--galat)}
 .status-galat h3{color:var(--galat)}
 .info-data{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:12px 0;padding:10px 14px;border:1px solid var(--garis);border-radius:var(--r-sm);background:#F6E3C9;color:var(--sogan)}
@@ -164,7 +172,17 @@ main{padding-block:16px 40px}
 .tabel-bungkus{overflow-x:auto}
 .tabel-bungkus table{width:100%;min-width:420px;border-collapse:collapse}
 .tabel-bungkus th,.tabel-bungkus td{padding:10px 12px;border-bottom:1px solid var(--garis);text-align:left}
-footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
+/* Footer: identitas + navigasi Pelaku Usaha */
+footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-lembut);background:var(--krem-muda);border-top:1px solid var(--garis)}
+.footer-grid{display:grid;grid-template-columns:1fr;gap:28px;max-width:1100px;margin-inline:auto}
+.footer-brand .merek{font-size:1.35rem;min-height:44px}
+.footer-tagline{margin:8px 0 0;max-width:36ch;color:var(--teks-lembut)}
+.footer h3{margin:0 0 10px;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--terra-tua)}
+.footer-nav,.footer-sosmed{display:flex;flex-direction:column;gap:6px}
+.footer-nav a,.footer-sosmed a{width:fit-content;color:var(--teks-lembut);text-decoration:none;font-weight:600}
+.footer-nav a:hover,.footer-sosmed a:hover{color:var(--terra-tua);text-decoration:underline}
+.footer-copy{margin:24px auto 0;max-width:1100px;padding-top:16px;border-top:1px solid var(--garis);text-align:center;color:var(--teks-lembut)}
+@media (min-width:768px){.footer-grid{grid-template-columns:1.6fr 1fr 1fr;gap:40px}}
 
 /* B4-B6: form, hasil, poin, chat, laporan */
 .form-grid{display:grid;grid-template-columns:1fr;gap:0 16px}
@@ -370,21 +388,37 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .kartu-produk-saya .upload-baris {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--garis);
 }
 
 .kartu-produk-saya .upload-baris input[type="file"] {
+  flex: 1 1 140px;
+  min-width: 0;
+  font: inherit;
   font-size: .8rem;
-  max-width: 100%;
+  color: var(--teks-lembut);
+  padding: 6px 8px;
+  border: 1px dashed var(--garis);
+  border-radius: var(--r-sm);
+  background: var(--kartu);
 }
+.kartu-produk-saya .upload-baris input[type="file"]::file-selector-button {
+  margin-right: 8px; padding: 4px 10px; border: 0; border-radius: 999px;
+  background: var(--krem); color: var(--sogan); font: inherit; font-weight: 700; cursor: pointer;
+}
+.kartu-produk-saya .upload-baris input[type="file"]::file-selector-button:hover { background: var(--krem-tua); }
 
 .kartu-produk-saya .upload-status {
-  font-size: .8rem;
+  font-size: .82rem;
   color: var(--teks-lembut);
   min-height: 1.2em;
 }
+.kartu-produk-saya .upload-status.sukses { color: #1B6B17; font-weight: 700; }
+.kartu-produk-saya .upload-status.galat { color: var(--galat); font-weight: 700; }
 
 .info-data.info-galat {
   color: var(--galat);
@@ -402,6 +436,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .detail-toko:hover{text-decoration:underline}
 .detail-harga{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .detail-stok{font-size:.9rem;color:var(--teks-lembut)}
+.detail-stok.habis{color:var(--galat);font-weight:700}
 .detail-varian{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
 .detail-varian button{min-height:40px;padding:6px 14px;border:1px solid var(--garis);border-radius:999px;background:var(--kartu);color:var(--sogan);font:inherit;font-weight:700;cursor:pointer}
 .detail-varian button[aria-pressed="true"]{background:var(--sogan);color:#fff}
@@ -410,8 +445,9 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .detail-tabs button[aria-pressed="true"]{color:var(--sogan);border-bottom-color:var(--sogan)}
 .detail-tab-isi{padding:14px 0 4px}
 .detail-tab-isi[hidden]{display:none}
-.detail-aksi{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.detail-aksi .tombol{flex:1 1 140px}
+.detail-aksi{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.detail-aksi .tombol-utama{flex:2 1 200px}
+.detail-aksi .tombol,.detail-aksi .tombol-garis{flex:1 1 140px}
 .detail-info-row{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:8px;font-size:.9rem;color:var(--teks-lembut)}
 .detail-info-row span strong{color:var(--sogan)}
 
@@ -429,6 +465,17 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 }
 .tombol-keranjang-kecil:hover{background:var(--terra-hover)}
 
+/* Favorit (heart) di kartu produk */
+.tombol-favorit{
+  position:absolute;top:6px;left:6px;z-index:2;
+  width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.9);
+  color:var(--teks-lembut);font-size:1.1rem;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.15);
+  display:grid;place-items:center;line-height:1
+}
+.tombol-favorit:hover{background:#fff;color:var(--terra-tua)}
+.tombol-favorit.terpilih{background:var(--galat);color:#fff}
+.tombol-favorit:active{transform:translateY(1px)}
+
 .daftar-keranjang, .daftar-pesanan{display:flex;flex-direction:column;gap:12px;margin-top:16px}
 .item-keranjang, .item-pesanan{
   display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;
@@ -442,13 +489,17 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .item-keranjang-toko, .item-pesanan-toko{font-size:.85rem;color:var(--teks-lembut);overflow-wrap:anywhere}
 .item-keranjang-harga, .item-pesanan-harga{font-weight:900;color:var(--terra-tua);font-variant-numeric:tabular-nums}
 .item-keranjang-aksi{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.jumlah-keranjang{display:flex;align-items:center;gap:6px}
-.jumlah-keranjang button{
-  width:32px;height:32px;border:1px solid var(--garis);border-radius:50%;
-  background:var(--kartu);cursor:pointer;font-weight:900;color:var(--sogan)
+.qty-control,.jumlah-keranjang{display:inline-flex;align-items:center;gap:4px;background:var(--kartu);border:1px solid var(--garis);border-radius:999px;padding:3px}
+.qty-control button,.jumlah-keranjang button{
+  width:32px;height:32px;border:0;border-radius:50%;
+  background:var(--krem);cursor:pointer;font-weight:900;color:var(--sogan);line-height:1;
+  transition:background var(--transisi),color var(--transisi)
 }
-.jumlah-keranjang button:hover{background:var(--krem)}
-.jumlah-keranjang span{min-width:24px;text-align:center;font-weight:700}
+.qty-control button:hover,.jumlah-keranjang button:hover{background:var(--krem-tua);color:var(--terra-tua)}
+.qty-control button:disabled{opacity:.45;cursor:not-allowed}
+.qty-control span,.jumlah-keranjang span{min-width:28px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.detail-qty-baris{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0}
+.detail-qty-baris .label{margin:0}
 .hapus-keranjang{background:transparent;border:0;color:var(--galat);cursor:pointer;font-size:.85rem;font-weight:700}
 .ringkasan-keranjang{
   margin-top:16px;padding:16px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:var(--bayang-sm)
@@ -481,7 +532,7 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
   .nav-swipe{display:block}
   .nav-profil{justify-content:flex-end}
   .detail-dua-kolom{grid-template-columns:1fr}
-  .detail-aksi .tombol{flex:1 1 100%}
+  .detail-aksi .tombol,.detail-aksi .tombol-garis,.detail-aksi .tombol-utama{flex:1 1 100%}
 }
 
 /* Chat */
@@ -500,3 +551,76 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .profil-email{color:var(--teks-lembut)}
 .profil-info-grid{display:grid;grid-template-columns:1fr;gap:0 16px}
 @media (min-width:768px){.profil-info-grid{grid-template-columns:1fr 1fr}}
+
+/* Panduan Penjual (faq) */
+.faq{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.faq-item{border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);overflow:hidden;box-shadow:var(--bayang-sm)}
+.faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;list-style:none;cursor:pointer;font-weight:800;color:var(--sogan);min-height:48px;transition:background var(--transisi)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--krem);color:var(--terra-tua);font-size:1.1rem;font-weight:900;transition:transform var(--transisi),background var(--transisi),color var(--transisi)}
+.faq-item[open] summary::after{transform:rotate(45deg);background:var(--terra-tua);color:#fff}
+.faq-item summary:hover{background:var(--krem-muda)}
+.faq-item summary:focus-visible{outline-offset:-3px}
+.faq-isi{padding:14px 16px 16px;border-top:1px dashed var(--garis);color:var(--teks);overflow-wrap:anywhere}
+.faq-isi p{margin:0 0 10px}
+.faq-isi p:last-child{margin-bottom:0}
+.faq-isi ol,.faq-isi ul{margin:0 0 10px 20px;padding:0}
+.faq-isi li{margin-bottom:6px}
+.faq-isi strong{color:var(--sogan)}
+.faq-isi code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;background:var(--krem);padding:2px 6px;border-radius:6px;color:var(--terra-tua)}
+@media (prefers-reduced-motion:reduce){.faq-item summary::after{transition:none}}
+
+/* Print: sembunyikan elemen interaksi saat mencetak laporan/struk */
+@media print{
+  .navbar,.footer,.tombol,.tombol-garis,.tombol-lunak,.popup-latar,.toast-wadah,.detail-aksi,.tabel-aksi,.chip-daftar,.status-aksi,.qty-control,.jumlah-keranjang,.hapus-keranjang,.detail-varian,.detail-tabs,.detail-zoom,.lightbox-tutup,.bagikan,.hubungi,.tambah{display:none!important}
+  .kaca,.panel,.kartu-produk,.kartu-produk-saya{box-shadow:none!important;border:1px solid #999!important;background:#fff!important}
+  body{background:#fff!important;color:#000!important}
+  .gelembung.saya{background:#ddd!important;color:#000!important}
+  .teks-lembut,.label{color:#333!important}
+}
+
+/* Struk cetak (thermal printer style) */
+.struk-kertas{
+  width:100%;
+  max-width:320px;
+  margin:0 auto;
+  border:2px solid #000;
+  border-radius:6px;
+  background:#fff;
+  color:#000;
+  font-family:'Courier New',Courier,monospace;
+  font-size:12px;
+  line-height:1.4;
+  padding:10px;
+  box-sizing:border-box;
+}
+.struk-header{text-align:center;margin-bottom:8px}
+.struk-toko{font-weight:bold;font-size:15px;letter-spacing:1px;margin-bottom:2px}
+.struk-alamat{font-size:10px;margin-bottom:2px}
+.struk-telp{font-size:10px;margin-bottom:4px}
+.struk-garis{border-top:1px solid #000;margin:6px 0}
+.struk-garis-pendek{border-top:1px solid #000;margin:4px 0}
+.struk-isi{margin-bottom:8px}
+.struk-baris{display:flex;justify-content:space-between;margin:3px 0}
+.struk-label{color:#222}
+.struk-nilai{font-weight:bold}
+.struk-tabel{margin:4px 0}
+.struk-baris-header{font-weight:bold;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:4px;display:flex;justify-content:space-between}
+.struk-item{display:flex;justify-content:space-between;margin:2px 0}
+.struk-total{border-top:1px solid #000;padding-top:5px;margin-top:5px}
+.struk-baris-total{display:flex;justify-content:space-between;margin:3px 0}
+.struk-label-besar{font-weight:bold}
+.struk-nilai-besar{font-weight:bold}
+.struk-tebal{border-top:1px solid #000;padding-top:4px;margin-top:4px}
+.struk-footer{text-align:center;font-weight:bold;font-size:11px;margin-top:8px}
+.struk-aksi{margin-top:16px;text-align:center}
+.struk-item-list{display:flex;flex-direction:column;gap:4px}
+
+/* Print: hanya struk yang tampil, sembunyikan nav dan aksi cetak */
+@media print{
+  body{background:#fff!important;margin:0;padding:0}
+  .wadah{max-width:100%;padding:0;margin:0}
+  .panel{box-shadow:none!important;border:none!important;background:#fff!important;padding:0!important;margin:0!important}
+  a[href="laporan.html"]{display:none!important}
+  .struk-aksi{display:none!important}
+}

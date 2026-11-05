@@ -82,9 +82,28 @@
       });
       gambar.appendChild(keranjangBtn);
     }
+    // Tombol favorit
+    if (p.product_id) {
+      var sudah = LK.favorit.isFavorit(p.product_id);
+      var favBtn = LK.el('button', {
+        type: 'button',
+        'class': 'tombol-favorit ' + (sudah ? 'terpilih' : ''),
+        'aria-label': sudah ? 'Hapus dari favorit' : 'Masukkan ke favorit',
+        text: sudah ? '\u2665' : '\u2661'
+      });
+      favBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var now = LK.favorit.toggle(p.product_id);
+        favBtn.className = 'tombol-favorit ' + (now ? 'terpilih' : '');
+        favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
+        favBtn.textContent = now ? '\u2665' : '\u2661';
+        LK.notif(now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit', 'sukses', 'Favorit');
+      });
+      gambar.appendChild(favBtn);
+    }
     var pesanBtn = null;
     if (p.store_id) {
-      pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Pesan Barang' });
+      pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Beli Langsung' });
       pesanBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         try {
@@ -116,13 +135,6 @@
       ? LK.el('span', { 'class': 'lencana' + (stok <= 0 ? ' lencana-habis' : ''), text: stok <= 0 ? 'Stok habis' : 'Stok ' + stok })
       : null;
     var poin = (p.earns_points === true || Number(p.earns_points) === 1) ? LK.el('span', { 'class': 'lencana', text: 'Dapat poin' }) : null;
-    var chat = p.store_id
-      ? LK.el('a', {
-        'class': 'tombol-lunak',
-        href: 'pesanan.html?pesan=' + encodeURIComponent(p.product_id || '') + '&store_id=' + encodeURIComponent(p.store_id),
-        text: 'Pesan Barang'
-      })
-      : null;
     return LK.el('article', kartuAttr, [gambar, LK.el('div', { 'class': 'kartu-isi' }, [
       judulProduk,
       LK.el('span', { 'class': 'kartu-toko', text: p.store_name || kategoriDari(p) }),
@@ -145,8 +157,8 @@
     if (!hasil.length) {
       var ada = semua.length > 0;
       $grid.appendChild(LK.el('div', { 'class': 'status' }, [
-        LK.el('h3', { text: ada ? 'Produk tidak ditemukan' : 'Belum ada produk' }),
-        LK.el('p', { text: ada ? 'Coba kata kunci lain atau pilih kategori Semua.' : 'Penjual belum menambahkan produk. Cek lagi nanti.' })
+        LK.el('h3', { text: ada ? 'Produknya nggak ketemu, nih' : 'Belum ada produk' }),
+        LK.el('p', { text: ada ? 'Coba kata kunci lain atau pilih kategori Semua, ya.' : 'Penjual belum nambah produk. Cek lagi nanti, ya.' })
       ]));
       return;
     }

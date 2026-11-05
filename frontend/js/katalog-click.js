@@ -27,7 +27,19 @@
       // Jika yang diklik adalah link/chat, biarin dia yang handle
       if (target.closest('a, button')) return;
       var tujuan = cariProduk(target);
-      if (tujuan) { window.location.href = tujuan; }
+      if (tujuan) {
+        // Simpan ke riwayat produk yang dilihat (frontend only)
+        try {
+          var kartu = target.closest('.kartu-produk');
+          if (kartu) {
+            var id = kartu.getAttribute('data-product-id');
+            var namaEl = kartu.querySelector('.kartu-nama');
+            var nama = namaEl ? namaEl.textContent : '';
+            if (id) { LK.dilihat.tambah(id, nama); }
+          }
+        } catch(e) {}
+        window.location.href = tujuan;
+      }
     });
   }
 

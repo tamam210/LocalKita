@@ -6,7 +6,7 @@
   var DEMO = {
     toko: 'Dapur Bu Sari',
     ringkasan: [
-      { label: 'Pesanan masuk', nilai: '12', tren: '+3 dari bulan lalu', arah: 'naik', ket: '3 menunggu konfirmasi' },
+      { label: 'Pesanan masuk', nilai: '12', tren: '+3 dari bulan lalu', arah: 'naik', ket: '3 lagi nunggu konfirmasi' },
       { label: 'Transaksi selesai', nilai: '8', tren: '+2 dari bulan lalu', arah: 'naik', ket: '67% dari pesanan masuk' },
       { label: 'Pendapatan', nilai: 4850000, tren: '+12,4% dari bulan lalu', arah: 'naik', ket: 'Dari 8 transaksi tercatat' },
       { label: 'Estimasi keuntungan', nilai: 1920000, tren: 'Margin 39,6%', arah: 'naik', ket: 'Setelah HPP dan biaya reward' },
@@ -46,9 +46,9 @@
   };
 
   var STATUS = {
-    menunggu: { teks: 'Menunggu konfirmasi', kelas: 'status-menunggu' },
-    diproses: { teks: 'Diproses', kelas: 'status-diproses' },
-    selesai: { teks: 'Selesai', kelas: 'status-selesai' },
+    menunggu: { teks: 'Lagi Nunggu', kelas: 'status-menunggu' },
+    diproses: { teks: 'Lagi Disiapin', kelas: 'status-diproses' },
+    selesai: { teks: 'Beres, Poin Dikasih', kelas: 'status-selesai' },
     batal: { teks: 'Dibatalkan', kelas: 'status-batal' }
   };
 
@@ -91,7 +91,7 @@
       bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol', 'data-aksi': 'terima', 'data-id': p.id, text: 'Terima' }));
       bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', 'data-aksi': 'tolak', 'data-id': p.id, text: 'Tolak' }));
     } else if (p.status === 'diproses') {
-      bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol', 'data-aksi': 'selesai', 'data-id': p.id, text: 'Selesaikan' }));
+      bungkus.appendChild(LK.el('button', { type: 'button', 'class': 'tombol', 'data-aksi': 'selesai', 'data-id': p.id, text: 'Tandai Beres' }));
     } else {
       bungkus.appendChild(LK.el('span', { 'class': 'label', text: '—' }));
     }
@@ -100,7 +100,7 @@
 
   function renderPesanan() {
     var perlu = DEMO.pesanan.filter(function (p) { return p.status === 'menunggu'; }).length;
-    $perlu.textContent = perlu + ' perlu tindakan';
+    $perlu.textContent = perlu + ' lagi nunggu konfirmasi';
 
     var tb = LK.el('tbody');
     DEMO.pesanan.forEach(function (p) {
@@ -125,21 +125,21 @@
     terima: {
       label: 'Pesanan masuk',
       judul: 'Terima pesanan',
-      pesan: 'Pembeli akan melihat status pesanan berubah menjadi Diproses.',
-      teksYa: 'Ya, terima'
+      pesan: 'Gaskeun diterima? Pembeli bakal lihat status jadi "Lagi Disiapin".',
+      teksYa: 'Ya, gaskeun'
     },
     tolak: {
       label: 'Pesanan masuk',
       judul: 'Tolak pesanan',
-      pesan: 'Pembeli akan melihat status Dibatalkan. Tindakan ini tidak bisa dibatalkan.',
+      pesan: 'Pembeli bakal lihat status jadi "Dibatalkan". Nggak bisa dibatalin lagi, lho.',
       teksYa: 'Ya, tolak',
       jenis: 'bahaya'
     },
     selesai: {
       label: 'Transaksi',
-      judul: 'Selesaikan transaksi',
-      pesan: 'Poin pembeli akan dicatat setelah transaksi selesai.',
-      teksYa: 'Ya, selesaikan'
+      judul: 'Tandai beres',
+      pesan: 'Setelah ini poin pembeli langsung dicatat.',
+      teksYa: 'Yakin, beresin'
     }
   };
 
@@ -162,13 +162,13 @@
       if (!lanjut) { return; }
       if (aksi === 'terima') {
         pesanan.status = 'diproses';
-        LK.notif('Pesanan ' + id + ' diterima. Status berubah menjadi Diproses.', 'sukses', 'Pesanan diterima');
+        LK.notif('Pesanan ' + id + ' diterima — gaskeun disiapin!', 'sukses', 'Pesanan diterima');
       } else if (aksi === 'tolak') {
         pesanan.status = 'batal';
-        LK.notif('Pesanan ' + id + ' ditolak. Pembeli melihat status Dibatalkan.', 'bahaya', 'Pesanan ditolak');
+        LK.notif('Pesanan ' + id + ' ditolak. Pembeli lihatnya "Dibatalkan".', 'bahaya', 'Pesanan ditolak');
       } else if (aksi === 'selesai') {
         pesanan.status = 'selesai';
-        LK.notif('Transaksi ' + id + ' selesai. Poin pembeli sudah dicatat.', 'sukses', 'Transaksi selesai');
+        LK.notif('Transaksi ' + id + ' beres. Poin pembeli udah dicatat.', 'sukses', 'Transaksi beres');
       }
       renderPesanan();
     });

@@ -4,9 +4,11 @@
   // Kalau frontend dibuka dari origin yang sama dengan API
   // (http://localhost:8000/frontend/), pakai jalur relatif supaya
   // bebas CORS dan cookie sesi tetap terkirim.
+  // Jika tidak, cocokkan host (localhost/127.0.0.1) dengan port API (8000)
+  // agar tidak ada mismatched origin yang pemicu CORS.
   var BASE = location.origin === 'http://localhost:8000'
     ? '/backend/api/'
-    : 'http://localhost:8000/backend/api/';
+    : location.origin.replace(/:5500$/, ':8000') + '/backend/api/';
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   
@@ -249,7 +251,7 @@
       .then(function () { sesiCache = null; });
   }
 w.LK = {
-    apiGet: apiGet, apiPost: apiPost, rupiah: rupiah, el: el, persen: persen,
+    apiGet: apiGet, apiPost: apiPost, apiUpload: apiUpload, rupiah: rupiah, el: el, persen: persen,
     tanggal: tanggal, bulan: bulan, angka: angka, status: status, ulang: ulang,
     popup: popup, konfirmasi: konfirmasi, notif: notif, sesi: sesi, sesiAman: sesiAman, keluar: keluar
   };

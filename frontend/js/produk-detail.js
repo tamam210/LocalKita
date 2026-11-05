@@ -10,6 +10,22 @@
     return params.get('id') || '';
   }
 
+  var DUMMY = [
+    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/keripik-singkong.jpg', image_alt: 'Tumpukan keripik singkong', description: 'Keripik singkong renyah buatan rumahan.', specification: 'Berat bersih ±200g. Tanpa pengawet.' },
+    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002', image_url: 'img/produk/tas-anyaman.jpg', image_alt: 'Tas anyaman pandan', description: 'Tas anyaman pandan handmade, kuat dan ringan.', specification: 'Ukuran ±30x25cm. Bahan pandan alami.' },
+    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/kopi-lokal.jpg', image_alt: 'Kemasan kopi lokal', description: 'Kopi bubuk pilihan dari petani lokal.', specification: 'Berat bersih 200g. Roast medium.' },
+    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002', image_url: 'img/produk/kain-batik-tulis.jpg', image_alt: 'Kain batik tulis', description: 'Kain batik tulis motif klasik.', specification: 'Ukuran ±2m x 1.1m. Katun prima.' },
+    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/laundry-kiloan.jpg', image_alt: 'Keranjang laundry bersih', description: 'Layanan cuci kiloan, bersih dan wangi.', specification: 'Estimasi selesai 1–2 hari. Harga per kg.' },
+    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/sambal-roa.jpg', image_alt: 'Toples sambal roa', description: 'Sambal roa pedas gurih khas rumahan.', specification: 'Berat bersih ±150g. Botol kaca.' }
+  ];
+
+  function cariDummy(id) {
+    for (var i = 0; i < DUMMY.length; i++) {
+      if (String(DUMMY[i].product_id) === String(id)) return DUMMY[i];
+    }
+    return null;
+  }
+
   function skeleton() {
     $detail.replaceChildren(LK.el('div', { 'class': 'skeleton' }));
   }
@@ -56,7 +72,7 @@
     var toko = LK.el('a', { 'class': 'detail-toko', href: storeId ? 'poin.html?store_id=' + encodeURIComponent(storeId) : '#', text: '\ud83c\udfe0 ' + storeName });
     toko.addEventListener('click', function (e) { if (!storeId) e.preventDefault(); });
     var hrg = LK.el('div', { 'class': 'detail-harga', text: LK.rupiah(harga) });
-    var st = LK.el('div', { 'class': 'detail-stok', text: stok === null ? 'Stok: -' : (stok <= 0 ? 'Stok: Habis' : 'Stok: ' + stok) });
+    var st = LK.el('div', { 'class': 'detail-stok' + (stok !== null && stok <= 0 ? ' habis' : ''), text: stok === null ? 'Stok: -' : (stok <= 0 ? 'Stok: Habis' : 'Stok: ' + stok) });
 
     // Varian sederhana
     var varianWrap = LK.el('div', { 'class': 'detail-varian', 'aria-label': 'Pilih varian' });
@@ -74,6 +90,18 @@
         varianWrap.appendChild(btn);
       });
     }
+
+    // Jumlah
+    var qty = 1;
+    var qtySpan = LK.el('span', { text: '1' });
+    var btnMinus = LK.el('button', { type: 'button', 'aria-label': 'Kurangi jumlah', text: '\u2212' });
+    var btnPlus = LK.el('button', { type: 'button', 'aria-label': 'Tambah jumlah', text: '+' });
+    btnMinus.addEventListener('click', function () { if (qty > 1) { qty--; qtySpan.textContent = String(qty); } });
+    btnPlus.addEventListener('click', function () { if (stok === null || qty < stok) { qty++; qtySpan.textContent = String(qty); } });
+    var qtyBaris = LK.el('div', { 'class': 'detail-qty-baris' }, [
+      LK.el('span', { 'class': 'label', text: 'Jumlah' }),
+      LK.el('div', { 'class': 'qty-control' }, [btnMinus, qtySpan, btnPlus])
+    ]);
 
     // Tabs
     var tabs = LK.el('div', { 'class': 'detail-tabs', role: 'tablist' });
@@ -95,15 +123,18 @@
     tabBtn3.addEventListener('click', function () { gantiTab(2); });
 
     // Aksi
+    var habis = stok !== null && stok <= 0;
     var aksi = LK.el('div', { 'class': 'detail-aksi' });
-    var tambah = LK.el('button', { type: 'button', 'class': 'tombol', text: '+ Tambah Keranjang' });
+    var tambah = LK.el('button', { type: 'button', 'class': 'tombol tombol-utama', text: habis ? 'Stok Habis \u26A0' : '+ Tambah Keranjang', 'aria-disabled': habis ? 'true' : 'false' });
+    if (habis) { tambah.disabled = true; }
     tambah.addEventListener('click', function () {
+      if (habis) return;
       try {
         var KEY = 'lokalkita_keranjang';
         var items = JSON.parse(localStorage.getItem(KEY) || '[]');
         var ada = false;
         for (var i = 0; i < items.length; i++) {
-          if (String(items[i].product_id) === String(p.product_id)) { items[i].qty = (items[i].qty || 1) + 1; ada = true; break; }
+          if (String(items[i].product_id) === String(p.product_id)) { items[i].qty = (items[i].qty || 1) + qty; ada = true; break; }
         }
         if (!ada) {
           items.push({
@@ -113,20 +144,39 @@
             image: gambarUrl,
             store_id: storeId,
             store_name: storeName,
-            qty: 1
+            qty: qty
           });
         }
         localStorage.setItem(KEY, JSON.stringify(items));
       } catch(ex) {}
-      LK.notif('Produk berhasil ditambahkan ke keranjang', 'sukses', 'Keranjang');
+      LK.notif(qty + ' item ditambahkan ke keranjang', 'sukses', 'Keranjang');
     });
+    // Tombol favorit di halaman detail
+    if (p.product_id) {
+      var sudah = LK.favorit.isFavorit(p.product_id);
+      var favBtn = LK.el('button', {
+        type: 'button',
+        'class': 'tombol tombol-garis',
+        'aria-label': sudah ? 'Hapus dari favorit' : 'Masukkan ke favorit',
+        text: (sudah ? '\u2665 ' : '\u2661 ') + 'Favorit'
+      });
+      favBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var now = LK.favorit.toggle(p.product_id);
+        favBtn.className = 'tombol tombol-garis' + (now ? ' terpilih' : '');
+        favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
+        favBtn.textContent = (now ? '\u2665 ' : '\u2661 ') + 'Favorit';
+        LK.notif(now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit', 'sukses', 'Favorit');
+      });
+      aksi.appendChild(favBtn);
+    }
     var hubungi = LK.el('a', { 'class': 'tombol tombol-garis', href: storeId ? 'poin.html?store_id=' + encodeURIComponent(storeId) : 'chat.html', text: '\ud83d\udcac Hubungi Penjual' });
     var bagikan = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: '\ud83d\udd17 Bagikan' });
     bagikan.addEventListener('click', function () {
       try {
         if (navigator.share) {
           navigator.share({ title: p.name, text: p.name, url: location.href });
-        } else {
+        } else if (navigator.clipboard) {
           navigator.clipboard.writeText(location.href).then(function () {
             LK.notif('Tautan berhasil disalin', 'sukses', 'Bagikan');
           });
@@ -146,6 +196,7 @@
     isi.appendChild(hrg);
     isi.appendChild(st);
     isi.appendChild(varianWrap);
+    isi.appendChild(qtyBaris);
     isi.appendChild(tabs);
     isi.appendChild(tabIsi1);
     isi.appendChild(tabIsi2);
@@ -174,6 +225,7 @@
     LK.apiGet('products.php?product_id=' + encodeURIComponent(id)).then(function (data) {
       var p = Array.isArray(data) ? data[0] : (data && data.item ? data.item : data);
       if (!p || !p.product_id) throw new Error('Data produk tidak ditemukan');
+      LK.dilihat.tambah(p.product_id, p.name || '');
       render(p);
     }).catch(function (err) {
       // Fallback ke katalog jika gagal
@@ -184,8 +236,11 @@
           if (String(items[i].product_id) === String(id)) { p = items[i]; break; }
         }
         if (!p) throw err;
+        LK.dilihat.tambah(p.product_id, p.name || '');
         render(p);
       }).catch(function () {
+        var fallback = cariDummy(id);
+        if (fallback) { LK.dilihat.tambah(fallback.product_id, fallback.name); render(fallback); return; }
         $detail.replaceChildren(LK.el('div', { 'class': 'status status-galat' }, [
           LK.el('h3', { text: 'Gagal memuat produk' }),
           LK.el('p', { text: err.message || 'Terjadi kesalahan.' }),

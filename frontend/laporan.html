@@ -10,7 +10,7 @@
   <title>Laporan - LokalKita</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=5">
   <script src="js/api.js?v=3" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
@@ -23,9 +23,9 @@
       <nav aria-label="Menu utama" class="nav-utama">
         <ul class="nav-daftar">
           <li><a href="index.html">Etalase</a></li>
-          <li data-penjual hidden><a href="dashboard-penjual.html">Dashboard</a></li>
-          <li data-penjual hidden><a href="hpp.html">Kalkulator HPP</a></li>
-          <li data-penjual hidden><a href="laporan.html" aria-current="page">Laporan</a></li>
+          <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+          <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+          <li data-penjual hidden><a href="laporan.html" aria-current="page">Laporan Warung</a></li>
           <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
           <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
           <li data-pembeli hidden><a href="chat.html">Chat</a></li>
@@ -34,9 +34,9 @@
         <div class="nav-swipe" aria-label="Menu geser">
           <ul class="nav-daftar">
             <li><a href="index.html">Etalase</a></li>
-            <li data-penjual hidden><a href="dashboard-penjual.html">Dashboard</a></li>
-            <li data-penjual hidden><a href="hpp.html">Kalkulator HPP</a></li>
-            <li data-penjual hidden><a href="laporan.html" aria-current="page">Laporan</a></li>
+            <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+            <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+            <li data-penjual hidden><a href="laporan.html" aria-current="page">Laporan Warung</a></li>
             <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
             <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
             <li data-pembeli hidden><a href="chat.html">Chat</a></li>
@@ -57,7 +57,7 @@
               <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
               <li><a href="pesanan.html">Riwayat Pembelian</a></li>
               <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
-              <li><a href="katalog.html#favorit">Favorit Pembelian</a></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
               <li><button type="button" data-keluar>Keluar</button></li>
             </ul>
           </div>
@@ -74,7 +74,7 @@
               <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
               <li><a href="pesanan.html">Riwayat Pembelian</a></li>
               <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
-              <li><a href="katalog.html#favorit">Favorit Pembelian</a></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
               <li><button type="button" data-keluar>Keluar</button></li>
             </ul>
           </div>
@@ -82,8 +82,9 @@
       </nav>
     </div>
   </header>
-  <mainmain class="wadah">
+  <main class="wadah">
     <h1>Laporan Usaha</h1>
+    <button type="button" class="tombol" data-penjual onclick="window.open('struk.html','_blank','width=360,height=640')">Cetak Struk Pesanan</button>
     <section id="kartu-laporan" class="panel kaca" aria-labelledby="kartu-laporan-j">
       <h2 id="kartu-laporan-j">Ringkasan bulan terbaru</h2>
       <div id="isi-kartu-laporan" aria-live="polite"></div>
@@ -105,6 +106,27 @@
       <div id="isi-biaya" class="tabel-bungkus"></div>
     </section>
   </main>
-  <footer>&copy; 2026 LokalKita. Karya Lokal, Kebanggaan Kita.</footer>
+<footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="merek" href="index.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+        <p class="footer-tagline">Dukung UMKM, bangun ekonomi lokal.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Pelaku usaha">
+        <h3>Pelaku Usaha</h3>
+        <a href="login.html?peran=penjual">Daftarkan Usaha</a>
+        <a href="panduan-penjual.html">Panduan Penjual</a>
+        <a href="legalitas.html">Legalitas</a>
+      </nav>
+      <div class="footer-sosmed">
+        <h3>Sosial Media</h3>
+        <a href="https://www.instagram.com/lokalkita.market/">Instagram</a>
+        <a href="#">TikTok</a>
+        <a href="https://www.facebook.com/profile.php?id=61596278730528&sk=about_details">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 LokalKita. Dukung UMKM, bangun ekonomi lokal.</p>
+  </footer>
 </body>
 </html>

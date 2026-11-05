@@ -26,9 +26,9 @@
         LK.el('div', { 'class': 'item-pesanan-toko', text: it.store_name || '-' }),
         LK.el('div', { 'class': 'item-pesanan-harga', text: LK.rupiah(it.price) + ' x ' + (it.qty || 1) })
       ]);
-      var status = LK.el('span', { 'class': 'pesanan-status menunggu', text: 'Menunggu Konfirmasi' });
-      if (it.status === 'proses') { status.textContent = 'Diproses'; status.className = 'pesanan-status proses'; }
-      else if (it.status === 'selesai') { status.textContent = 'Selesai'; status.className = 'pesanan-status selesai'; }
+      var status = LK.el('span', { 'class': 'pesanan-status menunggu', text: 'Lagi Nunggu Konfirmasi' });
+      if (it.status === 'proses') { status.textContent = 'Lagi Disiapin'; status.className = 'pesanan-status proses'; }
+      else if (it.status === 'selesai') { status.textContent = 'Sampai Tangan, Makasih!'; status.className = 'pesanan-status selesai'; }
       else if (it.status === 'batal') { status.textContent = 'Dibatalkan'; status.className = 'pesanan-status batal'; }
       var chat = LK.el('a', { 'class': 'tombol tombol-garis', href: it.store_id ? 'chat.html?store_id=' + encodeURIComponent(it.store_id) : 'chat.html', text: '💬 Chat Penjual' });
       var footer = LK.el('div', { 'class': 'item-pesanan-footer' }, [status, chat]);

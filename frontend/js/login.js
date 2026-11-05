@@ -41,8 +41,14 @@
     admin: 'dashboard-penjual.html'
   };
 
-  var peran = 'pembeli';
-  var mode = 'masuk';
+  function paramDiLokasi(nama) {
+    var m = new RegExp('[?&]' + nama + '=([^&]+)').exec(window.location.search);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  // Dukung login.html?peran=penjual&mode=daftar (misal dari link "Daftarkan Usaha").
+  var peran = paramDiLokasi('peran') === 'penjual' ? 'penjual' : 'pembeli';
+  var mode = paramDiLokasi('mode') === 'daftar' ? 'daftar' : 'masuk';
   var $peran = document.getElementById('pilih-peran');
   var $mode = document.getElementById('pilih-mode');
   var $form = document.getElementById('form-auth');
