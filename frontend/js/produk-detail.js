@@ -121,7 +121,7 @@
       LK.notif('Produk berhasil ditambahkan ke keranjang', 'sukses', 'Keranjang');
     });
     var hubungi = LK.el('a', { 'class': 'tombol tombol-garis', href: storeId ? 'poin.html?store_id=' + encodeURIComponent(storeId) : 'chat.html', text: '\ud83d\udcac Hubungi Penjual' });
-    var bagikan = LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', text: '\ud83d\udd17 Bagikan' });
+    var bagikan = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: '\ud83d\udd17 Bagikan' });
     bagikan.addEventListener('click', function () {
       try {
         if (navigator.share) {

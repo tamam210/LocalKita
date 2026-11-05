@@ -121,10 +121,13 @@ main{padding-block:16px 40px}
 .tombol-garis:hover{background:var(--krem);color:var(--sogan);border-color:var(--sogan)}
 .tombol[disabled]{opacity:.55;cursor:not-allowed}
 /* Varian lembut: untuk aksi sekunder di dalam kartu produk */
-.tombol-lunak{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid var(--garis);border-radius:999px;background:var(--krem);color:var(--terra-tua);font:inherit;font-weight:700;text-decoration:none;cursor:pointer;transition:background var(--transisi),border-color var(--transisi),color var(--transisi)}
-.tombol-lunak:hover{background:var(--krem-tua);border-color:rgba(169,82,47,.35);color:var(--terra-tua)}
+.tombol-lunak{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 16px;border:1px solid rgba(169,82,47,.22);border-radius:999px;background:rgba(234,220,198,.55);color:var(--terra-tua);font:inherit;font-weight:700;font-size:.9rem;text-decoration:none;cursor:pointer;transition:background var(--transisi),border-color var(--transisi),color var(--transisi),transform var(--transisi)}
+.tombol-lunak:hover{background:var(--krem);border-color:rgba(169,82,47,.45);color:var(--sogan)}
 .tombol-lunak:active{transform:translateY(1px)}
 .tombol-lunak:focus-visible{outline-offset:1px}
+/* Ukuran kecil: tombol di dalam kartu/tabel */
+.tombol-sm{min-height:36px;padding:0 14px;font-size:.85rem}
+.tombol-penuh{width:100%}
 
 /* Grid + card produk (solid, tanpa blur, supaya ringan di HP murah) */
 .grid-produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -256,22 +259,29 @@ footer{padding:16px;text-align:center;font-size:.9rem;color:var(--teks-lembut)}
 .tombol-bahaya{background:var(--galat);border-color:var(--galat)}
 .tombol-bahaya:hover{background:#7F2319;border-color:#7F2319}
 .toast-wadah{position:fixed;right:16px;bottom:16px;left:16px;z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
-.toast{display:flex;align-items:flex-start;gap:10px;width:100%;padding:12px 14px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:var(--bayang);pointer-events:auto;animation:lk-toast-masuk .25s ease-out}
+.toast{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--garis);border-radius:var(--r-md);background:var(--kartu);box-shadow:var(--bayang-md);pointer-events:auto;animation:lk-toast-masuk .25s ease-out}
 .toast-isi{flex:1;min-width:0}
-.toast strong{display:block;color:var(--sogan);font-size:.95rem}
+.toast strong{display:block;color:var(--sogan);font-size:.95rem;line-height:1.2}
 .toast p{margin:2px 0 0;font-size:.9rem;color:var(--teks-lembut);overflow-wrap:anywhere}
-.toast-tanda{flex:none;width:10px;height:10px;margin-top:7px;border-radius:50%;background:var(--terra-tua)}
-.toast-sukses .toast-tanda{background:#1B6B17}
-.toast-bahaya{border-color:rgba(155,44,31,.4)}
-.toast-bahaya .toast-tanda{background:var(--galat)}
-.toast-info .toast-tanda{background:var(--sogan)}
+.toast-tanda{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--krem-tua);color:var(--sogan);font-size:.8rem;font-weight:900}
+.toast-tanda::before{content:'i'}
+.toast-sukses{border-color:rgba(27,107,23,.22)}
+.toast-sukses .toast-tanda{background:#E1F0DF;color:#1B6B17}
+.toast-sukses .toast-tanda::before{content:'✓'}
+.toast-bahaya{border-color:rgba(155,44,31,.35);background:#FFF8F6}
+.toast-bahaya .toast-tanda{background:#F3DDD8;color:var(--galat)}
+.toast-bahaya .toast-tanda::before{content:'!'}
+.toast-info .toast-tanda{background:var(--krem);color:var(--sogan)}
 .toast-tutup{
-  flex:none;width:44px;height:44px;margin:-8px -10px 0 0;
+  flex:none;width:36px;height:36px;margin:-4px -6px -4px 0;
   border:0;border-radius:50%;background:transparent;color:var(--teks-lembut);
-  font:inherit;font-size:1.25rem;line-height:1;cursor:pointer
+  font:inherit;font-size:1.2rem;line-height:1;cursor:pointer
 }
 .toast-tutup:hover{background:var(--krem);color:var(--sogan)}
 .toast-keluar{animation:lk-toast-keluar .18s ease-in forwards}
+/* Empty state dengan CTA */
+.status-aksi{margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.status h3{margin:4px 0 2px}
 @keyframes lk-pudar{from{opacity:0}to{opacity:1}}
 @keyframes lk-naik{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes lk-toast-masuk{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}

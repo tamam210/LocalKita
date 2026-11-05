@@ -28,7 +28,13 @@
     var items = load().filter(function (m) { return m.store_id === storeId; });
     $pesan.replaceChildren();
     if (!items.length) {
-      $pesan.appendChild(LK.el('div', { 'class': 'status', text: '' }, [LK.el('p', { text: 'Belum ada pesan. Mulai chat dengan penjual.' })]));
+      $pesan.appendChild(LK.el('div', { 'class': 'status' }, [
+        LK.el('h3', { text: 'Belum ada pesan' }),
+        LK.el('p', { text: 'Mulai obrolan dengan penjual lewat tombol "Pesan Barang" di etalase.' }),
+        LK.el('div', { 'class': 'status-aksi' }, [
+          LK.el('a', { 'class': 'tombol tombol-lunak', href: 'index.html', text: 'Ke Etalase' })
+        ])
+      ]));
       return;
     }
     items.forEach(function (m) {
