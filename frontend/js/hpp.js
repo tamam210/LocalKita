@@ -2,6 +2,8 @@
   'use strict';
   var $f = document.getElementById('form-hpp'), $h = document.getElementById('isi-hasil-hpp');
   var $d = document.getElementById('form-diskon'), $w = document.getElementById('peringatan-diskon');
+  var $pilihAdmin = document.getElementById('pilih-toko-admin');
+  var $tokoAdmin = document.getElementById('toko-admin');
   var hppTerakhir = null, storeId = null;
 
   function baca(form, nama, min) {
@@ -15,12 +17,53 @@
     p.hidden = !teks;
   }
 
+  function tokoDariUrl() {
+    var m = /[?&]store_id=([^&]+)/.exec(window.location.search);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function tokoDipilih(items) {
+    var id = tokoDariUrl();
+    return items.filter(function (x) {
+      return String(x.store_id) === String(id);
+    })[0] || items[0];
+  }
+
+  function muatTokoAdmin() {
+    return LK.apiGet('stores.php').then(function (d) {
+      var items = Array.isArray(d.items) ? d.items : [];
+      if (!items.length) {
+        throw new Error('Belum ada toko yang dapat digunakan.');
+      }
+
+      var pilih = tokoDipilih(items);
+      storeId = pilih.store_id;
+      if ($pilihAdmin) { $pilihAdmin.hidden = false; }
+      if ($tokoAdmin) {
+        $tokoAdmin.replaceChildren.apply($tokoAdmin, items.map(function (x) {
+          return LK.el('option', { value: x.store_id, text: x.name || 'Toko' });
+        }));
+        $tokoAdmin.value = pilih.store_id;
+      }
+      return storeId;
+    });
+  }
+
   function siapkanToko() {
     if (storeId) { return Promise.resolve(storeId); }
     return LK.sesi().then(function (u) {
-      if (!u || !u.store_id) {
+      if (!u || !u.user_id) {
+        throw new Error('Masuk sebagai penjual atau admin untuk menghitung HPP.');
+      }
+
+      if (u.role === 'admin') {
+        return muatTokoAdmin();
+      }
+
+      if (!u.store_id) {
         throw new Error('Akun ini belum terhubung ke toko. Masuk sebagai penjual.');
       }
+      if ($pilihAdmin) { $pilihAdmin.hidden = true; }
       storeId = u.store_id;
       return storeId;
     });
@@ -141,5 +184,34 @@
     }).then(function () {
       tb.disabled = false;
     });
+  });
+
+  if ($tokoAdmin) {
+    $tokoAdmin.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('store_id', $tokoAdmin.value);
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+
+      storeId = null;
+      hppTerakhir = null;
+      galat('pesan-hpp');
+      galat('pesan-diskon');
+      $h.replaceChildren(LK.el('p', { text: 'Isi form lalu tekan Hitung HPP.' }));
+      $w.replaceChildren();
+      muatTokoAdmin().catch(function (e) {
+        galat('pesan-hpp', e.message);
+      });
+    });
+  }
+
+  LK.sesi().then(function (u) {
+    if (u && u.role === 'admin') {
+      return muatTokoAdmin();
+    }
+    if ($pilihAdmin) { $pilihAdmin.hidden = true; }
+  }).catch(function (e) {
+    if ($pilihAdmin && !$pilihAdmin.hidden) {
+      galat('pesan-hpp', e.message);
+    }
   });
 })();

@@ -5,6 +5,8 @@
   var $g = document.getElementById('isi-grafik');
   var $p = document.getElementById('isi-produk-terlaris');
   var $b = document.getElementById('isi-biaya');
+  var $pilihAdmin = document.getElementById('pilih-toko-admin');
+  var $tokoAdmin = document.getElementById('toko-admin');
   var semua = [$k, $t, $g, $p, $b];
   var storeId = null;
 
@@ -151,27 +153,69 @@
     return hasil;
   }
 
+  function tokoDariUrl() {
+    var m = /[?&]store_id=([^&]+)/.exec(window.location.search);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function tokoDipilih(items) {
+    var id = tokoDariUrl();
+    return items.filter(function (x) {
+      return String(x.store_id) === String(id);
+    })[0] || items[0];
+  }
+
+  function muatData(id) {
+    storeId = id;
+
+    return Promise.all(daftarBulan(6).map(function (b) {
+      return LK.apiGet(
+        'laporan.php?store_id=' + encodeURIComponent(storeId) +
+        '&year=' + b.year + '&month=' + b.month
+      ).catch(function (e) {
+        if (/Sesi berakhir/.test(e.message)) { throw e; }
+        if (bukanLaporan(e)) { return null; }
+        throw e;
+      });
+    }));
+  }
+
   function muat() {
     semua.forEach(function (b) {
       LK.status(b, 'memuat', 'Memuat laporan...');
     });
 
     LK.sesi().then(function (u) {
-      if (!u || !u.store_id) {
+      if (!u || !u.user_id) {
+        throw new Error('Masuk sebagai penjual atau admin untuk melihat laporan.');
+      }
+
+      if (u.role === 'admin') {
+        return LK.apiGet('stores.php').then(function (d) {
+          var items = Array.isArray(d.items) ? d.items : [];
+          if (!items.length) {
+            throw new Error('Belum ada toko yang dapat dilihat.');
+          }
+
+          var pilih = tokoDipilih(items);
+          if ($pilihAdmin) { $pilihAdmin.hidden = false; }
+          if ($tokoAdmin) {
+            $tokoAdmin.replaceChildren.apply($tokoAdmin, items.map(function (x) {
+              return LK.el('option', { value: x.store_id, text: x.name || 'Toko' });
+            }));
+            $tokoAdmin.value = pilih.store_id;
+          }
+
+          return muatData(pilih.store_id);
+        });
+      }
+
+      if (!u.store_id) {
         throw new Error('Masuk sebagai penjual untuk melihat laporan.');
       }
-      storeId = u.store_id;
+      if ($pilihAdmin) { $pilihAdmin.hidden = true; }
 
-      return Promise.all(daftarBulan(6).map(function (b) {
-        return LK.apiGet(
-          'laporan.php?store_id=' + encodeURIComponent(storeId) +
-          '&year=' + b.year + '&month=' + b.month
-        ).catch(function (e) {
-          if (/Sesi berakhir/.test(e.message)) { throw e; }
-          if (bukanLaporan(e)) { return null; }
-          throw e;
-        });
-      }));
+      return muatData(u.store_id);
     }).then(function (list) {
       list = list.filter(Boolean).sort(function (a, b) {
         var pa = a.period || {}, pb = b.period || {};
@@ -195,6 +239,15 @@
       semua.forEach(function (b, i) {
         LK.status(b, 'galat', 'Laporan gagal dimuat', e.message, i === 0 ? LK.ulang(muat) : null);
       });
+    });
+  }
+
+  if ($tokoAdmin) {
+    $tokoAdmin.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('store_id', $tokoAdmin.value);
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      muat();
     });
   }
 
