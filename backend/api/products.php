@@ -7,6 +7,7 @@ require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/session.php';
 require_once __DIR__ . '/../lib/auth.php';
 require_once __DIR__ . '/../lib/image.php';
+require_once __DIR__ . '/../lib/validate.php';
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -23,6 +24,187 @@ try {
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+function slugify_produk(string $teks): string
+{
+    $slug = strtolower(trim($teks));
+    $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+    $slug = trim($slug, '-');
+    if ($slug === '') {
+        $slug = 'produk';
+    }
+    return substr($slug, 0, 160);
+}
+
+if ($method === 'POST') {
+    $user = require_role(['seller', 'admin']);
+    $input = read_json_body();
+
+    require_fields($input, ['name', 'price', 'stock']);
+
+    $name = validate_string($input['name'], 'name', 2, 180);
+    $price = validate_int($input['price'], 'price', 0, 1000000000);
+    $stock = validate_int($input['stock'], 'stock', 0, 1000000);
+    $hppUnit = array_key_exists('hpp_unit', $input) && $input['hpp_unit'] !== ''
+        ? validate_number($input['hpp_unit'], 'hpp_unit', 0, 1000000000)
+        : 0.0;
+    $description = array_key_exists('description', $input) && $input['description'] !== null
+        ? validate_string($input['description'], 'description', null, 5000)
+        : null;
+    $status = validate_enum($input['status'] ?? 'active', 'status', ['draft', 'active', 'inactive']);
+    $earnsPoints = validate_boolean($input['earns_points'] ?? true, 'earns_points');
+    $pointMultiplier = array_key_exists('point_multiplier', $input) && $input['point_multiplier'] !== ''
+        ? validate_number($input['point_multiplier'], 'point_multiplier', 0.1, 100)
+        : 1.0;
+
+    $storeId = trim((string) ($input['store_id'] ?? ''));
+    if ($storeId === '') {
+        $storeId = trim((string) ($user['store_id'] ?? ''));
+    }
+    if ($storeId === '' && ($user['role'] ?? null) === 'seller') {
+        $st = $pdo->prepare('SELECT store_id FROM stores WHERE owner_user_id = ? AND deleted_at IS NULL LIMIT 1');
+        $st->execute([$user['user_id']]);
+        $storeId = trim((string) ($st->fetchColumn() ?: ''));
+    }
+    if ($storeId === '') {
+        validation_error('store_id', 'Toko wajib dipilih.');
+    }
+    $storeId = validate_uuid($storeId, 'store_id');
+    require_store_access($pdo, $storeId);
+
+    $categoryId = is_string($input['category_id'] ?? null) ? trim($input['category_id']) : '';
+    if ($categoryId !== '') {
+        $categoryId = validate_uuid($categoryId, 'category_id');
+        $cat = $pdo->prepare("SELECT category_id FROM categories WHERE category_id = ? AND type = 'product' LIMIT 1");
+        $cat->execute([$categoryId]);
+        if (!$cat->fetch()) {
+            validation_error('category_id', 'Kategori tidak ditemukan.');
+        }
+    } else {
+        $categoryId = null;
+    }
+
+    $slugInput = is_string($input['slug'] ?? null) ? trim($input['slug']) : '';
+    $slug = slugify_produk($slugInput !== '' ? $slugInput : $name);
+    $slugBase = $slug;
+    $slugSuffix = 2;
+    $cekSlug = $pdo->prepare('SELECT product_id FROM products WHERE store_id = ? AND slug = ? LIMIT 1');
+    while (true) {
+        $cekSlug->execute([$storeId, $slug]);
+        if (!$cekSlug->fetch()) {
+            break;
+        }
+        $suffix = '-' . $slugSuffix++;
+        $slug = substr($slugBase, 0, 160 - strlen($suffix)) . $suffix;
+    }
+
+    $productId = $pdo->query('SELECT UUID()')->fetchColumn();
+    $variantId = $pdo->query('SELECT UUID()')->fetchColumn();
+
+    $skuInput = is_string($input['sku'] ?? null) ? trim($input['sku']) : '';
+    if ($skuInput !== '') {
+        $sku = strtoupper(preg_replace('/[^A-Za-z0-9._-]+/', '-', $skuInput) ?? '');
+        $sku = substr(trim($sku, '-'), 0, 80);
+        if ($sku === '') {
+            validation_error('sku', 'SKU tidak valid.');
+        }
+        $cekSku = $pdo->prepare('SELECT variant_id FROM product_variants WHERE store_id = ? AND sku = ? LIMIT 1');
+        $cekSku->execute([$storeId, $sku]);
+        if ($cekSku->fetch()) {
+            json_error('SKU sudah dipakai produk lain.', 409, ['sku' => 'Gunakan SKU lain.'], 'CONFLICT');
+        }
+    } else {
+        $skuBase = 'PRD-' . strtoupper(substr(str_replace('-', '', $productId), 0, 8));
+        $sku = $skuBase;
+        $skuSuffix = 2;
+        $cekSku = $pdo->prepare('SELECT variant_id FROM product_variants WHERE store_id = ? AND sku = ? LIMIT 1');
+        while (true) {
+            $cekSku->execute([$storeId, $sku]);
+            if (!$cekSku->fetch()) {
+                break;
+            }
+            $sku = $skuBase . '-' . $skuSuffix++;
+        }
+    }
+
+    $variantName = isset($input['variant_name']) && $input['variant_name'] !== ''
+        ? validate_string($input['variant_name'], 'variant_name', 1, 120)
+        : 'Default';
+
+    try {
+        $pdo->beginTransaction();
+
+        $ins = $pdo->prepare(
+            'INSERT INTO products (product_id, store_id, category_id, slug, name, description, earns_points, point_multiplier, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $ins->execute([
+            $productId,
+            $storeId,
+            $categoryId,
+            $slug,
+            $name,
+            $description,
+            $earnsPoints ? 1 : 0,
+            $pointMultiplier,
+            $status,
+        ]);
+
+        $insVariant = $pdo->prepare(
+            "INSERT INTO product_variants (variant_id, product_id, store_id, sku, name, price, hpp_unit, stock, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')"
+        );
+        $insVariant->execute([
+            $variantId,
+            $productId,
+            $storeId,
+            $sku,
+            $variantName,
+            $price,
+            $hppUnit,
+            $stock,
+        ]);
+
+        if ($stock > 0) {
+            $insMovement = $pdo->prepare(
+                "INSERT INTO stock_movements (movement_id, store_id, variant_id, type, quantity, note)
+                 VALUES (UUID(), ?, ?, 'in', ?, 'Stok awal produk')"
+            );
+            $insMovement->execute([$storeId, $variantId, $stock]);
+        }
+
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        if ($e instanceof PDOException && $e->getCode() === '23000') {
+            json_error('Slug atau SKU sudah dipakai produk lain.', 409, null, 'CONFLICT');
+        }
+        error_log('[products] create failed: ' . $e->getMessage());
+        json_error('Gagal menyimpan produk.', 500);
+    }
+
+    audit_log($pdo, 'product.create', 'product', $productId, [
+        'store_id' => $storeId,
+        'name' => $name,
+        'status' => $status,
+    ]);
+
+    json_success([
+        'product_id' => $productId,
+        'store_id' => $storeId,
+        'category_id' => $categoryId,
+        'slug' => $slug,
+        'name' => $name,
+        'status' => $status,
+        'variant_id' => $variantId,
+        'sku' => $sku,
+        'price' => $price,
+        'stock' => $stock,
+    ], 'Produk berhasil ditambahkan.', 201);
+}
+
 if ($method !== 'GET') {
     json_error('Method tidak diizinkan.', 405, null);
 }

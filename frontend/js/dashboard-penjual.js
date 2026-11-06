@@ -11,6 +11,9 @@
   var $pilihAdmin = document.getElementById('pilih-toko-admin');
   var $tokoAdmin = document.getElementById('toko-admin');
   var $tautanChat = document.querySelector('.tautan-chat');
+  var $btnTambah = document.getElementById('btn-tambah-produk');
+  var storeAktif = null;
+  var kategoriCache = null;
 
   function th(t) { return LK.el('th', { scope: 'col', text: t }); }
   function td(t) { return LK.el('td', { text: t }); }
@@ -349,12 +352,246 @@
   }
 
   function muatData(storeId, storeName) {
+    storeAktif = storeId;
     $namaToko.textContent = storeName || 'Toko saya';
     return Promise.all([
       aman(muatLaporan(storeId)),
       aman(muatProduk(storeId)),
       aman(muatChat(storeId))
     ]).then(renderSemua);
+  }
+
+  function muatKategori() {
+    if (kategoriCache) {
+      return Promise.resolve(kategoriCache);
+    }
+    return LK.apiGet('categories.php').then(function (d) {
+      kategoriCache = d && Array.isArray(d.items) ? d.items : [];
+      return kategoriCache;
+    });
+  }
+
+  function bidangForm(label, input, bantuan) {
+    return LK.el('div', { 'class': 'bidang' }, [
+      LK.el('label', { 'for': input.id, text: label }),
+      input,
+      bantuan ? LK.el('small', { text: bantuan }) : null
+    ]);
+  }
+
+  function bukaTambahProduk() {
+    if (!storeAktif) {
+      LK.notif('Pilih toko terlebih dahulu sebelum menambah produk.', 'bahaya', 'Tambah produk');
+      return;
+    }
+
+    muatKategori().catch(function () { return []; }).then(function (kategori) {
+      tampilFormTambahProduk(kategori);
+    });
+  }
+
+  function tampilFormTambahProduk(kategori) {
+    var fokusAsal = document.activeElement;
+    var idJudul = 'lk-tambah-produk-judul';
+
+    var nama = LK.el('input', {
+      id: 'produk-nama', name: 'nama', type: 'text', required: 'required',
+      maxlength: '180', autocomplete: 'off', placeholder: 'Contoh: Risoles Frozen'
+    });
+    var kategoriSelect = LK.el('select', { id: 'produk-kategori', name: 'kategori' });
+    kategoriSelect.appendChild(LK.el('option', { value: '', text: 'Tanpa kategori' }));
+    kategori.forEach(function (k) {
+      if (k && k.category_id && k.name) {
+        kategoriSelect.appendChild(LK.el('option', { value: k.category_id, text: k.name }));
+      }
+    });
+
+    var harga = LK.el('input', {
+      id: 'produk-harga', name: 'harga', type: 'number', required: 'required',
+      min: '0', step: '500', inputmode: 'numeric', placeholder: '15000'
+    });
+    var stok = LK.el('input', {
+      id: 'produk-stok', name: 'stok', type: 'number', required: 'required',
+      min: '0', step: '1', inputmode: 'numeric', placeholder: '10'
+    });
+    var hpp = LK.el('input', {
+      id: 'produk-hpp', name: 'hpp', type: 'number', min: '0',
+      step: '100', inputmode: 'numeric', placeholder: 'Opsional'
+    });
+    var status = LK.el('select', { id: 'produk-status', name: 'status' }, [
+      LK.el('option', { value: 'active', text: 'Aktif' }),
+      LK.el('option', { value: 'draft', text: 'Draf' }),
+      LK.el('option', { value: 'inactive', text: 'Nonaktif' })
+    ]);
+    var deskripsi = LK.el('textarea', {
+      id: 'produk-deskripsi', name: 'deskripsi', maxlength: '5000',
+      rows: '3', placeholder: 'Ceritakan singkat tentang produk ini'
+    });
+    var foto = LK.el('input', {
+      id: 'produk-foto', name: 'foto', type: 'file',
+      accept: 'image/jpeg,image/png,image/webp'
+    });
+    var poin = LK.el('input', {
+      id: 'produk-poin', name: 'poin', type: 'checkbox', checked: 'checked'
+    });
+
+    var grid = LK.el('div', { 'class': 'form-grid' }, [
+      LK.el('div', { 'class': 'bidang bidang-lebar' }, [
+        LK.el('label', { 'for': 'produk-nama', text: 'Nama produk' }),
+        nama
+      ]),
+      bidangForm('Kategori', kategoriSelect),
+      bidangForm('Status', status),
+      bidangForm('Harga jual', harga, 'Harga satuan dalam rupiah.'),
+      bidangForm('Stok awal', stok, 'Jumlah unit yang tersedia.'),
+      bidangForm('HPP per unit', hpp, 'Opsional, dipakai untuk laporan laba.'),
+      LK.el('div', { 'class': 'bidang bidang-lebar' }, [
+        LK.el('label', { 'for': 'produk-deskripsi', text: 'Deskripsi' }),
+        deskripsi
+      ]),
+      LK.el('div', { 'class': 'bidang bidang-lebar' }, [
+        LK.el('label', { 'for': 'produk-foto', text: 'Foto produk' }),
+        foto,
+        LK.el('small', { text: 'Opsional. JPG, PNG, atau WebP maksimal 3 MB.' })
+      ]),
+      LK.el('label', { 'class': 'cek bidang-lebar' }, [
+        poin,
+        LK.el('span', { text: 'Produk ini memberi poin untuk pembeli' })
+      ])
+    ]);
+
+    var pesan = LK.el('p', { 'class': 'pesan-form', role: 'alert', hidden: 'hidden' });
+    var batal = LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', text: 'Batal' });
+    var simpan = LK.el('button', { type: 'submit', 'class': 'tombol', text: 'Simpan produk' });
+    var form = LK.el('form', { 'class': 'form-produk', novalidate: 'novalidate' }, [
+      grid,
+      pesan,
+      LK.el('div', { 'class': 'popup-aksi' }, [batal, simpan])
+    ]);
+
+    var dialog = LK.el('div', {
+      'class': 'popup popup-form kaca',
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-labelledby': idJudul
+    }, [
+      LK.el('p', { 'class': 'eyebrow', text: 'Produk baru' }),
+      LK.el('h2', { id: idJudul, text: 'Tambah Produk' }),
+      LK.el('p', { text: 'Isi informasi produk yang akan tampil di etalase tokomu.' }),
+      form
+    ]);
+
+    var latar = LK.el('div', { 'class': 'popup-latar' }, [dialog]);
+    var gulirAsal = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function tutup() {
+      document.removeEventListener('keydown', kunci, true);
+      if (latar.parentNode) {
+        latar.parentNode.removeChild(latar);
+      }
+      document.body.style.overflow = gulirAsal;
+      if (fokusAsal && typeof fokusAsal.focus === 'function') {
+        fokusAsal.focus();
+      }
+    }
+
+    function kunci(e) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        tutup();
+      }
+    }
+
+    function tampilPesan(teks) {
+      pesan.textContent = teks;
+      pesan.hidden = false;
+    }
+
+    batal.addEventListener('click', tutup);
+    latar.addEventListener('mousedown', function (e) {
+      if (e.target === latar) {
+        tutup();
+      }
+    });
+    document.addEventListener('keydown', kunci, true);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      pesan.hidden = true;
+
+      var namaNilai = nama.value.trim();
+      var hargaNilai = Number(harga.value);
+      var stokNilai = Number(stok.value);
+      var hppNilai = hpp.value === '' ? 0 : Number(hpp.value);
+
+      if (namaNilai.length < 2) {
+        tampilPesan('Nama produk minimal 2 karakter.');
+        nama.focus();
+        return;
+      }
+      if (!isFinite(hargaNilai) || hargaNilai < 0) {
+        tampilPesan('Harga jual harus berupa angka 0 atau lebih.');
+        harga.focus();
+        return;
+      }
+      if (!isFinite(stokNilai) || stokNilai < 0 || Math.floor(stokNilai) !== stokNilai) {
+        tampilPesan('Stok awal harus berupa bilangan bulat 0 atau lebih.');
+        stok.focus();
+        return;
+      }
+      if (!isFinite(hppNilai) || hppNilai < 0) {
+        tampilPesan('HPP per unit harus berupa angka 0 atau lebih.');
+        hpp.focus();
+        return;
+      }
+
+      var berkas = foto.files && foto.files[0] ? foto.files[0] : null;
+      if (berkas && berkas.size > 3 * 1024 * 1024) {
+        tampilPesan('Ukuran foto maksimal 3 MB.');
+        foto.focus();
+        return;
+      }
+
+      simpan.disabled = true;
+      simpan.textContent = 'Menyimpan...';
+
+      LK.apiPost('products.php', {
+        store_id: storeAktif,
+        name: namaNilai,
+        category_id: kategoriSelect.value || null,
+        description: deskripsi.value.trim(),
+        price: Math.round(hargaNilai),
+        stock: stokNilai,
+        hpp_unit: hppNilai,
+        status: status.value,
+        earns_points: poin.checked
+      }).then(function (data) {
+        if (!berkas) {
+          return data;
+        }
+        return LK.apiUpload('product_image.php', {
+          product_id: data.product_id,
+          image: berkas
+        }).then(function () {
+          return data;
+        }, function (err) {
+          LK.notif('Produk tersimpan, tetapi foto gagal diunggah: ' + err.message, 'info', 'Foto produk');
+          return data;
+        });
+      }).then(function (data) {
+        tutup();
+        LK.notif('Produk "' + data.name + '" berhasil ditambahkan.', 'sukses', 'Produk');
+        muat();
+      }).catch(function (err) {
+        simpan.disabled = false;
+        simpan.textContent = 'Simpan produk';
+        tampilPesan(err.message || 'Gagal menyimpan produk.');
+      });
+    });
+
+    document.body.appendChild(latar);
+    nama.focus();
   }
 
   function muat() {
@@ -374,6 +611,7 @@
           throw new Error('Akun ini belum terhubung ke toko.');
         }
         if ($pilihAdmin) { $pilihAdmin.hidden = true; }
+        if ($btnTambah) { $btnTambah.hidden = false; }
         return muatData(u.store_id, u.store_name);
       }
 
@@ -389,6 +627,7 @@
 
         var pilih = tokoDipilih(items);
         if ($pilihAdmin) { $pilihAdmin.hidden = false; }
+        if ($btnTambah) { $btnTambah.hidden = false; }
         if ($tautanChat) { $tautanChat.hidden = true; }
         if ($tokoAdmin) {
           $tokoAdmin.replaceChildren.apply($tokoAdmin, items.map(function (x) {
@@ -406,6 +645,10 @@
         LK.status(b, 'galat', 'Data gagal dimuat', e.message, LK.ulang(muat));
       });
     });
+  }
+
+  if ($btnTambah) {
+    $btnTambah.addEventListener('click', bukaTambahProduk);
   }
 
   if ($tokoAdmin) {

@@ -282,6 +282,53 @@ Response `200`:
 }
 ```
 
+### 6.1.2 Tambah Produk — `POST /products.php`
+
+Auth: `seller` atau `admin`.
+
+Body JSON:
+
+| Field | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `store_id` | uuid | admin: ya, seller: tidak | Toko pemilik produk. Seller memakai toko miliknya bila kosong. |
+| `name` | string | ya | 2–180 karakter. |
+| `category_id` | uuid | tidak | Harus kategori bertipe `product`. |
+| `description` | string | tidak | Maksimal 5000 karakter. |
+| `price` | int | ya | Harga satuan, minimal `0`. |
+| `stock` | int | ya | Stok awal varian utama, minimal `0`. |
+| `hpp_unit` | number | tidak | HPP per unit, minimal `0`. |
+| `status` | string | tidak | `draft`, `active` (default), atau `inactive`. |
+| `earns_points` | boolean | tidak | Default `true`. |
+| `point_multiplier` | number | tidak | Default `1`. |
+| `variant_name` | string | tidak | Default `Default`. |
+| `slug` | string | tidak | Dibuat dari nama bila kosong. |
+| `sku` | string | tidak | Dibuat otomatis bila kosong. |
+
+Response `201`:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "product_id": "40000000-0000-4000-8000-000000000009",
+    "store_id": "20000000-0000-4000-8000-000000000001",
+    "category_id": "10000000-0000-4000-8000-000000000001",
+    "slug": "risoles-frozen-baru",
+    "name": "Risoles Frozen Baru",
+    "status": "active",
+    "variant_id": "50000000-0000-4000-8000-000000000009",
+    "sku": "PRD-1234ABCD",
+    "price": 15000,
+    "stock": 10
+  },
+  "message": "Produk berhasil ditambahkan."
+}
+```
+
+Error penting: `400 VALIDATION_ERROR`, `401 UNAUTHORIZED`, `403 FORBIDDEN`, `404 NOT_FOUND` (toko/kategori), `409 CONFLICT` (slug/SKU).
+
+Foto produk diunggah terpisah lewat `POST /product_image.php` (multipart: `product_id`, `image`).
+
 ---
 
 ### 6.2 HPP — `POST /hpp.php`

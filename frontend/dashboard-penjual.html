@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/style.css?v=5">
   <script src="js/api.js?v=4" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
-<script src="js/dashboard-penjual.js?v=6" defer></script>
+<script src="js/dashboard-penjual.js?v=7" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -99,7 +99,8 @@
         <p>Pantau omzet, laba, produk, dan aktivitas tokomu bulan ini.</p>
       </div>
       <div class="aksi-cepat" role="group" aria-label="Aksi cepat">
-        <a class="tombol" href="hpp.html">Hitung HPP</a>
+        <button type="button" id="btn-tambah-produk" class="tombol" aria-haspopup="dialog" hidden>Tambah Produk</button>
+        <a class="tombol tombol-garis" href="hpp.html">Hitung HPP</a>
         <a class="tombol tombol-garis" href="laporan.html">Lihat laporan</a>
       </div>
     </section>
