@@ -153,7 +153,7 @@ Query:
 
 | Parameter | Tipe | Wajib | Keterangan |
 |---|---|---|---|
-| `q` | string | tidak | Cari nama produk |
+| `q` | string | tidak | Cari nama/slug produk, kategori, atau toko |
 | `category_id` | uuid | tidak | Filter kategori |
 | `store_id` | uuid | tidak | Filter toko |
 | `status` | string | tidak | Default `active` |
@@ -259,6 +259,28 @@ Response `200`:
 ```
 
 Error: `404 NOT_FOUND`, `400 VALIDATION_ERROR`.
+
+### 6.1.1 Kategori — `GET /categories.php`
+
+Auth: publik. Mengembalikan kategori produk yang memiliki minimal satu produk `active`.
+
+Response `200`:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "items": [
+      {
+        "category_id": "10000000-0000-4000-8000-000000000001",
+        "name": "Makanan",
+        "slug": "makanan"
+      }
+    ]
+  },
+  "message": "Daftar kategori berhasil diambil."
+}
+```
 
 ---
 

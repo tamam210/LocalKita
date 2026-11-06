@@ -1,23 +1,17 @@
-/* LokalKita - katalog (B1). Data dari api/products.php; fallback dummy bila API belum siap. */
+/* LokalKita - katalog (B1). Data dari api/products.php; tanpa fallback dummy. */
 (function () {
   'use strict';
-  // Asumsi bentuk data: {product_id, name, category_name, price, stock, store_name, image_url, image_alt}
-  // Nama toko disamakan dengan seed backend supaya tautan chat tidak
-  // menampilkan toko yang berbeda dari store_id-nya.
-  var DUMMY = [
-    { product_id: 1, name: 'Keripik Singkong', category_name: 'Makanan', price: 15000, stock: 40, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/keripik-singkong.jpg', image_alt: 'Tumpukan keripik singkong' },
-    { product_id: 2, name: 'Tas Anyaman', category_name: 'Barang', price: 120000, stock: 8, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002', image_url: 'img/produk/tas-anyaman.jpg', image_alt: 'Tas anyaman pandan' },
-    { product_id: 3, name: 'Kopi Lokal', category_name: 'Minuman', price: 45000, stock: 25, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/kopi-lokal.jpg', image_alt: 'Kemasan kopi lokal' },
-    { product_id: 4, name: 'Kain Batik Tulis', category_name: 'Barang', price: 185000, stock: 5, store_name: 'Kriya Rasya', store_id: '20000000-0000-4000-8000-000000000002', image_url: 'img/produk/kain-batik-tulis.jpg', image_alt: 'Kain batik tulis' },
-    { product_id: 5, name: 'Laundry Kiloan', category_name: 'Jasa', price: 7000, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/laundry-kiloan.jpg', image_alt: 'Keranjang laundry bersih' },
-    { product_id: 6, name: 'Sambal Roa', category_name: 'Makanan', price: 35000, stock: 0, store_name: 'Dapur Bu Tamam', store_id: '20000000-0000-4000-8000-000000000001', image_url: 'img/produk/sambal-roa.jpg', image_alt: 'Toples sambal roa' }
-  ];
-  var semua = [], kategoriAktif = 'Semua';
+  var perHalaman = (function () {
+    var n = parseInt(new URLSearchParams(window.location.search).get('per_page'), 10);
+    return isFinite(n) ? Math.min(50, Math.max(1, n)) : 12;
+  })();
+  var semua = [], kategori = [], kategoriAktif = '', q = '';
+  var halaman = 1, total = 0, totalHalaman = 0, permintaan = 0, timerCari = null;
   var $grid = document.getElementById('grid-produk');
   var $cari = document.getElementById('cari');
   var $chip = document.getElementById('daftar-kategori');
-  var $info = document.getElementById('info-data');
   var $jumlah = document.getElementById('jumlah-hasil');
+  var $paginasi = document.getElementById('paginasi-katalog');
 
   function kategoriDari(p) { return p.category_name || 'Lainnya'; }
 
@@ -28,16 +22,26 @@
   }
 
   function buatChip() {
-    var nama = ['Semua'];
-    semua.forEach(function (p) { var k = kategoriDari(p); if (nama.indexOf(k) === -1) { nama.push(k); } });
-    if (nama.indexOf(kategoriAktif) === -1) { kategoriAktif = 'Semua'; }
+    var ada = kategori.filter(function (k) { return k.category_id === kategoriAktif; });
+    if (kategoriAktif && !ada.length) { kategoriAktif = ''; }
+
     $chip.replaceChildren();
-    nama.forEach(function (k) {
-      var b = LK.el('button', { type: 'button', 'class': 'chip', 'aria-pressed': String(k === kategoriAktif), text: k });
+    [{ category_id: '', name: 'Semua' }].concat(kategori).forEach(function (k) {
+      var b = LK.el('button', {
+        type: 'button',
+        'class': 'chip',
+        'aria-pressed': String(k.category_id === kategoriAktif),
+        text: k.name || 'Lainnya'
+      });
       b.addEventListener('click', function () {
-        kategoriAktif = k;
-        Array.prototype.forEach.call($chip.children, function (c) { c.setAttribute('aria-pressed', String(c === b)); });
-        render();
+        if (timerCari) { clearTimeout(timerCari); timerCari = null; }
+        kategoriAktif = k.category_id;
+        q = $cari.value.trim();
+        Array.prototype.forEach.call($chip.children, function (c) {
+          c.setAttribute('aria-pressed', String(c === b));
+        });
+        halaman = 1;
+        muat();
       });
       $chip.appendChild(b);
     });
@@ -145,24 +149,70 @@
   }
 
   function render() {
-    var q = $cari.value.trim().toLowerCase();
-    var hasil = semua.filter(function (p) {
-      var k = kategoriDari(p);
-      return (kategoriAktif === 'Semua' || k === kategoriAktif) &&
-        (!q || String(p.name || '').toLowerCase().indexOf(q) !== -1 || k.toLowerCase().indexOf(q) !== -1);
-    });
     $grid.setAttribute('aria-busy', 'false');
     $grid.replaceChildren();
-    $jumlah.textContent = hasil.length + ' produk ditampilkan';
-    if (!hasil.length) {
-      var ada = semua.length > 0;
+
+    var mulai = total ? (halaman - 1) * perHalaman + 1 : 0;
+    var akhir = total ? Math.min(halaman * perHalaman, total) : 0;
+    $jumlah.textContent = total
+      ? 'Menampilkan ' + mulai + '-' + akhir + ' dari ' + total + ' produk'
+      : '0 produk';
+
+    if (!semua.length) {
+      var adaFilter = q !== '' || kategoriAktif !== '';
       $grid.appendChild(LK.el('div', { 'class': 'status' }, [
-        LK.el('h3', { text: ada ? 'Produknya nggak ketemu, nih' : 'Belum ada produk' }),
-        LK.el('p', { text: ada ? 'Coba kata kunci lain atau pilih kategori Semua, ya.' : 'Penjual belum nambah produk. Cek lagi nanti, ya.' })
+        LK.el('h3', { text: adaFilter ? 'Produk tidak ditemukan' : 'Belum ada produk' }),
+        LK.el('p', { text: adaFilter ? 'Coba kata kunci lain atau pilih kategori Semua.' : 'Penjual belum menambahkan produk. Cek lagi nanti.' })
       ]));
       return;
     }
-    hasil.forEach(function (p) { $grid.appendChild(kartu(p)); });
+
+    semua.forEach(function (p) { $grid.appendChild(kartu(p)); });
+  }
+
+  function tombolHalaman(label, target, aktif, nonaktif) {
+    var b = LK.el('button', {
+      type: 'button',
+      'class': 'tombol' + (aktif ? '' : ' tombol-garis'),
+      text: label
+    });
+    if (aktif) { b.setAttribute('aria-current', 'page'); }
+    b.disabled = !!nonaktif;
+    b.addEventListener('click', function () {
+      if (target === halaman) { return; }
+      halaman = target;
+      muat();
+    });
+    return b;
+  }
+
+  function renderPaginasi() {
+    if (!$paginasi) { return; }
+    if (totalHalaman <= 1) {
+      $paginasi.replaceChildren();
+      $paginasi.hidden = true;
+      return;
+    }
+
+    $paginasi.hidden = false;
+    var isi = [tombolHalaman('Sebelumnya', halaman - 1, false, halaman <= 1)];
+    var awal = Math.max(1, halaman - 2);
+    var akhir = Math.min(totalHalaman, halaman + 2);
+
+    if (awal > 1) {
+      isi.push(tombolHalaman('1', 1, halaman === 1, false));
+      if (awal > 2) { isi.push(LK.el('span', { 'class': 'paginasi-titik', 'aria-hidden': 'true', text: '…' })); }
+    }
+    for (var i = awal; i <= akhir; i++) {
+      isi.push(tombolHalaman(String(i), i, i === halaman, false));
+    }
+    if (akhir < totalHalaman) {
+      if (akhir < totalHalaman - 1) { isi.push(LK.el('span', { 'class': 'paginasi-titik', 'aria-hidden': 'true', text: '…' })); }
+      isi.push(tombolHalaman(String(totalHalaman), totalHalaman, halaman === totalHalaman, false));
+    }
+
+    isi.push(tombolHalaman('Berikutnya', halaman + 1, false, halaman >= totalHalaman));
+    $paginasi.replaceChildren.apply($paginasi, isi);
   }
 
   // Peta gambar lokal untuk produk yang belum punya foto dari API
@@ -193,6 +243,7 @@
     return {
       product_id: p.product_id,
       name: p.name || p.product_name || 'Produk tanpa nama',
+      category_id: p.category_id || '',
       category_name: p.category_name || p.category || 'Lainnya',
       price: p.min_price !== undefined && p.min_price !== null ? p.min_price : p.price,
       stock: p.total_stock !== undefined && p.total_stock !== null ? p.total_stock : p.stock,
@@ -204,29 +255,93 @@
     };
   }
 
+  function kategoriDariItem() {
+    var hasil = [];
+    semua.forEach(function (p) {
+      if (!p.category_id) { return; }
+      var ada = hasil.filter(function (k) { return k.category_id === p.category_id; });
+      if (!ada.length) { hasil.push({ category_id: p.category_id, name: kategoriDari(p) }); }
+    });
+    return hasil;
+  }
+
+  function urlProduk() {
+    var params = [
+      'status=active',
+      'page=' + encodeURIComponent(halaman),
+      'per_page=' + encodeURIComponent(perHalaman)
+    ];
+    if (q) { params.push('q=' + encodeURIComponent(q)); }
+    if (kategoriAktif) { params.push('category_id=' + encodeURIComponent(kategoriAktif)); }
+    return 'products.php?' + params.join('&');
+  }
+
   function muat() {
-    $info.hidden = true;
+    var seq = ++permintaan;
+    $jumlah.textContent = '';
+    if ($paginasi) { $paginasi.hidden = true; }
     tampilMemuat();
 
-    LK.apiGet('products.php?per_page=50').then(function (data) {
+    LK.apiGet(urlProduk()).then(function (data) {
+      if (seq !== permintaan) { return; }
       var items = Array.isArray(data)
         ? data
         : (data && Array.isArray(data.items) ? data.items : null);
 
       if (!items) { throw new Error('Format data produk tidak sesuai.'); }
       semua = items.map(normalisasi);
-    }).catch(function (err) {
-      semua = DUMMY.map(normalisasi);
-      var ulang = LK.el('button', { type: 'button', 'class': 'tombol tombol-garis', text: 'Coba lagi' });
-      ulang.addEventListener('click', muat);
-      $info.replaceChildren(LK.el('p', { text: 'Menampilkan data contoh. ' + err.message }), ulang);
-      $info.hidden = false;
-    }).then(function () {
-      buatChip();
+
+      var pag = (data && data.pagination) || {};
+      halaman = Number(pag.page) || halaman;
+      total = Number(pag.total);
+      if (!isFinite(total)) { total = semua.length; }
+      totalHalaman = Number(pag.total_pages);
+      if (!isFinite(totalHalaman) || totalHalaman < 1) {
+        totalHalaman = total > 0 ? Math.ceil(total / perHalaman) : 0;
+      }
+
+      if (!kategori.length && semua.length) {
+        kategori = kategoriDariItem();
+        buatChip();
+      }
       render();
+      renderPaginasi();
+    }).catch(function (err) {
+      if (seq !== permintaan) { return; }
+      semua = [];
+      total = 0;
+      totalHalaman = 0;
+      $grid.setAttribute('aria-busy', 'false');
+      $grid.replaceChildren();
+      $jumlah.textContent = '';
+      if ($paginasi) { $paginasi.hidden = true; }
+      LK.status($grid, 'galat', 'Katalog gagal dimuat', err.message, LK.ulang(muat));
     });
   }
 
-  $cari.addEventListener('input', render);
-  muat();
+  function muatKategori() {
+    return LK.apiGet('categories.php').then(function (data) {
+      var items = data && Array.isArray(data.items) ? data.items : [];
+      kategori = items.filter(function (k) {
+        return k && k.category_id && k.name;
+      }).map(function (k) {
+        return { category_id: k.category_id, name: k.name };
+      });
+      buatChip();
+    }).catch(function () {
+      kategori = [];
+      buatChip();
+    });
+  }
+
+  $cari.addEventListener('input', function () {
+    if (timerCari) { clearTimeout(timerCari); }
+    timerCari = setTimeout(function () {
+      q = $cari.value.trim();
+      halaman = 1;
+      muat();
+    }, 350);
+  });
+
+  muatKategori().then(muat);
 })();

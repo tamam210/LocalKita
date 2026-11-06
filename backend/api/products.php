@@ -147,8 +147,10 @@ $where = [];
 $params = [];
 
 if ($q !== '') {
-    $where[] = '(p.name LIKE ? OR p.slug LIKE ?)';
+    $where[] = '(p.name LIKE ? OR p.slug LIKE ? OR c.name LIKE ? OR s.name LIKE ?)';
     $like = '%' . $q . '%';
+    $params[] = $like;
+    $params[] = $like;
     $params[] = $like;
     $params[] = $like;
 }
@@ -193,7 +195,11 @@ if ($user && ($user['role'] ?? null) === 'seller') {
 
 $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$countSql = "SELECT COUNT(DISTINCT p.product_id) AS total FROM products p $sqlWhere";
+$countSql = "SELECT COUNT(DISTINCT p.product_id) AS total
+             FROM products p
+             LEFT JOIN stores s ON s.store_id = p.store_id
+             LEFT JOIN categories c ON c.category_id = p.category_id
+             $sqlWhere";
 $cstmt = $pdo->prepare($countSql);
 $cstmt->execute($params);
 $total = (int)($cstmt->fetch()['total'] ?? 0);
