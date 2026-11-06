@@ -155,7 +155,7 @@
     <p class="footer-copy">&copy; 2026 LokalKita. Dukung UMKM, bangun ekonomi lokal.</p>
   </footer>
   <script>
-    (function () {
+    document.addEventListener('DOMContentLoaded', function () {
       'use strict';
       LK.dilihat.render('grid-dilihat');
       var btn = document.getElementById('btn-hapus-dilihat');
@@ -166,7 +166,7 @@
           LK.notif('Riwayat produk dilihat dibersihkan.', 'info', 'Riwayat');
         });
       }
-    })();
+    });
   </script>
 </body>
 </html>
