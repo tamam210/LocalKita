@@ -80,18 +80,20 @@
         pesanan = JSON.parse(localStorage.getItem('lokalkita_pesanan') || '[]');
       } catch(e) {}
       items.forEach(function (it) {
-        pesanan.unshift({
-          id: 'PSN-' + Date.now().toString().slice(-6),
-          product_id: it.product_id,
-          name: it.name,
-          image: it.image,
-          price: it.price,
-          qty: it.qty || 1,
-          store_id: it.store_id,
-          store_name: it.store_name,
-          status: 'menunggu',
-          tanggal: new Date().toISOString()
-        });
+          pesanan.unshift({
+            id: 'PSN-' + Date.now().toString().slice(-6),
+            product_id: it.product_id,
+            name: it.name,
+            image: it.image,
+            price: it.price,
+            qty: it.qty || 1,
+            store_id: it.store_id,
+            store_name: it.store_name,
+            status: 'antrian',
+            rekening: '1234-5678-9012',
+            rekeningAtasan: 'a/n ' + (it.store_name || 'Toko LokalKita'),
+            tanggal: new Date().toISOString()
+          });
       });
       localStorage.setItem('lokalkita_pesanan', JSON.stringify(pesanan));
       localStorage.setItem(KEY, JSON.stringify([]));

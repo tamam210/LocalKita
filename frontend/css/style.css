@@ -559,10 +559,22 @@ footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-l
   display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;
   background:var(--krem);color:var(--sogan);font-size:.85rem;font-weight:700
 }
-.pesanan-status.menunggu{background:#F6E3C9;color:#8A4A08}
-.pesanan-status.proses{background:#E8E1D6;color:var(--sogan)}
+.pesanan-status.antrian{background:#F6E3C9;color:#8A4A08}
+.pesanan-status.dikerjakan{background:#E8E1D6;color:var(--sogan)}
 .pesanan-status.selesai{background:#E1F0DF;color:#1B6B17}
+.pesanan-status.lunas{background:#E3F2FD;color:#1565C0}
 .pesanan-status.batal{background:#F3DDD8;color:var(--galat)}
+.pesanan-keterangan{font-size:.85rem;color:var(--teks-lembut);font-weight:700}
+.aksi-bayar{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.rekening-box{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--garis);border-radius:var(--r-sm);background:var(--krem)}
+.rekening-label{font-size:.78rem;color:var(--teks-lembut);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.rekening-baris{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rekening-nomor{font-weight:900;color:var(--teks);font-variant-numeric:tabular-nums;font-size:1.05rem}
+.rekening-atasan{font-size:.8rem;color:var(--teks-lembut)}
+.salin-rekening{font-size:.8rem;padding:4px 10px}
+.bayar-tf{background:var(--sogan);color:#fff}
+.bayar-tf:hover{background:#432A1E}
+.aksi-status{font-size:.85rem;padding:6px 12px}
 @media (max-width:640px){
   .item-keranjang, .item-pesanan{grid-template-columns:70px 1fr;gap:10px}
   .item-keranjang-aksi{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}

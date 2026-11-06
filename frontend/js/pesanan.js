@@ -5,10 +5,101 @@
   var $list = document.getElementById('daftar-pesanan');
   var $kosong = document.getElementById('pesanan-kosong');
 
+  var STATUS = {
+    antrian: { label: 'Antrian', kelas: 'antrian' },
+    dikerjakan: { label: 'Dikerjakan', kelas: 'dikerjakan' },
+    selesai: { label: 'Selesai', kelas: 'selesai' },
+    lunas: { label: 'Lunas', kelas: 'lunas' },
+    batal: { label: 'Dibatalkan', kelas: 'batal' }
+  };
+
   function load() {
     try {
       return JSON.parse(localStorage.getItem(KEY) || '[]');
     } catch(e) { return []; }
+  }
+  function simpan(items) {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch(e) {}
+  }
+
+  function statusInfo(s) {
+    return STATUS[s] || STATUS.antrian;
+  }
+
+  function buatChat(it) {
+    return LK.el('a', {
+      'class': 'tombol tombol-garis',
+      href: it.store_id ? 'chat.html?store_id=' + encodeURIComponent(it.store_id) : 'chat.html',
+      text: '💬 Chat Penjual'
+    });
+  }
+
+  function salinTeks(teks) {
+    if (!navigator.clipboard) { return; }
+    navigator.clipboard.writeText(teks).then(function () {
+      LK.notif('Nomor rekening disalin', 'sukses', 'Salin');
+    }, function () {});
+  }
+
+  function tandaiBayar(it, metode) {
+    var items = load();
+    for (var i = 0; i < items.length; i++) {
+      if (String(items[i].id) === String(it.id)) {
+        items[i].status = 'lunas';
+        items[i].metode_bayar = metode;
+        items[i].tanggal_bayar = new Date().toISOString();
+        break;
+      }
+    }
+    simpan(items);
+    LK.notif(metode === 'tf'
+      ? 'Pembayaran TF tercatat. Pesanan lunas.'
+      : 'Silakan lunaskan pembayaran di kasir toko.', 'sukses', 'Pembayaran');
+    render();
+  }
+
+  function buatBayar(it) {
+    var rekening = it.rekening || '1234-5678-9012';
+    var atasan = it.rekeningAtasan || 'a/n Toko LokalKita';
+
+    var rekeningBox = LK.el('div', { 'class': 'rekening-box' }, [
+      LK.el('span', { 'class': 'rekening-label', text: 'Rekening transfer' }),
+      LK.el('div', { 'class': 'rekening-baris' }, [
+        LK.el('span', { 'class': 'rekening-nomor', text: rekening }),
+        LK.el('span', { 'class': 'rekening-atasan', text: atasan })
+      ]),
+      LK.el('button', {
+        'type': 'button',
+        'class': 'tombol salin-rekening tombol-garis',
+        'aria-label': 'Salin nomor rekening',
+        text: '📋 Salin'
+      })
+    ]);
+
+    var btnTf = LK.el('button', {
+      'type': 'button', 'class': 'tombol bayar-tf', 'data-bayar': 'tf', text: 'Bayar TF'
+    });
+    var btnKasir = LK.el('button', {
+      'type': 'button', 'class': 'tombol tombol-garis bayar-kasir', 'data-bayar': 'kasir', text: 'Di Kasir'
+    });
+
+    var aksi = LK.el('div', { 'class': 'aksi-bayar' }, [rekeningBox, btnTf, btnKasir]);
+
+    btnTf.addEventListener('click', function () { tandaiBayar(it, 'tf'); });
+    btnKasir.addEventListener('click', function () { tandaiBayar(it, 'kasir'); });
+    rekeningBox.querySelector('.salin-rekening').addEventListener('click', function () {
+      salinTeks(rekening);
+    });
+
+    return aksi;
+  }
+
+  function buatAksi(it) {
+    var st = it.status;
+    if (st === 'selesai') { return buatBayar(it); }
+    if (st === 'lunas') { return LK.el('span', { 'class': 'pesanan-keterangan', text: 'Sudah lunas' }); }
+    if (st === 'batal') { return null; }
+    return buatChat(it);
   }
 
   function render() {
@@ -26,12 +117,10 @@
         LK.el('div', { 'class': 'item-pesanan-toko', text: it.store_name || '-' }),
         LK.el('div', { 'class': 'item-pesanan-harga', text: LK.rupiah(it.price) + ' x ' + (it.qty || 1) })
       ]);
-      var status = LK.el('span', { 'class': 'pesanan-status menunggu', text: 'Lagi Nunggu Konfirmasi' });
-      if (it.status === 'proses') { status.textContent = 'Lagi Disiapin'; status.className = 'pesanan-status proses'; }
-      else if (it.status === 'selesai') { status.textContent = 'Sampai Tangan, Makasih!'; status.className = 'pesanan-status selesai'; }
-      else if (it.status === 'batal') { status.textContent = 'Dibatalkan'; status.className = 'pesanan-status batal'; }
-      var chat = LK.el('a', { 'class': 'tombol tombol-garis', href: it.store_id ? 'chat.html?store_id=' + encodeURIComponent(it.store_id) : 'chat.html', text: '💬 Chat Penjual' });
-      var footer = LK.el('div', { 'class': 'item-pesanan-footer' }, [status, chat]);
+      var infoSt = statusInfo(it.status);
+      var status = LK.el('span', { 'class': 'pesanan-status ' + infoSt.kelas, text: infoSt.label });
+      var aksi = buatAksi(it);
+      var footer = LK.el('div', { 'class': 'item-pesanan-footer' }, [status, aksi].filter(Boolean));
       var item = LK.el('article', { 'class': 'item-pesanan' }, [img, info, LK.el('div')]);
       item.appendChild(footer);
       $list.appendChild(item);
@@ -54,10 +143,12 @@
         qty: 1,
         store_id: storeId,
         store_name: 'Toko Penjual',
-        status: 'menunggu',
+        status: 'antrian',
+        rekening: '1234-5678-9012',
+        rekeningAtasan: 'a/n Toko Penjual',
         tanggal: new Date().toISOString()
       });
-      localStorage.setItem(KEY, JSON.stringify(items));
+      simpan(items);
       LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
       // Bersihkan query
       history.replaceState({}, document.title, 'pesanan.html');

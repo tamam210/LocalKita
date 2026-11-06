@@ -134,7 +134,9 @@
             qty: 1,
             store_id: p.store_id,
             store_name: p.store_name,
-            status: 'menunggu',
+            status: 'antrian',
+            rekening: '1234-5678-9012',
+            rekeningAtasan: 'a/n ' + (p.store_name || 'Toko LokalKita'),
             tanggal: new Date().toISOString()
           });
           localStorage.setItem(pesananKey, JSON.stringify(pesanan));
