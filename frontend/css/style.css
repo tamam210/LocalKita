@@ -672,3 +672,27 @@ footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-l
   a[href="laporan.html"]{display:none!important}
   .struk-aksi{display:none!important}
 }
+
+.form-produk {
+  display: grid;
+  gap: 4px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--garis);
+  border-radius: var(--r-md);
+  background: var(--krem-muda);
+}
+
+.tambah-produk summary {
+  cursor: pointer;
+  display: inline-block;
+  list-style: none;
+}
+
+.tambah-produk summary::-webkit-details-marker {
+  display: none;
+}
+
+.form-produk .aksi-cepat {
+  margin-top: 8px;
+}

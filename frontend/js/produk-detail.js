@@ -152,7 +152,7 @@
       LK.notif(qty + ' item ditambahkan ke keranjang', 'sukses', 'Keranjang');
     });
     // Tombol favorit di halaman detail
-    if (p.product_id) {
+if (p.product_id) {
       var sudah = LK.favorit.isFavorit(p.product_id);
       var favBtn = LK.el('button', {
         type: 'button',
@@ -160,14 +160,27 @@
         'aria-label': sudah ? 'Hapus dari favorit' : 'Masukkan ke favorit',
         text: (sudah ? '\u2665 ' : '\u2661 ') + 'Favorit'
       });
+
       favBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        var now = LK.favorit.toggle(p.product_id);
-        favBtn.className = 'tombol tombol-garis' + (now ? ' terpilih' : '');
-        favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
-        favBtn.textContent = (now ? '\u2665 ' : '\u2661 ') + 'Favorit';
-        LK.notif(now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit', 'sukses', 'Favorit');
+        favBtn.disabled = true;
+
+        LK.favorit.toggle(p.product_id).then(function (now) {
+          favBtn.className = 'tombol tombol-garis' + (now ? ' terpilih' : '');
+          favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
+          favBtn.textContent = (now ? '\u2665 ' : '\u2661 ') + 'Favorit';
+          LK.notif(
+            now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit',
+            'sukses',
+            'Favorit'
+          );
+        }).catch(function (err) {
+          LK.notif(err.message || 'Gagal mengubah favorit.', 'bahaya', 'Favorit');
+        }).then(function () {
+          favBtn.disabled = false;
+        });
       });
+
       aksi.appendChild(favBtn);
     }
     var hubungi = LK.el('a', { 'class': 'tombol tombol-garis', href: storeId ? 'poin.html?store_id=' + encodeURIComponent(storeId) : 'chat.html', text: '\ud83d\udcac Hubungi Penjual' });
@@ -250,5 +263,5 @@
     });
   }
 
-  muat();
+  LK.favorit.load().then(muat, muat);
 })();

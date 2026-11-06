@@ -86,7 +86,7 @@
       });
       gambar.appendChild(keranjangBtn);
     }
-    // Tombol favorit
+        // Tombol favorit
     if (p.product_id) {
       var sudah = LK.favorit.isFavorit(p.product_id);
       var favBtn = LK.el('button', {
@@ -95,17 +95,29 @@
         'aria-label': sudah ? 'Hapus dari favorit' : 'Masukkan ke favorit',
         text: sudah ? '\u2665' : '\u2661'
       });
+
       favBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        var now = LK.favorit.toggle(p.product_id);
-        favBtn.className = 'tombol-favorit ' + (now ? 'terpilih' : '');
-        favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
-        favBtn.textContent = now ? '\u2665' : '\u2661';
-        LK.notif(now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit', 'sukses', 'Favorit');
+        favBtn.disabled = true;
+
+        LK.favorit.toggle(p.product_id).then(function (now) {
+          favBtn.className = 'tombol-favorit ' + (now ? 'terpilih' : '');
+          favBtn.setAttribute('aria-label', now ? 'Hapus dari favorit' : 'Masukkan ke favorit');
+          favBtn.textContent = now ? '\u2665' : '\u2661';
+          LK.notif(
+            now ? 'Produk masuk ke favorit' : 'Produk dihapus dari favorit',
+            'sukses',
+            'Favorit'
+          );
+        }).catch(function (err) {
+          LK.notif(err.message || 'Gagal mengubah favorit.', 'bahaya', 'Favorit');
+        }).then(function () {
+          favBtn.disabled = false;
+        });
       });
+
       gambar.appendChild(favBtn);
     }
-    var pesanBtn = null;
     if (p.store_id) {
       pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Beli Langsung' });
       pesanBtn.addEventListener('click', function (e) {
@@ -217,25 +229,7 @@
 
   // Peta gambar lokal untuk produk yang belum punya foto dari API
   // (backend mengirim primary_image_url null sampai upload file aktif).
-  var GAMBAR_LOKAL = [
-    { cocok: ['keripik', 'singkong'], file: 'img/produk/keripik-singkong.jpg' },
-    { cocok: ['tas anyaman', 'anyaman', 'tas pandan'], file: 'img/produk/tas-anyaman.jpg' },
-    { cocok: ['kopi'], file: 'img/produk/kopi-lokal.jpg' },
-    { cocok: ['batik'], file: 'img/produk/kain-batik-tulis.jpg' },
-    { cocok: ['laundry'], file: 'img/produk/laundry-kiloan.jpg' },
-    { cocok: ['sambal'], file: 'img/produk/sambal-roa.jpg' }
-  ];
-
-  function gambarLokal(nama) {
-    var k = String(nama || '').toLowerCase();
-    for (var i = 0; i < GAMBAR_LOKAL.length; i++) {
-      var kata = GAMBAR_LOKAL[i].cocok;
-      for (var j = 0; j < kata.length; j++) {
-        if (k.indexOf(kata[j]) !== -1) { return GAMBAR_LOKAL[i].file; }
-      }
-    }
-    return '';
-  }
+  var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
 
   function normalisasi(p) {
     var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
@@ -343,5 +337,5 @@
     }, 350);
   });
 
-  muatKategori().then(muat);
+  Promise.all([muatKategori(), LK.favorit.load()]).then(muat);
 })();

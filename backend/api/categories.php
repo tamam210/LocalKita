@@ -15,18 +15,29 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 }
 
 try {
-    $stmt = db()->query(
-        "SELECT c.category_id, c.name, c.slug
-         FROM categories c
-         WHERE c.type = 'product'
-           AND EXISTS (
-               SELECT 1 FROM products p
-               WHERE p.category_id = c.category_id AND p.status = 'active'
-           )
-         ORDER BY c.name ASC"
-    );
+    $semua = isset($_GET['all']) && $_GET['all'] === '1';
 
-    json_success(['items' => $stmt->fetchAll()], 'Daftar kategori berhasil diambil.');
+    $sql = $semua
+        ? "SELECT c.category_id, c.name, c.slug
+           FROM categories c
+           WHERE c.type = 'product'
+           ORDER BY c.name ASC"
+        : "SELECT c.category_id, c.name, c.slug
+           FROM categories c
+           WHERE c.type = 'product'
+             AND EXISTS (
+                 SELECT 1 FROM products p
+                 WHERE p.category_id = c.category_id
+                   AND p.status = 'active'
+             )
+           ORDER BY c.name ASC";
+
+    $stmt = db()->query($sql);
+
+    json_success(
+        ['items' => $stmt->fetchAll()],
+        'Daftar kategori berhasil diambil.'
+    );
 } catch (Throwable $e) {
     error_log('[categories] ' . $e->getMessage());
     json_error('Terjadi kesalahan server.', 500, null, 'SERVER_ERROR');

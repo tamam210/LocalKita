@@ -29,7 +29,102 @@ try {
     error_log('[auth] db failed: ' . $e->getMessage());
     json_error('Gagal terhubung ke database.', 500);
 }
+if ($method === 'POST' && $action === 'register') {
+    $name = trim((string) ($input['full_name'] ?? $input['username'] ?? $input['name'] ?? ''));
+    $email = strtolower(trim((string) ($input['email'] ?? '')));
+    $password = (string) ($input['password'] ?? '');
+    $role = (string) ($input['role'] ?? 'buyer');
 
+    if ($role === 'pembeli') { $role = 'buyer'; }
+    if ($role === 'penjual') { $role = 'seller'; }
+
+    if (!in_array($role, ['buyer', 'seller'], true)) {
+        json_error('Peran tidak valid.', 400);
+    }
+
+    $storeName = trim((string) ($input['store_name'] ?? $input['nama_toko'] ?? ''));
+
+    if (strlen($name) < 3) {
+        json_error('Nama minimal 3 karakter.', 400);
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        json_error('Email tidak valid.', 400);
+    }
+    if (strlen($password) < 8) {
+        json_error('Password minimal 8 karakter.', 400);
+    }
+    if ($role === 'seller' && $storeName === '') {
+        json_error('Nama toko wajib diisi.', 400);
+    }
+
+    $cek = $pdo->prepare('SELECT user_id FROM users WHERE email = ? LIMIT 1');
+    $cek->execute([$email]);
+    if ($cek->fetch()) {
+        json_error('Email sudah terdaftar.', 409);
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $userId = $pdo->query('SELECT UUID()')->fetchColumn();
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        $insUser = $pdo->prepare(
+            "INSERT INTO users (user_id, email, full_name, password_hash, role, status)
+             VALUES (?, ?, ?, ?, ?, 'active')"
+        );
+        $insUser->execute([$userId, $email, $name, $hash, $role]);
+
+        $storeId = null;
+
+        if ($role === 'seller') {
+            $storeId = $pdo->query('SELECT UUID()')->fetchColumn();
+
+            $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $storeName), '-'));
+            if ($slug === '') { $slug = 'toko'; }
+            $slug .= '-' . substr(str_replace('-', '', $userId), 0, 6);
+
+            $cekSlug = $pdo->prepare('SELECT 1 FROM stores WHERE slug = ? LIMIT 1');
+            $cekSlug->execute([$slug]);
+            if ($cekSlug->fetchColumn()) {
+                $slug .= '-' . substr(bin2hex(random_bytes(3)), 0, 6);
+            }
+
+            $insStore = $pdo->prepare(
+                "INSERT INTO stores
+                 (store_id, owner_user_id, category_id, slug, name, status)
+                 VALUES (?, ?, NULL, ?, ?, 'active')"
+            );
+            $insStore->execute([$storeId, $userId, $slug, $storeName]);
+
+            $memberId = $pdo->query('SELECT UUID()')->fetchColumn();
+            $insMember = $pdo->prepare(
+                "INSERT INTO store_members
+                 (store_member_id, store_id, user_id, role, status)
+                 VALUES (?, ?, ?, 'owner', 'active')"
+            );
+            $insMember->execute([$memberId, $storeId, $userId]);
+        }
+
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log('[auth] register failed: ' . $e->getMessage());
+        json_error('Gagal mendaftar. Coba lagi.', 500);
+    }
+
+    audit_log($pdo, 'auth.register', 'user', $userId, ['role' => $role]);
+
+    json_success([
+        'user_id' => $userId,
+        'name' => $name,
+        'email' => $email,
+        'role' => $role,
+        'store_id' => $storeId,
+    ], 'Pendaftaran berhasil.');
+}
 if ($method === 'POST' && $action === 'login') {
     $identifier = trim($input['email'] ?? $input['username'] ?? $input['phone'] ?? '');
     $password = $input['password'] ?? '';

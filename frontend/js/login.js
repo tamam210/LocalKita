@@ -157,13 +157,8 @@
     }
   });
 
-  $form.addEventListener('submit', function (e) {
+ $form.addEventListener('submit', function (e) {
     e.preventDefault();
-
-    if (mode === 'daftar') {
-      galat('Pendaftaran belum tersedia di backend. Gunakan akun demo atau hubungi admin.');
-      return;
-    }
 
     var data = {};
     FORM[peran][mode].forEach(function (k) {
@@ -173,6 +168,27 @@
 
     galat('');
     $kirim.disabled = true;
+
+    if (mode === 'daftar') {
+      data.role = peran === 'penjual' ? 'seller' : 'buyer';
+
+      if (peran === 'penjual') {
+        data.store_name = data.nama_toko;
+      }
+
+      LK.apiPost('auth.php?action=register', data).then(function () {
+        mode = 'masuk';
+        render();
+        galat('Pendaftaran berhasil. Silakan masuk.');
+        $kirim.disabled = false;
+        LK.notif('Pendaftaran berhasil. Silakan masuk.', 'sukses', 'Daftar');
+      }).catch(function (err) {
+        galat(err.message);
+        $kirim.disabled = false;
+      });
+
+      return;
+    }
 
     LK.apiPost('auth.php?action=login', data).then(function (d) {
       var tujuan = tujuanAman(d && d.role);

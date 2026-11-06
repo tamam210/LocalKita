@@ -11,10 +11,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
   <script src="js/api.js?v=4" defer></script>
 <script src="js/sesi-ui.js?v=3" defer></script>
 <script src="js/dashboard-penjual.js?v=7" defer></script>
+<script src="js/dashboard-produk.js?v=2" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -120,6 +121,61 @@
         <span class="label">Bulan ini</span>
       </div>
       <div id="isi-produk-terlaris" class="tabel-bungkus" aria-live="polite"></div>
+    </section>
+
+  <section id="produk-saya" class="panel kaca" aria-labelledby="produk-saya-j">
+      <div class="judul-baris">
+        <h2 id="produk-saya-j">Produk Saya</h2>
+        <span class="lencana" id="jumlah-produk">0 produk</span>
+      </div>
+
+      <div id="info-produk" class="info-data" role="status" hidden></div>
+
+      <details class="tambah-produk">
+        <summary class="tombol tombol-garis">+ Tambah Produk</summary>
+
+        <form id="form-produk" class="form-produk">
+          <div class="bidang">
+            <label for="produk-nama">Nama produk</label>
+            <input id="produk-nama" name="name" type="text" required maxlength="180">
+          </div>
+
+          <div class="bidang">
+            <label for="produk-kategori">Kategori</label>
+            <select id="produk-kategori" name="category_id">
+              <option value="">Tanpa kategori</option>
+            </select>
+          </div>
+
+          <div class="bidang">
+            <label for="produk-harga">Harga</label>
+            <input id="produk-harga" name="price" type="number" min="0" required>
+          </div>
+
+          <div class="bidang">
+            <label for="produk-stok">Stok</label>
+            <input id="produk-stok" name="stock" type="number" min="0" value="0" required>
+          </div>
+
+          <div class="bidang">
+            <label for="produk-deskripsi">Deskripsi</label>
+            <textarea id="produk-deskripsi" name="description" rows="3" maxlength="5000"></textarea>
+          </div>
+
+          <div class="bidang">
+            <label for="produk-foto">Foto produk</label>
+            <input id="produk-foto" name="image" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+
+          <div class="aksi-cepat">
+            <button type="submit" class="tombol" id="produk-submit">Simpan Produk</button>
+          </div>
+
+          <p id="produk-pesan" class="info-data" role="status" hidden></p>
+        </form>
+      </details>
+
+      <div id="isi-produk" class="grid-produk-saya" aria-live="polite"></div>
     </section>
 
     <div class="dua-kolom">

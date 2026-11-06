@@ -1,41 +1,67 @@
-/* LokalKita - favorit/wishlist (frontend only, localStorage) */
 (function () {
   'use strict';
-  var KEY = 'lokalkita_favorit';
 
-  function load() {
-    try {
-      return JSON.parse(localStorage.getItem(KEY) || '[]');
-    } catch(e) { return []; }
+  var ids = {};
+  var janji = null;
+
+  function terapkan(data) {
+    ids = {};
+    var list = data && Array.isArray(data.ids) ? data.ids : [];
+    list.forEach(function (id) {
+      if (id) { ids[String(id)] = true; }
+    });
   }
-  function save(items) {
-    localStorage.setItem(KEY, JSON.stringify(items));
+
+  function muat(paksa) {
+    if (janji && !paksa) { return janji; }
+
+    janji = LK.apiGet('favorites.php?action=list')
+      .then(function (data) {
+        terapkan(data);
+        return ids;
+      })
+      .catch(function () {
+        ids = {};
+        janji = null;
+        return ids;
+      });
+
+    return janji;
   }
+
   function isFavorit(productId) {
-    var items = load();
-    for (var i = 0; i < items.length; i++) {
-      if (String(items[i]) === String(productId)) return true;
-    }
-    return false;
+    return !!ids[String(productId)];
   }
+
   function toggle(productId) {
-    var items = load();
-    var idx = -1;
-    for (var i = 0; i < items.length; i++) {
-      if (String(items[i]) === String(productId)) { idx = i; break; }
-    }
-    if (idx >= 0) { items.splice(idx, 1); } else { items.push(productId); }
-    save(items);
-    return idx < 0;
+    var key = String(productId);
+    var sebelumnya = !!ids[key];
+
+    if (sebelumnya) { delete ids[key]; }
+    else { ids[key] = true; }
+
+    return LK.apiPost('favorites.php?action=toggle', { product_id: key })
+      .then(function (data) {
+        if (data && data.favorited === true) { ids[key] = true; }
+        else { delete ids[key]; }
+        return !!ids[key];
+      })
+      .catch(function (err) {
+        if (sebelumnya) { ids[key] = true; }
+        else { delete ids[key]; }
+        throw err;
+      });
   }
+
   function count() {
-    return load().length;
+    return Object.keys(ids).length;
   }
 
   LK.favorit = {
     isFavorit: isFavorit,
     toggle: toggle,
     count: count,
-    load: load
+    load: muat,
+    muat: muat
   };
 })();
