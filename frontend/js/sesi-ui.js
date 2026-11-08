@@ -85,14 +85,48 @@
     });
   }
 
+  
   function pasangKeluar() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-keluar]'), function (tombol) {
       tombol.addEventListener('click', keluar);
     });
   }
 
+  function siapkanMenuProdukTerpesan() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.nav-utama .nav-daftar'),
+      function (ul) {
+        var link = ul.querySelector('a[href="pesanan-penjual.html"]');
+
+        if (link) {
+          link.textContent = 'Produk Terpesan';
+          return;
+        }
+
+        var li = document.createElement('li');
+        li.setAttribute('data-penjual', '');
+
+        var a = document.createElement('a');
+        a.href = 'pesanan-penjual.html';
+        a.textContent = 'Produk Terpesan';
+        li.appendChild(a);
+
+        var laporan = ul.querySelector('a[href="laporan.html"]');
+        if (laporan && laporan.parentNode) {
+          laporan.parentNode.insertAdjacentElement('afterend', li);
+        } else {
+          ul.appendChild(li);
+        }
+      }
+    );
+  }
+
   function masuk(u) {
     tampilkan(true, u.role);
+        if (u.role === 'seller' || u.role === 'admin') {
+      siapkanMenuProdukTerpesan();
+    }
+    
     pasangKeluar();
     initProfilDropdown();
 

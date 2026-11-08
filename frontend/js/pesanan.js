@@ -1,7 +1,6 @@
-/* LokalKita - pesanan.js (frontend only, localStorage) */
 (function () {
   'use strict';
-  var KEY = 'lokalkita_pesanan';
+
   var $list = document.getElementById('daftar-pesanan');
   var $kosong = document.getElementById('pesanan-kosong');
 
@@ -13,25 +12,34 @@
     batal: { label: 'Dibatalkan', kelas: 'batal' }
   };
 
-  function load() {
-    try {
-      return JSON.parse(localStorage.getItem(KEY) || '[]');
-    } catch(e) { return []; }
-  }
-  function simpan(items) {
-    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch(e) {}
-  }
-
   function statusInfo(s) {
     return STATUS[s] || STATUS.antrian;
   }
 
-  function buatChat(it) {
-    return LK.el('a', {
-      'class': 'tombol tombol-garis',
-      href: it.store_id ? 'chat.html?store_id=' + encodeURIComponent(it.store_id) : 'chat.html',
-      text: '💬 Chat Penjual'
-    });
+  function gambarPesanan(order) {
+    var items = Array.isArray(order.items) ? order.items : [];
+    var url = items[0] && items[0].image_url;
+    var kotak = LK.el('div', { 'class': 'kartu-gambar' });
+
+    if (url) {
+      kotak.appendChild(LK.el('img', {
+        src: url,
+        alt: order.order_number || 'Pesanan',
+        loading: 'lazy'
+      }));
+    } else {
+      kotak.appendChild(LK.el('span', { 'aria-hidden': 'true', text: '?' }));
+    }
+
+    return kotak;
+  }
+
+  function itemRingkas(order) {
+    var items = Array.isArray(order.items) ? order.items : [];
+    var teks = items.map(function (it) {
+      return (it.product_name || 'Produk') + ' x ' + (it.quantity || 1);
+    }).join(', ');
+    return teks || 'Tidak ada item';
   }
 
   function salinTeks(teks) {
@@ -41,26 +49,30 @@
     }, function () {});
   }
 
-  function tandaiBayar(it, metode) {
-    var items = load();
-    for (var i = 0; i < items.length; i++) {
-      if (String(items[i].id) === String(it.id)) {
-        items[i].status = 'lunas';
-        items[i].metode_bayar = metode;
-        items[i].tanggal_bayar = new Date().toISOString();
-        break;
-      }
-    }
-    simpan(items);
-    LK.notif(metode === 'tf'
-      ? 'Pembayaran TF tercatat. Pesanan lunas.'
-      : 'Silakan lunaskan pembayaran di kasir toko.', 'sukses', 'Pembayaran');
-    render();
+  function bayar(order, metode, btn) {
+    if (btn) { btn.disabled = true; }
+
+    LK.apiPost('orders.php?action=pay', {
+      order_id: order.order_id,
+      method: metode
+    }).then(function () {
+      LK.notif(
+        metode === 'tf'
+          ? 'Pembayaran TF tercatat. Pesanan lunas.'
+          : 'Pembayaran di kasir tercatat. Pesanan lunas.',
+        'sukses',
+        'Pembayaran'
+      );
+      return muat();
+    }).catch(function (err) {
+      LK.notif(err.message || 'Gagal mencatat pembayaran.', 'bahaya', 'Pembayaran');
+      if (btn) { btn.disabled = false; }
+    });
   }
 
-  function buatBayar(it) {
-    var rekening = it.rekening || '1234-5678-9012';
-    var atasan = it.rekeningAtasan || 'a/n Toko LokalKita';
+  function buatBayar(order) {
+    var rekening = order.rekening || '1234-5678-9012';
+    var atasan = order.rekening_atasan || ('a/n ' + (order.store_name || 'Toko LokalKita'));
 
     var rekeningBox = LK.el('div', { 'class': 'rekening-box' }, [
       LK.el('span', { 'class': 'rekening-label', text: 'Rekening transfer' }),
@@ -69,7 +81,7 @@
         LK.el('span', { 'class': 'rekening-atasan', text: atasan })
       ]),
       LK.el('button', {
-        'type': 'button',
+        type: 'button',
         'class': 'tombol salin-rekening tombol-garis',
         'aria-label': 'Salin nomor rekening',
         text: '📋 Salin'
@@ -77,16 +89,23 @@
     ]);
 
     var btnTf = LK.el('button', {
-      'type': 'button', 'class': 'tombol bayar-tf', 'data-bayar': 'tf', text: 'Bayar TF'
+      type: 'button',
+      'class': 'tombol bayar-tf',
+      'data-bayar': 'tf',
+      text: 'Bayar TF'
     });
+
     var btnKasir = LK.el('button', {
-      'type': 'button', 'class': 'tombol tombol-garis bayar-kasir', 'data-bayar': 'kasir', text: 'Di Kasir'
+      type: 'button',
+      'class': 'tombol tombol-garis bayar-kasir',
+      'data-bayar': 'kasir',
+      text: 'Di Kasir'
     });
 
     var aksi = LK.el('div', { 'class': 'aksi-bayar' }, [rekeningBox, btnTf, btnKasir]);
 
-    btnTf.addEventListener('click', function () { tandaiBayar(it, 'tf'); });
-    btnKasir.addEventListener('click', function () { tandaiBayar(it, 'kasir'); });
+    btnTf.addEventListener('click', function () { bayar(order, 'tf', btnTf); });
+    btnKasir.addEventListener('click', function () { bayar(order, 'kasir', btnKasir); });
     rekeningBox.querySelector('.salin-rekening').addEventListener('click', function () {
       salinTeks(rekening);
     });
@@ -94,66 +113,86 @@
     return aksi;
   }
 
-  function buatAksi(it) {
-    var st = it.status;
-    if (st === 'selesai') { return buatBayar(it); }
-    if (st === 'lunas') { return LK.el('span', { 'class': 'pesanan-keterangan', text: 'Sudah lunas' }); }
-    if (st === 'batal') { return null; }
-    return buatChat(it);
+  function buatAksi(order) {
+    if (order.status === 'selesai') {
+      return buatBayar(order);
+    }
+
+    if (order.status === 'lunas') {
+      return LK.el('span', { 'class': 'pesanan-keterangan', text: 'Sudah lunas' });
+    }
+
+    if (order.status === 'batal') {
+      return null;
+    }
+
+    return LK.el('a', {
+      'class': 'tombol tombol-garis',
+      href: order.store_id
+        ? 'chat.html?store_id=' + encodeURIComponent(order.store_id)
+        : 'chat.html',
+      text: '💬 Chat Penjual'
+    });
   }
 
-  function render() {
-    var items = load();
+  function render(items) {
     $list.replaceChildren();
+
     if (!items.length) {
       $kosong.hidden = false;
       return;
     }
+
     $kosong.hidden = true;
-    items.forEach(function (it) {
-      var img = LK.el('img', { src: it.image || 'img/produk/keripik-singkong.jpg', alt: it.name || '' });
+
+    items.forEach(function (order) {
+      var st = statusInfo(order.status);
       var info = LK.el('div', { 'class': 'item-pesanan-info' }, [
-        LK.el('div', { 'class': 'item-pesanan-nama', text: it.name || 'Produk' }),
-        LK.el('div', { 'class': 'item-pesanan-toko', text: it.store_name || '-' }),
-        LK.el('div', { 'class': 'item-pesanan-harga', text: LK.rupiah(it.price) + ' x ' + (it.qty || 1) })
+        LK.el('div', { 'class': 'item-pesanan-nama', text: order.order_number || 'Pesanan' }),
+        LK.el('div', { 'class': 'item-pesanan-toko', text: order.store_name || '-' }),
+        LK.el('div', { 'class': 'item-pesanan-toko', text: itemRingkas(order) }),
+        LK.el('div', {
+          'class': 'item-pesanan-harga',
+          text: LK.rupiah(order.total_amount) + ' • ' + LK.tanggal(order.created_at)
+        })
       ]);
-      var infoSt = statusInfo(it.status);
-      var status = LK.el('span', { 'class': 'pesanan-status ' + infoSt.kelas, text: infoSt.label });
-      var aksi = buatAksi(it);
-      var footer = LK.el('div', { 'class': 'item-pesanan-footer' }, [status, aksi].filter(Boolean));
-      var item = LK.el('article', { 'class': 'item-pesanan' }, [img, info, LK.el('div')]);
+
+      var status = LK.el('span', { 'class': 'pesanan-status ' + st.kelas, text: st.label });
+      var footer = LK.el('div', { 'class': 'item-pesanan-footer' }, [status, buatAksi(order)]);
+      var item = LK.el('article', { 'class': 'item-pesanan' }, [
+        gambarPesanan(order),
+        info,
+        LK.el('div')
+      ]);
+
       item.appendChild(footer);
       $list.appendChild(item);
     });
   }
 
-  // Handle "Pesan Barang" dari katalog
-  try {
-    var params = new URLSearchParams(location.search);
-    var pesanId = params.get('pesan');
-    var storeId = params.get('store_id');
-    if (pesanId) {
-      var items = load();
-      items.unshift({
-        id: 'PSN-' + Date.now().toString().slice(-6),
-        product_id: pesanId,
-        name: 'Produk #' + pesanId,
-        image: 'img/produk/keripik-singkong.jpg',
-        price: 0,
-        qty: 1,
-        store_id: storeId,
-        store_name: 'Toko Penjual',
-        status: 'antrian',
-        rekening: '1234-5678-9012',
-        rekeningAtasan: 'a/n Toko Penjual',
-        tanggal: new Date().toISOString()
-      });
-      simpan(items);
-      LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
-      // Bersihkan query
-      history.replaceState({}, document.title, 'pesanan.html');
-    }
-  } catch(e) {}
+  function muat() {
+    if (!$list) { return; }
 
-  render();
+    $kosong.hidden = true;
+    $list.replaceChildren(LK.el('div', { 'class': 'status' }, [
+      LK.el('h3', { text: 'Memuat pesanan...' })
+    ]));
+
+    return LK.apiGet('orders.php?action=list_buyer').then(function (data) {
+      var items = data && Array.isArray(data.items) ? data.items : [];
+      render(items);
+    }).catch(function (err) {
+      $kosong.hidden = true;
+      $list.replaceChildren();
+      LK.status($list, 'galat', 'Gagal memuat pesanan', err.message, LK.ulang(muat));
+    });
+  }
+
+  LK.sesiAman().then(function (u) {
+    if (!u || !u.user_id) {
+      window.location.replace('login.html?lanjut=' + encodeURIComponent('pesanan.html'));
+      return;
+    }
+    muat();
+  });
 })();
