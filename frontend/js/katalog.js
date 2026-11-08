@@ -7,6 +7,15 @@
   })();
   var semua = [], kategori = [], kategoriAktif = '', q = '';
   var halaman = 1, total = 0, totalHalaman = 0, permintaan = 0, timerCari = null;
+   var seed = (function () {
+    try {
+      var a = new Uint32Array(2);
+      crypto.getRandomValues(a);
+      return a[0].toString(36) + a[1].toString(36);
+    } catch (e) {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+  })();
   var $grid = document.getElementById('grid-produk');
   var $cari = document.getElementById('cari');
   var $chip = document.getElementById('daftar-kategori');
@@ -118,31 +127,51 @@
 
       gambar.appendChild(favBtn);
     }
-    if (p.store_id) {
-      pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Beli Langsung' });
+ if (p.store_id) {
+      var pesanBtn = LK.el('button', {
+        type: 'button',
+        'class': 'tombol-lunak',
+        text: 'Beli Langsung'
+      });
+
       pesanBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        try {
-          var pesananKey = 'lokalkita_pesanan';
-          var pesanan = JSON.parse(localStorage.getItem(pesananKey) || '[]');
-          pesanan.unshift({
-            id: 'PSN-' + Date.now().toString().slice(-6),
+        pesanBtn.disabled = true;
+
+        LK.apiPost('orders.php?action=create', {
+          items: [{
             product_id: p.product_id,
-            name: p.name,
-            image: p.image_url,
-            price: p.price,
-            qty: 1,
-            store_id: p.store_id,
-            store_name: p.store_name,
-            status: 'antrian',
-            rekening: '1234-5678-9012',
-            rekeningAtasan: 'a/n ' + (p.store_name || 'Toko LokalKita'),
-            tanggal: new Date().toISOString()
-          });
-          localStorage.setItem(pesananKey, JSON.stringify(pesanan));
-        } catch(ex) {}
-        LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
-        window.location.href = 'pesanan.html';
+            quantity: 1
+          }]
+        }).then(function () {
+          try {
+            var pesananKey = 'lokalkita_pesanan';
+            var pesanan = JSON.parse(localStorage.getItem(pesananKey) || '[]');
+
+            pesanan.unshift({
+              id: 'PSN-' + Date.now().toString().slice(-6),
+              product_id: p.product_id,
+              name: p.name,
+              image: p.image_url,
+              price: p.price,
+              qty: 1,
+              store_id: p.store_id,
+              store_name: p.store_name,
+              status: 'antrian',
+              rekening: '1234-5678-9012',
+              rekeningAtasan: 'a/n ' + (p.store_name || 'Toko LokalKita'),
+              tanggal: new Date().toISOString()
+            });
+
+            localStorage.setItem(pesananKey, JSON.stringify(pesanan));
+          } catch (ex) {}
+
+          LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
+          window.location.href = 'pesanan.html';
+        }).catch(function (err) {
+          LK.notif(err.message || 'Gagal membuat pesanan.', 'bahaya', 'Pesanan');
+          pesanBtn.disabled = false;
+        });
       });
     }
     var kartuAttr = { 'class': 'kartu-produk' };
@@ -251,14 +280,17 @@
     };
   }
 
-  function kategoriDariItem() {
-    var hasil = [];
-    semua.forEach(function (p) {
-      if (!p.category_id) { return; }
-      var ada = hasil.filter(function (k) { return k.category_id === p.category_id; });
-      if (!ada.length) { hasil.push({ category_id: p.category_id, name: kategoriDari(p) }); }
-    });
-    return hasil;
+ function urlProduk() {
+    var params = [
+      'status=active',
+      'sort=rekomendasi',
+      'seed=' + encodeURIComponent(seed),
+      'page=' + encodeURIComponent(halaman),
+      'per_page=' + encodeURIComponent(perHalaman)
+    ];
+    if (q) { params.push('q=' + encodeURIComponent(q)); }
+    if (kategoriAktif) { params.push('category_id=' + encodeURIComponent(kategoriAktif)); }
+    return 'products.php?' + params.join('&');
   }
 
   function urlProduk() {

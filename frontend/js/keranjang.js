@@ -73,13 +73,24 @@
   if ($checkout) {
     $checkout.addEventListener('click', function () {
       var items = load();
-      if (!items.length) return;
-      // Pindahkan ke pesanan
-      var pesanan = [];
-      try {
-        pesanan = JSON.parse(localStorage.getItem('lokalkita_pesanan') || '[]');
-      } catch(e) {}
-      items.forEach(function (it) {
+      if (!items.length) { return; }
+
+      $checkout.disabled = true;
+
+      LK.apiPost('orders.php?action=create', {
+        items: items.map(function (it) {
+          return {
+            product_id: it.product_id,
+            quantity: Number(it.qty) || 1
+          };
+        })
+      }).then(function () {
+        var pesanan = [];
+        try {
+          pesanan = JSON.parse(localStorage.getItem('lokalkita_pesanan') || '[]');
+        } catch (e) {}
+
+        items.forEach(function (it) {
           pesanan.unshift({
             id: 'PSN-' + Date.now().toString().slice(-6),
             product_id: it.product_id,
@@ -94,11 +105,17 @@
             rekeningAtasan: 'a/n ' + (it.store_name || 'Toko LokalKita'),
             tanggal: new Date().toISOString()
           });
+        });
+
+        localStorage.setItem('lokalkita_pesanan', JSON.stringify(pesanan));
+        localStorage.setItem(KEY, JSON.stringify([]));
+
+        LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
+        window.location.href = 'pesanan.html';
+      }).catch(function (err) {
+        LK.notif(err.message || 'Gagal membuat pesanan.', 'bahaya', 'Pesanan');
+        $checkout.disabled = false;
       });
-      localStorage.setItem('lokalkita_pesanan', JSON.stringify(pesanan));
-      localStorage.setItem(KEY, JSON.stringify([]));
-      LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
-      window.location.href = 'pesanan.html';
     });
   }
 

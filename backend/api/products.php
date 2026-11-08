@@ -324,6 +324,13 @@ if ($perPage > 50) {
     $perPage = 50;
 }
 $sort = $_GET['sort'] ?? 'newest';
+$seed = isset($_GET['seed'])
+    ? preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $_GET['seed'])
+    : '';
+if ($seed === '') {
+    $seed = bin2hex(random_bytes(8));
+}
+$userId = (string) ($user['user_id'] ?? '');
 
 $where = [];
 $params = [];
@@ -386,6 +393,37 @@ $cstmt = $pdo->prepare($countSql);
 $cstmt->execute($params);
 $total = (int)($cstmt->fetch()['total'] ?? 0);
 
+$fromRekomendasi = '';
+$listParams = $params;
+
+if ($sort === 'rekomendasi') {
+    $fromRekomendasi = "
+           LEFT JOIN (
+               SELECT pv.product_id,
+                      SUM(oi.quantity) AS qty,
+                      MAX(o.created_at) AS terakhir
+               FROM orders o
+               JOIN order_items oi ON oi.order_id = o.order_id
+               JOIN product_variants pv ON pv.variant_id = oi.variant_id
+               WHERE o.buyer_user_id = ?
+                 AND o.status NOT IN ('cancelled', 'refunded')
+               GROUP BY pv.product_id
+           ) r ON r.product_id = p.product_id
+           LEFT JOIN (
+               SELECT f.product_id,
+                      MAX(f.created_at) AS favorit_at
+               FROM favorites f
+               WHERE f.user_id = ?
+               GROUP BY f.product_id
+           ) fv ON fv.product_id = p.product_id";
+
+    $listParams = array_merge(
+        [$userId, $userId],
+        $params,
+        [$userId . ':' . $seed]
+    );
+}
+
 $orderBy = 'p.created_at DESC';
 if ($sort === 'price_asc') {
     $orderBy = 'min_price ASC';
@@ -395,6 +433,16 @@ if ($sort === 'price_asc') {
     $orderBy = 'p.name ASC';
 } elseif ($sort === 'newest') {
     $orderBy = 'p.created_at DESC';
+} elseif ($sort === 'rekomendasi') {
+    $orderBy = "CASE
+                    WHEN r.product_id IS NOT NULL THEN 0
+                    WHEN fv.product_id IS NOT NULL THEN 1
+                    ELSE 2
+                END,
+                r.qty DESC,
+                r.terakhir DESC,
+                fv.favorit_at DESC,
+                MD5(CONCAT(p.product_id, ?))";
 }
 
 $offset = ($page - 1) * $perPage;
@@ -406,11 +454,12 @@ $listSql = "SELECT p.product_id, p.store_id, p.category_id, p.slug, p.name, p.de
            FROM products p
            LEFT JOIN stores s ON s.store_id = p.store_id
            LEFT JOIN categories c ON c.category_id = p.category_id
+           $fromRekomendasi
            $sqlWhere
            ORDER BY $orderBy
            LIMIT $perPage OFFSET $offset";
 $lstmt = $pdo->prepare($listSql);
-$lstmt->execute($params);
+$lstmt->execute($listParams);
 
 $items = [];
 while ($row = $lstmt->fetch()) {
