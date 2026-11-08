@@ -310,6 +310,16 @@ footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-l
 .auth .tombol{width:100%}
 .auth-tamu{margin-top:20px;padding-top:16px;border-top:1px solid var(--garis);text-align:center}
 .auth-tamu p{font-size:.9rem;color:var(--teks-lembut)}
+.auth-sosial{margin-top:20px}
+.garis-pemisah{display:flex;align-items:center;gap:12px;margin:0 0 14px;color:var(--teks-lembut);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.garis-pemisah::before,.garis-pemisah::after{content:"";flex:1;height:1px;background:var(--garis)}
+.garis-pemisah span{white-space:nowrap}
+.tombol-sosial{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;padding:0 16px;border:1px solid var(--garis);border-radius:var(--r-md);background:#fff;color:var(--teks);font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:var(--bayang-sm);transition:background .2s,border-color .2s,box-shadow .2s,transform .15s}
+.tombol-sosial:hover{background:var(--krem);border-color:rgba(116,71,43,.35);box-shadow:var(--bayang-md)}
+.tombol-sosial:active{transform:translateY(1px)}
+.tombol-sosial:focus-visible{outline:3px solid rgba(66,133,244,.35);outline-offset:2px}
+.tombol-sosial:disabled{opacity:.65;cursor:not-allowed;box-shadow:none;transform:none}
+.logo-google{flex:none;display:block}
 
 /* Popup konfirmasi + notifikasi */
 .popup-latar{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(58,36,24,.55);animation:lk-pudar .18s ease-out}

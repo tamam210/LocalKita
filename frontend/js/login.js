@@ -227,4 +227,14 @@
   });
 
   render();
+
+  var $google = document.getElementById('tombol-google');
+  if ($google) {
+    $google.addEventListener('click', function () {
+      galat('Login dengan Google belum tersedia. Silakan masuk dengan email/username.');
+      if (LK && typeof LK.notif === 'function') {
+        LK.notif('Login dengan Google belum tersedia saat ini.', 'info', 'Google');
+      }
+    });
+  }
 })();
