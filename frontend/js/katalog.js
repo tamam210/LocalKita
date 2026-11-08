@@ -258,13 +258,12 @@
     $paginasi.replaceChildren.apply($paginasi, isi);
   }
 
-  // Peta gambar lokal untuk produk yang belum punya foto dari API
-  // (backend mengirim primary_image_url null sampai upload file aktif).
-  var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
+function normalisasi(p) {
+    var img = p.primary_image_url
+      || p.image_url
+      || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url))
+      || '';
 
-  function normalisasi(p) {
-    var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
-    if (!img) { img = gambarLokal(p.name || p.product_name); }
     return {
       product_id: p.product_id,
       name: p.name || p.product_name || 'Produk tanpa nama',
@@ -280,22 +279,11 @@
     };
   }
 
- function urlProduk() {
+  function urlProduk() {
     var params = [
       'status=active',
       'sort=rekomendasi',
       'seed=' + encodeURIComponent(seed),
-      'page=' + encodeURIComponent(halaman),
-      'per_page=' + encodeURIComponent(perHalaman)
-    ];
-    if (q) { params.push('q=' + encodeURIComponent(q)); }
-    if (kategoriAktif) { params.push('category_id=' + encodeURIComponent(kategoriAktif)); }
-    return 'products.php?' + params.join('&');
-  }
-
-  function urlProduk() {
-    var params = [
-      'status=active',
       'page=' + encodeURIComponent(halaman),
       'per_page=' + encodeURIComponent(perHalaman)
     ];
