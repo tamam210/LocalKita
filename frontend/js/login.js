@@ -109,6 +109,29 @@
       var kontrol = f.type === 'select' ? pilihan(f, id) : LK.el('input', a);
       var kecil = hint || f.type === 'select' ? LK.el('small', { text: hint || 'Pilih jenis usaha tokomu.' }) : null;
 
+      if (sandi) {
+        var inputSandi = kontrol;
+        var lihat = LK.el('button', {
+          type: 'button',
+          'class': 'lihat-sandi',
+          'aria-label': 'Tampilkan kata sandi',
+          'aria-pressed': 'false',
+          title: 'Tampilkan kata sandi'
+        });
+
+        lihat.addEventListener('click', function () {
+          var tampil = inputSandi.type === 'password';
+          inputSandi.type = tampil ? 'text' : 'password';
+          lihat.classList.toggle('terlihat', tampil);
+          lihat.setAttribute('aria-pressed', String(tampil));
+          lihat.setAttribute('aria-label', tampil ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+          lihat.title = tampil ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi';
+          inputSandi.focus();
+        });
+
+        kontrol = LK.el('div', { 'class': 'bidang-sandi' }, [kontrol, lihat]);
+      }
+
       if (f.type === 'select') {
         kontrol.addEventListener('change', function () {
           var j = JENIS.filter(function (x) { return x.nilai === kontrol.value; })[0];

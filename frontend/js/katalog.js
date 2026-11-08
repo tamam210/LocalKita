@@ -1,9 +1,13 @@
-/* LokalKita - katalog (B1). Data dari api/products.php; tanpa fallback dummy. */
+/* LokalKita - katalog (B1). Data dari api/products.php dengan urutan acak. */
 (function () {
   'use strict';
   var perHalaman = (function () {
     var n = parseInt(new URLSearchParams(window.location.search).get('per_page'), 10);
-    return isFinite(n) ? Math.min(50, Math.max(1, n)) : 12;
+    return isFinite(n) ? Math.min(50, Math.max(1, n)) : 35;
+  })();
+  var seedAcak = (function () {
+    var n = parseInt(new URLSearchParams(window.location.search).get('seed'), 10);
+    return isFinite(n) && n > 0 ? n : Math.floor(Math.random() * 2147483646) + 1;
   })();
   var semua = [], kategori = [], kategoriAktif = '', q = '';
   var halaman = 1, total = 0, totalHalaman = 0, permintaan = 0, timerCari = null;
@@ -127,13 +131,9 @@
 
       gambar.appendChild(favBtn);
     }
- if (p.store_id) {
-      var pesanBtn = LK.el('button', {
-        type: 'button',
-        'class': 'tombol-lunak',
-        text: 'Beli Langsung'
-      });
-
+    var pesanBtn = null;
+    if (p.store_id) {
+      pesanBtn = LK.el('button', { type: 'button', 'class': 'tombol-lunak', text: 'Beli Langsung' });
       pesanBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         pesanBtn.disabled = true;
@@ -258,12 +258,8 @@
     $paginasi.replaceChildren.apply($paginasi, isi);
   }
 
-function normalisasi(p) {
-    var img = p.primary_image_url
-      || p.image_url
-      || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url))
-      || '';
-
+  function normalisasi(p) {
+    var img = p.primary_image_url || p.image_url || (p.images && p.images[0] && (p.images[0].url || p.images[0].image_url)) || '';
     return {
       product_id: p.product_id,
       name: p.name || p.product_name || 'Produk tanpa nama',
@@ -282,8 +278,9 @@ function normalisasi(p) {
   function urlProduk() {
     var params = [
       'status=active',
-      'sort=rekomendasi',
-      'seed=' + encodeURIComponent(seed),
+      'etalase=1',
+      'sort=random',
+      'seed=' + encodeURIComponent(seedAcak),
       'page=' + encodeURIComponent(halaman),
       'per_page=' + encodeURIComponent(perHalaman)
     ];

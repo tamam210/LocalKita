@@ -8,6 +8,7 @@ require_once __DIR__ . '/../lib/session.php';
 require_once __DIR__ . '/../lib/auth.php';
 require_once __DIR__ . '/../lib/image.php';
 require_once __DIR__ . '/../lib/validate.php';
+require_once __DIR__ . '/../lib/etalase.php';
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
@@ -311,6 +312,12 @@ if ($productId !== null && $productId !== '') {
     json_success($data, 'Detail produk berhasil diambil.');
 }
 
+$isEtalase = isset($_GET['etalase']) && $_GET['etalase'] === '1';
+
+if ($isEtalase) {
+    ensure_etalase_minimum($pdo, 35);
+}
+
 $q = trim($_GET['q'] ?? '');
 $categoryId = $_GET['category_id'] ?? null;
 $storeId = $_GET['store_id'] ?? null;
@@ -352,7 +359,7 @@ if ($storeId !== null && $storeId !== '') {
     $params[] = $storeId;
 }
 
-if ($user && ($user['role'] ?? null) === 'seller') {
+if (!$isEtalase && $user && ($user['role'] ?? null) === 'seller') {
     if ($storeId !== null && $storeId !== '') {
         if (empty($ownerStoreIds[$storeId])) {
             json_error('Data tidak ditemukan.', 404, null);
@@ -443,6 +450,8 @@ if ($sort === 'price_asc') {
                 r.terakhir DESC,
                 fv.favorit_at DESC,
                 MD5(CONCAT(p.product_id, ?))";
+} elseif ($sort === 'random') {
+    $orderBy = 'RAND(' . crc32($seed) . ')';
 }
 
 $offset = ($page - 1) * $perPage;

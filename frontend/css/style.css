@@ -226,6 +226,12 @@ footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-l
 /* B4-B6: form, hasil, poin, chat, laporan */
 .form-grid{display:grid;grid-template-columns:1fr;gap:0 16px}
 .bidang small{color:var(--teks-lembut)}
+.bidang-sandi{position:relative}
+.bidang-sandi input{width:100%;padding-right:48px}
+.lihat-sandi{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;border-radius:50%;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B3A29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E") center/20px 20px no-repeat;cursor:pointer}
+.lihat-sandi:hover{background-color:rgba(91,58,41,.08)}
+.lihat-sandi:focus-visible{outline:3px solid var(--terra-tua);outline-offset:2px}
+.lihat-sandi.terlihat{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B3A29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.77 21.77 0 0 1-2.16 3.19'/%3E%3Cpath d='M1 1l22 22'/%3E%3Cpath d='M9.9 9.9a3 3 0 0 0 4.2 4.2'/%3E%3C/svg%3E")}
 .pesan-galat{margin:0 0 12px;color:var(--galat);font-weight:700}
 .peringatan{margin-top:12px;padding:10px 14px;border:1px solid var(--terra-tua);border-radius:var(--r-sm);background:#F6E3C9;color:var(--sogan);font-weight:700}
 .peringatan.aman{border-color:#1B8215;background:#E1F0DF;color:#145C10}

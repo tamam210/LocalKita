@@ -159,7 +159,9 @@ Query:
 | `status` | string | tidak | Default `active` |
 | `page` | int | tidak | Default `1` |
 | `per_page` | int | tidak | Default `12`, maksimal `50` |
-| `sort` | string | tidak | `newest`, `price_asc`, `price_desc`, `name_asc` |
+| `sort` | string | tidak | `newest`, `price_asc`, `price_desc`, `name_asc`, `random` |
+| `seed` | int | tidak | Seed urutan acak agar paginasi stabil |
+| `etalase` | int | tidak | `1` untuk mode etalase publik; seller melihat semua produk aktif dan data dummy dibuat bila produk aktif < 35 |
 
 Response `200`:
 
