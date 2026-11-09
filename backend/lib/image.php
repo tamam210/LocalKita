@@ -25,5 +25,13 @@ function product_primary_image_url(PDO $pdo, string $productId): ?string
         return $path;
     }
 
-    return '/' . ltrim($path, '/');
+    $path = ltrim($path, '/');
+    if (str_starts_with($path, 'frontend/img/')) {
+        $path = substr($path, strlen('frontend/'));
+    }
+    if (str_starts_with($path, 'img/')) {
+        return $path;
+    }
+
+    return '/' . $path;
 }

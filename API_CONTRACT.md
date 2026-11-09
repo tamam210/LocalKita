@@ -233,15 +233,10 @@ Response `200`:
     "status": "active",
     "earns_points": true,
     "point_multiplier": 1.0,
-    "images": [
-      {
-        "image_id": "a5000000-0000-4000-8000-000000000001",
-        "url": "uploads/products/risoles-frozen.jpg",
-        "alt_text": "Risoles Frozen",
-        "is_primary": true,
-        "sort_order": 0
-      }
-    ],
+    "primary_image_url": null,
+    "min_price": 15000,
+    "max_price": 16000,
+    "total_stock": 73,
     "variants": [
       {
         "variant_id": "50000000-0000-4000-8000-000000000001",

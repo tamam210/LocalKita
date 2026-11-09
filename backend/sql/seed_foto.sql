@@ -36,11 +36,11 @@ ON DUPLICATE KEY UPDATE
 
 -- File foto (pakai gambar yang sudah ada di frontend/img/produk)
 INSERT INTO files (file_id, store_id, uploader_id, storage_path, mime_type, visibility) VALUES
-('30000000-0000-4000-8000-000000000010', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'frontend/img/produk/keripik-singkong.jpg?v=2', 'image/jpeg', 'public'),
-('30000000-0000-4000-8000-000000000011', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'frontend/img/produk/kopi-lokal.jpg?v=2', 'image/jpeg', 'public'),
-('30000000-0000-4000-8000-000000000012', '20000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000003', 'frontend/img/produk/kain-batik-tulis.jpg?v=2', 'image/jpeg', 'public'),
-('30000000-0000-4000-8000-000000000013', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'frontend/img/produk/laundry-kiloan.jpg?v=2', 'image/jpeg', 'public'),
-('30000000-0000-4000-8000-000000000014', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'frontend/img/produk/sambal-roa.jpg?v=2', 'image/jpeg', 'public')
+('30000000-0000-4000-8000-000000000010', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'img/produk/keripik-singkong.jpg?v=2', 'image/jpeg', 'public'),
+('30000000-0000-4000-8000-000000000011', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'img/produk/kopi-lokal.jpg?v=2', 'image/jpeg', 'public'),
+('30000000-0000-4000-8000-000000000012', '20000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000003', 'img/produk/kain-batik-tulis.jpg?v=2', 'image/jpeg', 'public'),
+('30000000-0000-4000-8000-000000000013', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'img/produk/laundry-kiloan.jpg?v=2', 'image/jpeg', 'public'),
+('30000000-0000-4000-8000-000000000014', '20000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000002', 'img/produk/sambal-roa.jpg?v=2', 'image/jpeg', 'public')
 ON DUPLICATE KEY UPDATE
   storage_path = VALUES(storage_path),
   mime_type = VALUES(mime_type),
@@ -62,7 +62,7 @@ ON DUPLICATE KEY UPDATE
 
 -- Tas Anyaman yang sudah ada: arahkan ke foto yang benar
 UPDATE files
-SET storage_path = 'frontend/img/produk/tas-anyaman.jpg?v=2',
+SET storage_path = 'img/produk/tas-anyaman.jpg?v=2',
     deleted_at = NULL
 WHERE file_id = '30000000-0000-4000-8000-000000000007';
 

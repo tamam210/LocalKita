@@ -26,6 +26,41 @@
     return null;
   }
 
+  function hargaProduk(p) {
+    if (p.price !== undefined && p.price !== null) { return p.price; }
+    if (p.min_price !== undefined && p.min_price !== null) { return p.min_price; }
+    var harga = [];
+    (Array.isArray(p.variants) ? p.variants : []).forEach(function (v) {
+      if (v && v.price !== null && v.price !== undefined && (v.status === undefined || v.status === 'active')) {
+        var n = Number(v.price);
+        if (isFinite(n)) { harga.push(n); }
+      }
+    });
+    return harga.length ? Math.min.apply(Math, harga) : 0;
+  }
+
+  function stokProduk(p) {
+    if (p.stock !== undefined && p.stock !== null) { return p.stock; }
+    if (p.total_stock !== undefined && p.total_stock !== null) { return p.total_stock; }
+    var total = 0;
+    var ada = false;
+    (Array.isArray(p.variants) ? p.variants : []).forEach(function (v) {
+      if (v && (v.status === undefined || v.status === 'active')) {
+        var n = Number(v.stock);
+        if (isFinite(n)) { total += n; ada = true; }
+      }
+    });
+    return ada ? total : null;
+  }
+
+  function gambarKosong(nama) {
+    return LK.el('span', {
+      'class': 'detail-gambar-kosong',
+      'aria-hidden': 'true',
+      text: String(nama || '?').charAt(0).toUpperCase()
+    });
+  }
+
   function skeleton() {
     $detail.replaceChildren(LK.el('div', { 'class': 'skeleton' }));
   }
@@ -53,19 +88,29 @@
     var gambarAlt = p.image_alt || p.name || 'Produk';
     var storeId = p.store_id || '';
     var storeName = p.store_name || p.store || '-';
-    var harga = p.price !== undefined && p.price !== null ? p.price : (p.min_price !== undefined ? p.min_price : 0);
-    var stok = p.stock !== undefined && p.stock !== null ? p.stock : (p.total_stock !== undefined ? p.total_stock : null);
+    var harga = hargaProduk(p);
+    var stok = stokProduk(p);
     var desc = p.description || p.desc || 'Belum ada deskripsi produk.';
     var specs = p.specification || p.specs || p.details || 'Tidak ada spesifikasi.';
     var infoToko = p.store_info || p.seller_info || 'Informasi toko tidak tersedia.';
 
     var imgBox = LK.el('div', { 'class': 'detail-gambar' });
-    var img = LK.el('img', { src: gambarUrl, alt: gambarAlt });
-    img.addEventListener('click', function () { buatLightbox(gambarUrl, gambarAlt); });
-    var zoomBtn = LK.el('button', { type: 'button', 'class': 'detail-zoom', text: '\ud83d\udd0d Perbesar' });
-    zoomBtn.addEventListener('click', function () { buatLightbox(gambarUrl, gambarAlt); });
-    imgBox.appendChild(img);
-    if (gambarUrl) imgBox.appendChild(zoomBtn);
+    var fallbackGambar = gambarKosong(p.name);
+    if (gambarUrl) {
+      var img = LK.el('img', { src: gambarUrl, alt: gambarAlt });
+      var zoomBtn = LK.el('button', { type: 'button', 'class': 'detail-zoom', text: '\ud83d\udd0d Perbesar' });
+      img.addEventListener('click', function () { buatLightbox(gambarUrl, gambarAlt); });
+      img.addEventListener('error', function () {
+        img.remove();
+        if (zoomBtn.parentNode) { zoomBtn.remove(); }
+        imgBox.appendChild(fallbackGambar);
+      });
+      zoomBtn.addEventListener('click', function () { buatLightbox(gambarUrl, gambarAlt); });
+      imgBox.appendChild(img);
+      imgBox.appendChild(zoomBtn);
+    } else {
+      imgBox.appendChild(fallbackGambar);
+    }
 
     var isi = LK.el('div', { 'class': 'detail-isi' });
     var judul = LK.el('h1', { 'class': 'detail-nama', text: p.name || 'Produk tanpa nama' });

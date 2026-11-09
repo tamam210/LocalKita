@@ -291,6 +291,16 @@ if ($productId !== null && $productId !== '') {
         $variants[] = $row;
     }
 
+    $activePrices = [];
+    $totalStock = 0;
+    foreach ($variants as $variant) {
+        if (($variant['status'] ?? '') !== 'active') {
+            continue;
+        }
+        $activePrices[] = (int)$variant['price'];
+        $totalStock += (int)$variant['stock'];
+    }
+
     $data = [
         'product_id' => $product['product_id'],
         'store_id' => $product['store_id'],
@@ -304,6 +314,9 @@ if ($productId !== null && $productId !== '') {
         'earns_points' => (bool)($product['earns_points'] ?? false),
         'point_multiplier' => $product['point_multiplier'] !== null ? (float)$product['point_multiplier'] : 1.0,
         'primary_image_url' => product_primary_image_url($pdo, $product['product_id']),
+        'min_price' => $activePrices ? min($activePrices) : null,
+        'max_price' => $activePrices ? max($activePrices) : null,
+        'total_stock' => $totalStock,
         'variants' => $variants,
         'created_at' => $product['created_at'],
         'updated_at' => $product['updated_at'],
