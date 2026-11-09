@@ -147,12 +147,9 @@
     if (!el.textContent || el.textContent.trim() === '') el.textContent = '0';
   });
 
-    // Sudah login tapi membuka halaman login: lempar ke home sesuai role.
+    // Sudah login tapi membuka halaman login: lempar ke Dashboard utama.
     if (halaman === 'login') {
-      var tujuan = (u.role === 'seller' || u.role === 'admin')
-        ? 'dashboard-penjual.html'
-        : 'index.html';
-      window.location.replace(tujuan);
+      window.location.replace('dashboard.html');
     }
   }
 

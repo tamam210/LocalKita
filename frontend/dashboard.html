@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="favicon.ico?v=10" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=10">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/brand/logo-32.png?v=4">
+  <link rel="apple-touch-icon" href="img/brand/logo-256.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <script src="js/api.js?v=4" defer></script>
+  <script src="js/sesi-ui.js?v=4" defer></script>
+</head>
+<body data-halaman="dashboard-publik">
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="tentang.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+      <nav aria-label="Menu utama" class="nav-utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <li><a href="dashboard.html" aria-current="page">Dashboard</a></li>
+          <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+          <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+          <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+          <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+          <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+          <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+          <li data-tamu><a href="login.html">Masuk</a></li>
+        </ul>
+        <div class="nav-swipe" aria-label="Menu geser">
+          <ul class="nav-daftar">
+            <li><a href="index.html">Etalase</a></li>
+            <li><a href="dashboard.html" aria-current="page">Dashboard</a></li>
+            <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+            <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+            <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+            <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+            <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+            <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+            <li data-tamu><a href="login.html">Masuk</a></li>
+          </ul>
+        </div>
+        <div class="nav-profil">
+          <div data-penjual hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info"><span class="profil-nama" data-nama-user>Pengguna</span><span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span></span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head"><span class="avatar-nav besar" data-avatar>U</span><div><div class="dropdown-nama" data-nama-user>Pengguna</div><div class="dropdown-email" data-email-user>-</div></div></li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li class="divider"></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+          <div data-pembeli hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info"><span class="profil-nama" data-nama-user>Pengguna</span><span class="profil-poin"><img src="img/brand/logo-16.png" alt="" aria-hidden="true"> <span data-poin-nav>0</span> Poin</span></span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head"><span class="avatar-nav besar" data-avatar>U</span><div><div class="dropdown-nama" data-nama-user>Pengguna</div><div class="dropdown-email" data-email-user>-</div></div></li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li class="divider"></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <header class="dashboard-kepala" aria-labelledby="judul-dashboard-publik">
+      <div>
+        <p class="eyebrow">LokalKita</p>
+        <h1 id="judul-dashboard-publik">Dashboard</h1>
+        <p>LokalKita dibuat agar UMKM lokal punya etalase online yang mudah dipakai sekaligus alat bantu hitung harga dan kelola warung.</p>
+      </div>
+      <div class="aksi-cepat" role="group" aria-label="Panduan dan informasi">
+        <a class="tombol" href="tentang.html">Tentang Kita</a>
+        <a class="tombol tombol-garis" href="panduan-penjual.html">Panduan Penjual</a>
+        <a class="tombol tombol-garis" href="panduan-pembeli.html">Panduan Pembeli</a>
+      </div>
+    </header>
+
+    <section class="panel kaca" aria-labelledby="s-fitur">
+      <h2 id="s-fitur">Fitur LokalKita</h2>
+      <ul>
+        <li><strong>Etalase &amp; Detail Produk</strong> — cari, filter kategori, lihat produk, favorit, dan riwayat dilihat.</li>
+        <li><strong>Belanja</strong> — keranjang, beli langsung, pesanan, dan struk pembelian.</li>
+        <li><strong>Warung Saya (Penjual)</strong> — kelola produk, produk terpesan, ringkasan omzet/laba, promo poin, chat masuk, kesehatan usaha, dan grafik.</li>
+        <li><strong>Hitung HPP &amp; Laporan Warung</strong> — bantu tetapkan harga dan pantau performa toko.</li>
+        <li><strong>Akun &amp; Interaksi</strong> — login peran (tamu/pembeli/penjual), profil, poin loyalitas, dan chat pembeli–penjual.</li>
+        <li><strong>Informasi</strong> — tentang, panduan penjual/pembeli, dan legalitas.</li>
+      </ul>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="merek" href="tentang.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+        <p class="footer-tagline">Dukung UMKM, bangun ekonomi lokal.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Pelaku usaha">
+        <h3>Pelaku Usaha</h3>
+        <a href="login.html?peran=penjual">Daftarkan Usaha</a>
+        <a href="panduan-penjual.html">Panduan Penjual</a>
+        <a href="panduan-pembeli.html">Panduan Pembeli</a>
+        <a href="legalitas.html">Legalitas</a>
+      </nav>
+      <div class="footer-sosmed">
+        <h3>Sosial Media</h3>
+        <a href="https://www.instagram.com/lokalkita.market/">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61596278730528&sk=about_details">Facebook</a>
+        <a href="#">TikTok</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 LokalKita. Dukung UMKM, bangun ekonomi lokal.</p>
+  </footer>
+</body>
+</html>

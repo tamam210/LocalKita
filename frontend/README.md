@@ -28,7 +28,7 @@ frontend/
 ├── index.html         # Halaman utama (beranda/katalog)
 ├── katalog.html       # Halaman katalog produk
 ├── login.html         # Halaman login
-├── dashboard-penjual.html # Dashboard penjual
+├── dashboard-penjual.html # Warung Saya (Warung Saya)
 ├── hpp.html           # Halaman simulasi & perhitungan HPP
 ├── diskon.html        # Halaman simulasi diskon (jika tersedia)
 ├── laporan.html       # Halaman laporan bulanan penjual
@@ -138,7 +138,7 @@ File JS di `frontend/js/` dipisah per fungsi biar gampang dirawat.
 | `diskon.js` | Form simulasi diskon, analisis margin & peringatan |
 | `laporan.js` | Ambil & render laporan bulanan per toko |
 | `poin.js` | Tampilkan saldo & history poin pembeli |
-| `dashboard-penjual.js` | Logika dashboard penjual |
+| `dashboard-penjual.js` | Logika Warung Saya |
 | `app.js` / file lain | Logika pendukung halaman terkait |
 
 ## Alur Autentikasi & Session

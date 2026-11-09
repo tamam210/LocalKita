@@ -268,7 +268,7 @@ footer{padding:36px 16px 20px;text-align:left;font-size:.9rem;color:var(--teks-l
   .dua-kolom{grid-template-columns:1fr 1fr}
 }
 
-/* Dashboard penjual */
+/* Warung Saya (dashboard penjual) */
 .eyebrow{margin:0 0 4px;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;font-weight:700;color:var(--terra-tua)}
 .dashboard-kepala{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:8px}
 .dashboard-kepala h1{margin-bottom:4px}

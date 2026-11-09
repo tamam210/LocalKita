@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="favicon.ico?v=10" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/brand/logo-32.png?v=4">
+  <link rel="apple-touch-icon" href="img/brand/logo-256.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panduan Pembeli - LokalKita</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <script src="js/api.js?v=4" defer></script>
+  <script src="js/sesi-ui.js?v=4" defer></script>
+</head>
+<body data-halaman="panduan-pembeli">
+  <header class="navbar kaca">
+    <div class="wadah navbar-isi">
+      <a class="merek" href="tentang.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+      <nav aria-label="Menu utama" class="nav-utama">
+        <ul class="nav-daftar">
+          <li><a href="index.html">Etalase</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+          <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+          <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+          <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+          <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+          <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+          <li data-tamu><a href="login.html">Masuk</a></li>
+        </ul>
+        <div class="nav-swipe" aria-label="Menu geser">
+          <ul class="nav-daftar">
+            <li><a href="index.html">Etalase</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li data-penjual hidden><a href="dashboard-penjual.html">Warung Saya</a></li>
+            <li data-penjual hidden><a href="hpp.html">Hitung HPP</a></li>
+            <li data-penjual hidden><a href="laporan.html">Laporan Warung</a></li>
+            <li data-pembeli hidden><a href="keranjang.html">Keranjang</a></li>
+            <li data-pembeli hidden><a href="pesanan.html">Pesanan</a></li>
+            <li data-pembeli hidden><a href="chat.html">Chat</a></li>
+            <li data-tamu><a href="login.html">Masuk</a></li>
+          </ul>
+        </div>
+        <div class="nav-profil">
+          <div data-penjual hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info"><span class="profil-nama" data-nama-user>Pengguna</span><span class="profil-poin"><span data-poin-nav>0</span> Poin</span></span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head"><span class="avatar-nav besar" data-avatar>U</span><div><div class="dropdown-nama" data-nama-user>Pengguna</div><div class="dropdown-email" data-email-user>-</div></div></li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li class="divider"></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+          <div data-pembeli hidden class="menu-profil">
+            <button type="button" class="profil-tombol" data-profil-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="avatar-nav" data-avatar>U</span>
+              <span class="profil-info"><span class="profil-nama" data-nama-user>Pengguna</span><span class="profil-poin"><span data-poin-nav>0</span> Poin</span></span>
+              <svg class="panah" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="dropdown-profil" data-dropdown hidden>
+              <li class="dropdown-head"><span class="avatar-nav besar" data-avatar>U</span><div><div class="dropdown-nama" data-nama-user>Pengguna</div><div class="dropdown-email" data-email-user>-</div></div></li>
+              <li class="divider"></li>
+              <li><a href="profil.html">Profil Saya</a></li>
+              <li><a href="poin.html">Poin Saya <span class="badge-poin" data-poin-nav>0</span></a></li>
+              <li><a href="pesanan.html">Riwayat Pembelian</a></li>
+              <li><button type="button" data-urut-riwayat>Urutkan Riwayat: Terbanyak → Sedikit</button></li>
+              <li><a href="index.html">Favorit Pembelian</a></li>
+              <li class="divider"></li>
+              <li><button type="button" data-keluar>Keluar</button></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <main class="wadah">
+    <header class="dashboard-kepala">
+      <div>
+        <p class="eyebrow">Panduan Pembeli</p>
+        <h1>Cara belanja di LokalKita, dari cari produk sampai selesai.</h1>
+        <p>Langkah-langkah belanja produk UMKM lokal dijelaskan rinci di sini. Klik pertanyaan untuk melihat jawabannya.</p>
+      </div>
+      <div class="aksi-cepat">
+        <a class="tombol" href="index.html">Buka Etalase</a>
+        <a class="tombol tombol-garis" href="login.html">Masuk</a>
+      </div>
+    </header>
+
+    <section class="panel kaca" aria-labelledby="pb-daftar">
+      <p class="eyebrow">Langkah 1</p>
+      <h2 id="pb-daftar">Akun &amp; Masuk</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Apakah harus punya akun untuk belanja?</summary>
+          <div class="faq-isi">
+            <p>Kamu bisa <strong>menjelajah Etalase tanpa login</strong>: cari produk, pakai filter kategori, dan buka detail produk. Untuk fitur yang terhubung ke akun — seperti <strong>Keranjang, Beli Langsung/pesanan, Profil, Poin, dan Chat</strong> — kamu perlu masuk terlebih dahulu.</p>
+            <p>Jika membuka halaman yang memerlukan akun saat belum login, kamu akan diarahkan ke halaman <a href="login.html">Masuk</a>.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Bagaimana cara masuk?</summary>
+          <div class="faq-isi">
+            <ol>
+              <li>Buka <a href="login.html">Masuk</a> dari navbar (tamu) atau saat diminta sistem.</li>
+              <li>Masukkan kredensial akun pembeli, lalu kirim.</li>
+              <li>Setelah berhasil, kamu diarahkan ke <a href="dashboard.html">Dashboard</a>. Menu navbar akan menyesuaikan peranmu (Keranjang, Pesanan, Chat, dan menu profil).</li>
+            </ol>
+            <p><strong>Catatan:</strong> sesi login dikelola server (cookie). Jika sesi berakhir, masuk lagi dari halaman Masuk.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="pb-cari">
+      <p class="eyebrow">Langkah 2</p>
+      <h2 id="pb-cari">Cari &amp; Pilih Produk</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Bagaimana cara menemukan produk di Etalase?</summary>
+          <div class="faq-isi">
+            <p>Buka <a href="index.html">Etalase</a>. Di sana kamu bisa:</p>
+            <ul>
+              <li><strong>Cari</strong> produk, toko, atau kategori lewat kolom pencarian.</li>
+              <li><strong>Filter kategori</strong> menggunakan chip/kategori yang tersedia.</li>
+              <li><strong>Berpindah halaman</strong> (paginasi) untuk melihat lebih banyak produk.</li>
+              <li>Melihat info pada kartu produk: harga, nama toko/kategori, lencana <strong>stok</strong> (termasuk “Stok habis” jika tidak tersedia), dan lencana <strong>Dapat poin</strong> jika berlaku.</li>
+            </ul>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Apa itu tombol keranjang, favorit, dan Beli Langsung di kartu produk?</summary>
+          <div class="faq-isi">
+            <ul>
+              <li><strong>Keranjang (ikon keranjang)</strong> — menambahkan produk ke keranjang belanja lokal. Jika produk sudah ada, jumlahnya bertambah.</li>
+              <li><strong>Favorit (ikon hati)</strong> — menyimpan/menghapus produk dari favorit. Perubahan favorit terhubung ke fitur favorit akun.</li>
+              <li><strong>Beli Langsung</strong> — membuat pesanan untuk 1 item produk tersebut. Jika berhasil, kamu diarahkan ke halaman <a href="pesanan.html">Pesanan</a>.</li>
+            </ul>
+            <p>Produk dengan <strong>stok habis</strong> tidak dapat diproses checkout/beli seperti produk tersedia.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Bagaimana melihat produk yang baru saja saya buka?</summary>
+          <div class="faq-isi">
+            <p>Di halaman Etalase ada bagian <strong>“Produk yang Kamu Lihat Terbaru”</strong> (riwayat dilihat). Kamu bisa membersihkannya dengan tombol <strong>Bersihkan Riwayat</strong>.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="pb-beli">
+      <p class="eyebrow">Langkah 3</p>
+      <h2 id="pb-beli">Keranjang, Pesanan &amp; Struk</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Bagaimana menggunakan Keranjang?</summary>
+          <div class="faq-isi">
+            <p>Buka <a href="keranjang.html">Keranjang</a> (menu pembeli). Produk yang kamu tambahkan dari Etalase akan tersimpan di keranjang (penyimpanan lokal di perangkat). Dari keranjang kamu bisa melanjutkan proses sesuai alur belanja yang tersedia.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Di mana melihat status pesanan dan struk?</summary>
+          <div class="faq-isi">
+            <p>Buka <a href="pesanan.html">Pesanan</a> untuk melihat riwayat/status pesananmu. Pesanan yang dibuat (mis. lewat Beli Langsung) akan tercatat dan dapat dipantau perkembangannya.</p>
+            <p>Untuk rincian transaksi, buka halaman <strong>Struk</strong> (<code>struk.html</code>) dari alur pesanan/riwayat yang tersedia.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel kaca" aria-labelledby="pb-layanan">
+      <p class="eyebrow">Langkah 4</p>
+      <h2 id="pb-layanan">Poin, Chat, Profil &amp; Bantuan</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Bagaimana cara melihat dan memakai Poin?</summary>
+          <div class="faq-isi">
+            <p>Saldo poin ditampilkan di menu profil navbar. Untuk detailnya buka <a href="poin.html">Poin Saya</a>. Poin diperoleh dari transaksi/produk yang memenuhi syarat (ditandai lencana “Dapat poin”) dan dapat digunakan sesuai promo/pengaturan toko.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Bagaimana menghubungi penjual?</summary>
+          <div class="faq-isi">
+            <p>Gunakan menu <a href="chat.html">Chat</a> (pembeli). Kamu bisa berkomunikasi dengan penjual terkait kebutuhan atau pertanyaan pesanan.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Di mana mengatur profil dan riwayat pembelian?</summary>
+          <div class="faq-isi">
+            <p>Buka menu profil (ikon/avatar) di navbar, lalu pilih <a href="profil.html">Profil Saya</a> atau <a href="pesanan.html">Riwayat Pembelian</a>. Di menu profil juga tersedia pengaturan <strong>urutan riwayat</strong>, akses <strong>Favorit</strong>, dan tombol <strong>Keluar</strong>.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Kalau ada kendala, ke mana?</summary>
+          <div class="faq-isi">
+            <p>Cek <a href="tentang.html">Tentang Kita</a> untuk kontak/media sosial, dan <a href="legalitas.html">Legalitas</a> untuk informasi terkait. Pastikan kamu membuka aplikasi sesuai konfigurasi server LokalKita dan sesi login masih aktif.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="merek" href="tentang.html"><img src="img/brand/Logo_baru.png" alt="LokalKita" class="merek-logo"><span>LokalKita</span></a>
+        <p class="footer-tagline">Dukung UMKM, bangun ekonomi lokal.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Pelaku usaha">
+        <h3>Pelaku Usaha</h3>
+        <a href="login.html?peran=penjual">Daftarkan Usaha</a>
+        <a href="panduan-penjual.html">Panduan Penjual</a>
+        <a href="panduan-pembeli.html">Panduan Pembeli</a>
+        <a href="legalitas.html">Legalitas</a>
+      </nav>
+      <div class="footer-sosmed">
+        <h3>Sosial Media</h3>
+        <a href="https://www.instagram.com/lokalkita.market/">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61596278730528&sk=about_details">Facebook</a>
+        <a href="#">TikTok</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 LokalKita. Dukung UMKM, bangun ekonomi lokal.</p>
+  </footer>
+</body>
+</html>
