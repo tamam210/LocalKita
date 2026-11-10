@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROJECT_DIR="/home/kurakura/Developer/proyek/LocalKita"
+PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON_DIR="$PROJECT_DIR/backend/python"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 

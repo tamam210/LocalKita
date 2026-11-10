@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS hpp_components;
 DROP TABLE IF EXISTS hpp_calculations;
 DROP TABLE IF EXISTS stock_movements;
 DROP TABLE IF EXISTS product_images;
+DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS audit_logs;

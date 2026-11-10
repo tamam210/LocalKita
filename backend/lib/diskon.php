@@ -3,14 +3,45 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/hitung_client.php';
 
+function diskon_angka(mixed $value, string $label): float
+{
+    if (is_int($value) || is_float($value)) {
+        return (float) $value;
+    }
+
+    if (is_string($value) && is_numeric(trim($value))) {
+        return (float) trim($value);
+    }
+
+    throw new InvalidArgumentException($label . ' harus berupa angka');
+}
+
 function hitungDiskonPhp(array $input): array
 {
-    $normalPrice = (int)($input['normal_price'] ?? $input['harga_normal'] ?? 0);
-    $discountPercent = (float)($input['discount_percent'] ?? $input['diskon_persen'] ?? 0);
-    $quantity = (int)($input['quantity'] ?? $input['qty'] ?? $input['jumlah'] ?? 1);
-    $additionalCost = (int)($input['additional_cost'] ?? $input['biaya_tambahan'] ?? 0);
-    $hppPerUnit = (float)($input['hpp_per_unit'] ?? $input['hpp_unit'] ?? 0);
-    $targetMarginPercent = (float)($input['target_margin_percent'] ?? $input['target_margin'] ?? 0);
+    $normalPrice = (int)diskon_angka(
+        $input['normal_price'] ?? $input['harga_normal'] ?? 0,
+        'Harga normal'
+    );
+    $discountPercent = diskon_angka(
+        $input['discount_percent'] ?? $input['diskon_persen'] ?? 0,
+        'Persentase diskon'
+    );
+    $quantity = (int)diskon_angka(
+        $input['quantity'] ?? $input['qty'] ?? $input['jumlah'] ?? 1,
+        'Jumlah'
+    );
+    $additionalCost = (int)diskon_angka(
+        $input['additional_cost'] ?? $input['biaya_tambahan'] ?? 0,
+        'Biaya tambahan'
+    );
+    $hppPerUnit = diskon_angka(
+        $input['hpp_per_unit'] ?? $input['hpp_unit'] ?? 0,
+        'HPP per unit'
+    );
+    $targetMarginPercent = diskon_angka(
+        $input['target_margin_percent'] ?? $input['target_margin'] ?? 0,
+        'Target margin'
+    );
 
     if ($targetMarginPercent > 1.0) {
         $targetMarginPercent = $targetMarginPercent / 100.0;

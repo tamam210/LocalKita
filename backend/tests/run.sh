@@ -41,6 +41,11 @@ done
 
 "${COMPOSE[@]}" exec -T db mysql -uroot -proot < sql/schema.sql
 "${COMPOSE[@]}" exec -T db mysql -uroot -proot < sql/seed.sql
+"${COMPOSE[@]}" exec -T db mysql -uroot -proot < sql/migration_favorit.sql
+
+echo "Memastikan tabel favorites tersedia..."
+"${COMPOSE[@]}" exec -T db mysql -uroot -proot -N lokalkita \
+    -e "SHOW TABLES LIKE 'favorites'" | grep -qx favorites
 
 echo "Menunggu PHP siap..."
 for _ in $(seq 1 30); do
@@ -123,6 +128,33 @@ CHAT_SEND_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' \
     "$BASE_URL/api/chat.php")"
 test "$CHAT_SEND_STATUS" = "201"
 grep -Fq '"body":"Tes chat C3"' /tmp/lokalkita-chat.json
+
+echo "Tes C3 chat: pesan image tanpa file_id ditolak..."
+CHAT_FILE_MISSING_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' \
+    -b "$COOKIE_FILE" \
+    -H 'Content-Type: application/json' \
+    -d "{\"action\":\"send\",\"conversation_id\":\"$CONVERSATION_ID\",\"type\":\"image\"}" \
+    "$BASE_URL/api/chat.php")"
+test "$CHAT_FILE_MISSING_STATUS" = "400"
+grep -Fq '"error_code":"VALIDATION_ERROR"' /tmp/lokalkita-chat.json
+
+echo "Tes C3 chat: file_id tidak ditemukan ditolak..."
+CHAT_FILE_NOT_FOUND_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' \
+    -b "$COOKIE_FILE" \
+    -H 'Content-Type: application/json' \
+    -d "{\"action\":\"send\",\"conversation_id\":\"$CONVERSATION_ID\",\"type\":\"file\",\"file_id\":\"00000000-0000-4000-8000-000000000099\"}" \
+    "$BASE_URL/api/chat.php")"
+test "$CHAT_FILE_NOT_FOUND_STATUS" = "404"
+grep -Fq '"error_code":"NOT_FOUND"' /tmp/lokalkita-chat.json
+
+echo "Tes C3 chat: file toko lain ditolak..."
+CHAT_FILE_FORBIDDEN_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' \
+    -b "$COOKIE_FILE" \
+    -H 'Content-Type: application/json' \
+    -d "{\"action\":\"send\",\"conversation_id\":\"$CONVERSATION_ID\",\"type\":\"image\",\"file_id\":\"30000000-0000-4000-8000-000000000009\"}" \
+    "$BASE_URL/api/chat.php")"
+test "$CHAT_FILE_FORBIDDEN_STATUS" = "403"
+grep -Fq '"error_code":"FORBIDDEN"' /tmp/lokalkita-chat.json
 
 echo "Tes C3 chat: unread penjual..."
 login_user "$TAMAM_ID" "$COOKIE_TAMAM"
@@ -216,6 +248,15 @@ CHAT_VALIDATION_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' 
     "$BASE_URL/api/chat.php")"
 test "$CHAT_VALIDATION_STATUS" = "400"
 grep -Fq '"error_code":"VALIDATION_ERROR"' /tmp/lokalkita-chat.json
+
+echo "Tes order: penjual tidak boleh pesan dari toko sendiri..."
+ORDER_OWN_STORE_STATUS="$(curl -s -o /tmp/lokalkita-chat.json -w '%{http_code}' \
+    -b "$COOKIE_TAMAM" \
+    -H 'Content-Type: application/json' \
+    -d "{\"action\":\"create\",\"items\":[{\"product_id\":\"$PRODUCT_ID\",\"variant_id\":\"$VARIANT_ID\",\"quantity\":1}]}" \
+    "$BASE_URL/api/orders.php")"
+test "$ORDER_OWN_STORE_STATUS" = "400"
+grep -Fq '"error_code":"ORDER_FAILED"' /tmp/lokalkita-chat.json
 
 echo "Tes C4 api/poin.php: siapkan data..."
 "${COMPOSE[@]}" exec -T db mysql -uroot -proot lokalkita <<'SQL'
@@ -641,5 +682,14 @@ curl -fsS -o /dev/null -w '%{http_code}' \
     -H 'Origin: http://localhost:5500' \
     -H 'Access-Control-Request-Method: POST' \
     "$BASE_URL/api/ping.php" | grep -q '^204$'
+
+echo "Tes CORS preflight upload gambar..."
+CORS_UPLOAD_HEADERS="$(curl -fsS -D - -o /dev/null \
+    -X OPTIONS \
+    -H 'Origin: http://localhost:5500' \
+    -H 'Access-Control-Request-Method: POST' \
+    "$BASE_URL/api/product_image.php")"
+printf '%s' "$CORS_UPLOAD_HEADERS" | grep -q '^HTTP/.* 204'
+printf '%s' "$CORS_UPLOAD_HEADERS" | grep -qi '^Access-Control-Allow-Origin: http://localhost:5500'
 
 echo "Fase 0 + C1-C9 OK."

@@ -212,6 +212,7 @@ if ($method !== 'GET') {
 
 $user = auth_user();
 $canSeeHpp = false;
+$isAdmin = $user && ($user['role'] ?? null) === 'admin';
 $ownerStoreIds = [];
 
 if ($user) {
@@ -261,7 +262,8 @@ if ($productId !== null && $productId !== '') {
     }
 
     $isOwner = !empty($ownerStoreIds[$product['store_id']]);
-    if (!$isOwner && ($product['status'] ?? '') !== 'active') {
+    $canAccessProduct = $isAdmin || $isOwner;
+    if (!$canAccessProduct && ($product['status'] ?? '') !== 'active') {
         json_error('Produk tidak ditemukan.', 404, null);
     }
 
@@ -283,7 +285,7 @@ if ($productId !== null && $productId !== '') {
             'stock' => (int)($v['stock'] ?? 0),
             'status' => $v['status'],
         ];
-        if ($canSeeHpp && $isOwner) {
+        if ($canSeeHpp && $canAccessProduct) {
             $row['hpp_unit'] = $v['hpp_unit'] === null ? null : (int)$v['hpp_unit'];
         } else {
             $row['hpp_unit'] = null;
@@ -398,6 +400,11 @@ if (!$isEtalase && $user && ($user['role'] ?? null) === 'seller') {
             $where[] = "p.status = 'active'";
         }
     }
+} elseif (!$isEtalase && $isAdmin) {
+    if (isset($_GET['status']) && $_GET['status'] !== '') {
+        $where[] = 'p.status = ?';
+        $params[] = $_GET['status'];
+    }
 } else {
     $where[] = "p.status = 'active'";
 }
@@ -499,7 +506,7 @@ while ($row = $lstmt->fetch()) {
             'stock' => (int)($v['stock'] ?? 0),
             'status' => $v['status'],
         ];
-        if ($canSeeHpp && $isOwner) {
+        if ($canSeeHpp && ($isAdmin || $isOwner)) {
             $vr['hpp_unit'] = $v['hpp_unit'] === null ? null : (int)$v['hpp_unit'];
         } else {
             $vr['hpp_unit'] = null;

@@ -119,6 +119,59 @@ function chat_require_access(
     return $conversation;
 }
 
+function chat_require_attachment(
+    PDO $pdo,
+    array $conversation,
+    array $user,
+    string $fileId,
+    string $type
+): array {
+    $stmt = $pdo->prepare(
+        'SELECT file_id, store_id, uploader_id, mime_type, visibility
+         FROM files
+         WHERE file_id = ? AND deleted_at IS NULL
+         LIMIT 1'
+    );
+    $stmt->execute([$fileId]);
+    $file = $stmt->fetch();
+
+    if (!$file) {
+        throw new ChatException('NOT_FOUND', 'File tidak ditemukan.', 404);
+    }
+
+    $conversationStoreId = (string) $conversation['store_id'];
+    $fileStoreId = $file['store_id'] !== null ? (string) $file['store_id'] : null;
+    $isUploader = (string) ($file['uploader_id'] ?? '') === (string) $user['user_id'];
+    $isStoreStaff = in_array($user['role'] ?? null, ['seller', 'admin'], true)
+        && user_can_access_store($pdo, $conversationStoreId, $user);
+
+    if ($fileStoreId !== null && $fileStoreId !== $conversationStoreId) {
+        throw new ChatException(
+            'FORBIDDEN',
+            'File tidak dapat dilampirkan pada percakapan ini.',
+            403
+        );
+    }
+
+    if (!$isUploader && !($isStoreStaff && $fileStoreId === $conversationStoreId)) {
+        throw new ChatException(
+            'FORBIDDEN',
+            'Anda tidak memiliki akses ke file ini.',
+            403
+        );
+    }
+
+    if ($type === 'image' && !str_starts_with((string) ($file['mime_type'] ?? ''), 'image/')) {
+        throw new ChatException(
+            'VALIDATION_ERROR',
+            'File yang dilampirkan bukan gambar.',
+            400
+        );
+    }
+
+    return $file;
+}
+
 function chat_daftar(PDO $pdo, string $storeId, array $user): array
 {
     if (!store_exists($pdo, $storeId)) {
@@ -198,7 +251,7 @@ function chat_pesan(
     int $page = 1,
     int $perPage = 30
 ): array {
-    chat_require_access($pdo, $conversationId, $user);
+    $conversation = chat_require_access($pdo, $conversationId, $user);
 
     if ($page < 1) {
         $page = 1;
@@ -225,10 +278,11 @@ function chat_pesan(
     $stmt = $pdo->prepare(
         'SELECT m.message_id, m.conversation_id, m.sender_user_id,
                 u.full_name AS sender_name, m.type, m.body, m.file_id,
-                f.storage_path AS file_path, m.read_at, m.created_at
+                f.storage_path AS file_path, f.store_id AS file_store_id,
+                m.read_at, m.created_at
          FROM messages m
          LEFT JOIN users u ON u.user_id = m.sender_user_id
-         LEFT JOIN files f ON f.file_id = m.file_id
+         LEFT JOIN files f ON f.file_id = m.file_id AND f.deleted_at IS NULL
          WHERE m.conversation_id = ?
            AND m.deleted_at IS NULL
          ORDER BY m.created_at ASC, m.message_id ASC
@@ -242,6 +296,15 @@ function chat_pesan(
     $items = [];
 
     foreach ($stmt->fetchAll() as $row) {
+        $filePath = $row['file_path'];
+        if (
+            $filePath !== null
+            && $row['file_store_id'] !== null
+            && (string) $row['file_store_id'] !== (string) $conversation['store_id']
+        ) {
+            $filePath = null;
+        }
+
         $items[] = [
             'message_id'      => $row['message_id'],
             'conversation_id' => $row['conversation_id'],
@@ -249,7 +312,7 @@ function chat_pesan(
             'sender_name'     => $row['sender_name'],
             'type'            => $row['type'],
             'body'            => $row['body'],
-            'file_url'        => $row['file_path'],
+            'file_url'        => $filePath,
             'read_at'         => chat_iso($row['read_at']),
             'created_at'      => chat_iso($row['created_at']),
         ];
@@ -393,7 +456,19 @@ function chat_kirim(
             $body,
             $fileId
         ): array {
-            chat_require_access($pdo, $conversationId, $user);
+            $conversation = chat_require_access($pdo, $conversationId, $user);
+
+            if (in_array($type, ['image', 'file'], true) && $fileId === null) {
+                throw new ChatException(
+                    'VALIDATION_ERROR',
+                    'File wajib dilampirkan untuk tipe pesan ini.',
+                    400
+                );
+            }
+
+            if ($fileId !== null) {
+                chat_require_attachment($pdo, $conversation, $user, $fileId, $type);
+            }
 
             $messageId = chat_uuid();
 

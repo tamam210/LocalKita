@@ -5,6 +5,7 @@ require_once __DIR__ . '/../lib/httpx.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/auth.php';
+require_once __DIR__ . '/../lib/validate.php';
 require_once __DIR__ . '/../lib/diskon.php';
 
 ini_set('display_errors', '0');
@@ -39,6 +40,39 @@ try {
 }
 
 require_store_access($pdo, $storeId);
+
+$input['normal_price'] = validate_int(
+    $input['normal_price'] ?? $input['harga_normal'] ?? 0,
+    'normal_price',
+    1
+);
+$input['discount_percent'] = validate_number(
+    $input['discount_percent'] ?? $input['diskon_persen'] ?? 0,
+    'discount_percent',
+    0,
+    100
+);
+$input['quantity'] = validate_int(
+    $input['quantity'] ?? $input['qty'] ?? $input['jumlah'] ?? 1,
+    'quantity',
+    1
+);
+$input['additional_cost'] = validate_int(
+    $input['additional_cost'] ?? $input['biaya_tambahan'] ?? 0,
+    'additional_cost',
+    0
+);
+$input['hpp_per_unit'] = validate_number(
+    $input['hpp_per_unit'] ?? $input['hpp_unit'] ?? 0,
+    'hpp_per_unit',
+    0
+);
+$input['target_margin_percent'] = validate_number(
+    $input['target_margin_percent'] ?? $input['target_margin'] ?? 0,
+    'target_margin_percent',
+    0,
+    100
+);
 
 try {
     $res = hitungDiskon($input);

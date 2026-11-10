@@ -3,14 +3,33 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/hitung_client.php';
 
+function hpp_angka(mixed $value, string $label): float
+{
+    if (is_int($value) || is_float($value)) {
+        return (float) $value;
+    }
+
+    if (is_string($value) && is_numeric(trim($value))) {
+        return (float) trim($value);
+    }
+
+    throw new InvalidArgumentException($label . ' harus berupa angka');
+}
+
 function hitungHppPhp(array $input): array
 {
-    $unitCount = (int)($input['unit_count'] ?? $input['units_produced'] ?? 0);
-    $materialCost = (int)($input['material_cost'] ?? 0);
-    $laborCost = (int)($input['labor_cost'] ?? 0);
-    $packagingCost = (int)($input['packaging_cost'] ?? 0);
-    $overheadCost = (int)($input['overhead_cost'] ?? 0);
-    $targetMargin = (float)($input['target_margin'] ?? $input['target_margin_percent'] ?? 0);
+    $unitCount = (int)hpp_angka(
+        $input['unit_count'] ?? $input['units_produced'] ?? 0,
+        'Jumlah unit'
+    );
+    $materialCost = (int)hpp_angka($input['material_cost'] ?? 0, 'Biaya bahan');
+    $laborCost = (int)hpp_angka($input['labor_cost'] ?? 0, 'Biaya tenaga kerja');
+    $packagingCost = (int)hpp_angka($input['packaging_cost'] ?? 0, 'Biaya kemasan');
+    $overheadCost = (int)hpp_angka($input['overhead_cost'] ?? 0, 'Biaya overhead');
+    $targetMargin = hpp_angka(
+        $input['target_margin'] ?? $input['target_margin_percent'] ?? 0,
+        'Target margin'
+    );
 
     if ($targetMargin > 1.0) {
         $targetMargin = $targetMargin / 100.0;

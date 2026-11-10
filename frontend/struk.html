@@ -79,11 +79,6 @@
       var viewEl = document.getElementById('struk-view');
       var emptyEl = document.getElementById('struk-empty');
 
-      // Coba ambil dari backend dulu; kalau gagal, fallback ke localStorage (dummy)
-      var API_BASE = location.origin === 'http://localhost:8000'
-        ? '/backend/api/'
-        : location.origin.replace(/:5500$/, ':8000') + '/backend/api/';
-
       function rupiah(n){
         return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Number(n||0));
       }
@@ -92,25 +87,45 @@
         return isNaN(d) ? '-' : d.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
       }
 
+      function namaItem(it){
+        return String(it.product_name || it.name || 'Produk');
+      }
+      function qtyItem(it){
+        return Number(it.quantity || it.qty || 1);
+      }
+      function hargaItem(it){
+        return Number(it.unit_price || it.price || 0);
+      }
+      function totalItem(it){
+        return Number(it.line_total || (hargaItem(it) * qtyItem(it)));
+      }
+      function totalQty(order){
+        var items = Array.isArray(order.items) ? order.items : [];
+        if (!items.length) { return Number(order.qty || 1); }
+        return items.reduce(function(total, it){ return total + qtyItem(it); }, 0);
+      }
+      function ringkasItem(order){
+        var items = Array.isArray(order.items) ? order.items : [];
+        if (!items.length) { return String(order.name || 'Produk'); }
+        return items.map(function(it){ return namaItem(it); }).join(', ');
+      }
+
       async function muatDummy(){
         try {
           return JSON.parse(localStorage.getItem('lokalkita_pesanan') || '[]');
         } catch(e){ return []; }
       }
 
-      // Ambil data dari backend; kalau gagal, return null supaya dipakai dummy
-      function ambilDariBackend(idPesanan){
-        var url = API_BASE + 'pesanan.php';
-        if (idPesanan) { url += '?id=' + encodeURIComponent(idPesanan); }
-        return fetch(url, {
-          credentials: 'include',
-          headers: { 'Accept': 'application/json' }
-        }).then(function(res){
-          if (!res.ok) { throw new Error('HTTP ' + res.status); }
-          return res.json();
+      // Ambil pesanan dari API. Seller/admin melihat pesanan toko; buyer melihat pembelian.
+      function ambilDariBackend(){
+        return LK.sesiAman().then(function(u){
+          var aksi = u && (u.role === 'seller' || u.role === 'admin')
+            ? 'list_seller'
+            : 'list_buyer';
+          return LK.apiGet('orders.php?action=' + aksi);
         }).then(function(data){
-          if (data && data.ok && data.data) {
-            return data.data;
+          if (data && Array.isArray(data.items)) {
+            return data.items;
           }
           throw new Error('Format respons tidak sesuai');
         }).catch(function(err){
@@ -134,11 +149,22 @@
           item.style.padding = '10px 14px';
           item.style.borderBottom = '1px solid var(--garis)';
           item.style.cursor = 'pointer';
-          item.innerHTML =
-            '<div><strong>' + (p.name || 'Produk') + '</strong> x ' + (p.qty||1) + '</div>' +
-            '<div style="font-size:0.85rem;color:var(--teks-lembut)">' + (p.store_name||'-') + ' &#8226; ' + tanggal(p.tanggal) + '</div>';
+
+          var barisProduk = document.createElement('div');
+          var nama = document.createElement('strong');
+          nama.textContent = ringkasItem(p);
+          barisProduk.appendChild(nama);
+          barisProduk.appendChild(document.createTextNode(' x ' + totalQty(p)));
+
+          var barisInfo = document.createElement('div');
+          barisInfo.style.fontSize = '0.85rem';
+          barisInfo.style.color = 'var(--teks-lembut)';
+          barisInfo.textContent = (p.store_name || '-') + ' • ' + tanggal(p.created_at || p.tanggal);
+
+          item.appendChild(barisProduk);
+          item.appendChild(barisInfo);
           item.addEventListener('click', function(){
-            location.href = 'struk.html?id=' + encodeURIComponent(p.id);
+            location.href = 'struk.html?id=' + encodeURIComponent(p.order_id || p.id);
           });
           listEl.appendChild(item);
         });
@@ -150,29 +176,30 @@
         document.getElementById('s-toko').textContent = p.store_name || 'Toko LokalKita';
         document.getElementById('s-alamat').textContent = 'Alamat Toko, Kota';
         document.getElementById('s-telp').textContent = 'Telp: -';
-        document.getElementById('s-no').textContent = p.id || '-';
-        document.getElementById('s-tgl').textContent = tanggal(p.tanggal);
-        document.getElementById('s-kasir').textContent = 'Penjual';
-        document.getElementById('s-pembeli').textContent = 'Pembeli';
-        document.getElementById('s-metode').textContent = 'Tunai';
+        document.getElementById('s-no').textContent = p.order_number || p.id || '-';
+        document.getElementById('s-tgl').textContent = tanggal(p.created_at || p.tanggal);
+        document.getElementById('s-kasir').textContent = p.store_name || 'Penjual';
+        document.getElementById('s-pembeli').textContent = p.buyer_name || 'Pembeli';
+        document.getElementById('s-metode').textContent =
+          (p.payment_status === 'verified' || p.status === 'lunas') ? 'Lunas' : 'Tunai';
 
         var itemsEl = document.getElementById('s-items');
         itemsEl.replaceChildren();
         var subtotal = 0;
 
         var items = [];
-        if (p.items && Array.isArray(p.items)) {
+        if (p.items && Array.isArray(p.items) && p.items.length) {
           items = p.items;
         } else {
           items = [{ name: p.name || 'Produk', price: p.price || 0, qty: p.qty || 1 }];
         }
 
         items.forEach(function(it){
-          var total = Number(it.price||0) * Number(it.qty||1);
+          var total = totalItem(it);
           subtotal += total;
-          var nama = String(it.name||'Produk').substring(0,16);
-          var qty = String(it.qty||1);
-          var harga = rupiah(it.price||0).replace('Rp ','');
+          var nama = namaItem(it).substring(0,16);
+          var qty = String(qtyItem(it));
+          var harga = rupiah(hargaItem(it)).replace('Rp ','');
           var totalStr = rupiah(total).replace('Rp ','');
 
           var line = document.createElement('div');
@@ -182,65 +209,80 @@
           line.style.display = 'flex';
           line.style.justifyContent = 'space-between';
           line.style.margin = '2px 0';
-          line.innerHTML =
-            '<span style="display:inline-block;width:14ch">' + nama.padEnd(16) + '</span>' +
-            '<span style="text-align:right;display:inline-block;width:4ch">' + qty.padStart(3) + '</span>' +
-            '<span style="text-align:right;display:inline-block;width:9ch">' + harga.padStart(9) + '</span>' +
-            '<span style="text-align:right;display:inline-block;width:9ch">' + totalStr.padStart(9) + '</span>';
+
+          function sel(teks, lebar, rata){
+            var span = document.createElement('span');
+            span.style.display = 'inline-block';
+            span.style.width = lebar;
+            span.style.textAlign = rata;
+            span.textContent = teks;
+            return span;
+          }
+
+          line.appendChild(sel(nama.padEnd(16), '14ch', 'left'));
+          line.appendChild(sel(qty.padStart(3), '4ch', 'right'));
+          line.appendChild(sel(harga.padStart(9), '9ch', 'right'));
+          line.appendChild(sel(totalStr.padStart(9), '9ch', 'right'));
           itemsEl.appendChild(line);
         });
 
-        document.getElementById('s-subtotal').textContent = rupiah(subtotal);
-        document.getElementById('s-diskon').textContent = rupiah(0);
-        document.getElementById('s-total').textContent = rupiah(subtotal);
+        var subtotalNilai = p.subtotal != null ? Number(p.subtotal) : subtotal;
+        var diskon = Number(p.discount_total || 0);
+        var totalNilai = p.total_amount != null ? Number(p.total_amount) : (subtotalNilai - diskon);
+
+        document.getElementById('s-subtotal').textContent = rupiah(subtotalNilai);
+        document.getElementById('s-diskon').textContent = rupiah(diskon);
+        document.getElementById('s-total').textContent = rupiah(totalNilai);
         document.getElementById('s-kembali').textContent = rupiah(0);
       }
 
-      // Inisialisasi async: coba backend dulu, kalau gagal pakai dummy
-      (function init(){
-        if (id) {
-          ambilDariBackend(id).then(function(data){
-            if (data && !Array.isArray(data)) {
-              tampilStruk(data);
-            } else {
-              // Backend kembali array padahal diminta detail -> fallback dummy
-              muatDummy().then(function(dummy){
-                var found = null;
-                for (var i = 0; i < dummy.length; i++) {
-                  if (String(dummy[i].id) === String(id)) { found = dummy[i]; break; }
-                }
-                if (found) { tampilStruk(found); }
-                else {
-                  emptyEl.querySelector('h3').textContent = 'Pesanan tidak ditemukan';
-                  emptyEl.style.display = 'block';
-                }
-              });
-            }
-          }).catch(function(){
-            muatDummy().then(function(dummy){
-              var found = null;
-              for (var i = 0; i < dummy.length; i++) {
-                if (String(dummy[i].id) === String(id)) { found = dummy[i]; break; }
-              }
-              if (found) { tampilStruk(found); }
-              else {
-                emptyEl.querySelector('h3').textContent = 'Pesanan tidak ditemukan';
-                emptyEl.style.display = 'block';
-              }
-            });
-          });
-        } else {
-          ambilDariBackend(null).then(function(data){
-            if (data && Array.isArray(data)) {
-              tampilList(data);
-            } else {
-              tampilList(muatDummy());
-            }
-          }).catch(function(){
-            tampilList(muatDummy());
-          });
+      function cariPesanan(daftar, kunci){
+        for (var i = 0; i < daftar.length; i++) {
+          var p = daftar[i];
+          if (String(p.order_id || p.id || '') === String(kunci) ||
+              String(p.order_number || '') === String(kunci) ||
+              String(p.id || '') === String(kunci)) {
+            return p;
+          }
         }
-      })();
+        return null;
+      }
+
+      function tampilTidakDitemukan(){
+        emptyEl.querySelector('h3').textContent = 'Pesanan tidak ditemukan';
+        emptyEl.style.display = 'block';
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        ambilDariBackend().then(function(data){
+          var backendAda = data !== null;
+          var daftar = backendAda ? data : [];
+
+          if (!id) {
+            if (backendAda) {
+              tampilList(daftar);
+            } else {
+              muatDummy().then(tampilList);
+            }
+            return;
+          }
+
+          var found = cariPesanan(daftar, id);
+          if (found) {
+            tampilStruk(found);
+            return;
+          }
+
+          muatDummy().then(function(dummy){
+            var dummyFound = cariPesanan(dummy, id);
+            if (dummyFound) {
+              tampilStruk(dummyFound);
+            } else {
+              tampilTidakDitemukan();
+            }
+          });
+        });
+      });
     })();
   </script>
 </body>

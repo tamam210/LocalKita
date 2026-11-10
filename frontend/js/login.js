@@ -41,9 +41,9 @@
     admin: 'dashboard-penjual.html'
   };
   var IZIN_TUJUAN = {
-    buyer: ['index.html', 'poin.html'],
-    seller: ['index.html', 'dashboard-penjual.html', 'hpp.html', 'laporan.html', 'poin.html'],
-    admin: ['index.html', 'dashboard-penjual.html', 'hpp.html', 'laporan.html']
+    buyer: ['index.html', 'pesanan.html', 'poin.html'],
+    seller: ['index.html', 'dashboard-penjual.html', 'hpp.html', 'laporan.html', 'pesanan-penjual.html', 'poin.html'],
+    admin: ['index.html', 'dashboard-penjual.html', 'hpp.html', 'laporan.html', 'pesanan-penjual.html']
   };
 
   function paramDiLokasi(nama) {
@@ -156,7 +156,7 @@
     // Hanya izinkan halaman LokalKita yang sesuai peran, bukan URL luar.
     var file = lanjut.split(/[?#]/)[0];
     var izin = IZIN_TUJUAN[role] || [];
-    if (/^(index|dashboard-penjual|hpp|poin|laporan)\.html(\?[^#]*)?$/.test(lanjut) &&
+    if (/^(index|dashboard-penjual|hpp|poin|laporan|pesanan|pesanan-penjual)\.html(\?[^#]*)?$/.test(lanjut) &&
         izin.indexOf(file) !== -1) {
       return lanjut;
     }

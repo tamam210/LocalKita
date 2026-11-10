@@ -5,6 +5,7 @@ require_once __DIR__ . '/../lib/httpx.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/auth.php';
+require_once __DIR__ . '/../lib/validate.php';
 require_once __DIR__ . '/../lib/hpp.php';
 
 ini_set('display_errors', '0');
@@ -40,14 +41,22 @@ try {
 
 require_store_access($pdo, $storeId);
 
-$unitCount = (int)($input['units_produced'] ?? $input['unit_count'] ?? 0);
-$materialCost = (int)($input['material_cost'] ?? 0);
-$laborCost = (int)($input['labor_cost'] ?? 0);
-$packagingCost = (int)($input['packaging_cost'] ?? 0);
-$overheadCost = (int)($input['overhead_cost'] ?? 0);
+$unitCount = validate_int(
+    $input['units_produced'] ?? $input['unit_count'] ?? 0,
+    'units_produced',
+    1
+);
+$materialCost = validate_int($input['material_cost'] ?? 0, 'material_cost', 0);
+$laborCost = validate_int($input['labor_cost'] ?? 0, 'labor_cost', 0);
+$packagingCost = validate_int($input['packaging_cost'] ?? 0, 'packaging_cost', 0);
+$overheadCost = validate_int($input['overhead_cost'] ?? 0, 'overhead_cost', 0);
 
-$targetMarginRaw = $input['target_margin_percent'] ?? $input['target_margin'] ?? 0;
-$targetMarginRaw = is_numeric($targetMarginRaw) ? (float)$targetMarginRaw : 0;
+$targetMarginRaw = validate_number(
+    $input['target_margin_percent'] ?? $input['target_margin'] ?? 0,
+    'target_margin_percent',
+    0,
+    100
+);
 $targetMarginInput = array_key_exists('target_margin_percent', $input)
     ? $targetMarginRaw / 100.0
     : ($targetMarginRaw > 1.0 ? $targetMarginRaw / 100.0 : $targetMarginRaw);

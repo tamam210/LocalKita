@@ -6,6 +6,7 @@ require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/session.php';
 require_once __DIR__ . '/../lib/auth.php';
+require_once __DIR__ . '/../lib/access.php';
 require_once __DIR__ . '/../lib/validate.php';
 require_once __DIR__ . '/../lib/image.php';
 
@@ -351,6 +352,13 @@ function order_create(PDO $pdo, array $user, array $input): array
         $hasil = [];
 
         foreach ($groups as $storeId => $storeLines) {
+            if (
+                ($user['role'] ?? null) === 'seller'
+                && user_can_access_store($pdo, (string) $storeId, $user)
+            ) {
+                throw new OrderException('Penjual tidak dapat membuat pesanan dari toko sendiri.');
+            }
+
             $orderId = (string) $pdo->query('SELECT UUID()')->fetchColumn();
             $orderNumber = 'ORD-' . date('YmdHis') . '-' . strtoupper(
                 substr(bin2hex(random_bytes(4)), 0, 6)

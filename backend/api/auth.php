@@ -47,6 +47,12 @@ if ($method === 'POST' && $action === 'register') {
     if (strlen($name) < 3) {
         json_error('Nama minimal 3 karakter.', 400);
     }
+    if (strlen($name) > 120) {
+        json_error('Nama maksimal 120 karakter.', 400);
+    }
+    if (strlen($email) > 255) {
+        json_error('Email maksimal 255 karakter.', 400);
+    }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         json_error('Email tidak valid.', 400);
     }
@@ -55,6 +61,9 @@ if ($method === 'POST' && $action === 'register') {
     }
     if ($role === 'seller' && $storeName === '') {
         json_error('Nama toko wajib diisi.', 400);
+    }
+    if ($role === 'seller' && strlen($storeName) > 180) {
+        json_error('Nama toko maksimal 180 karakter.', 400);
     }
 
     $cek = $pdo->prepare('SELECT user_id FROM users WHERE email = ? LIMIT 1');
@@ -81,13 +90,16 @@ if ($method === 'POST' && $action === 'register') {
             $storeId = $pdo->query('SELECT UUID()')->fetchColumn();
 
             $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $storeName), '-'));
+            $slug = substr($slug, 0, 153);
+            $slug = rtrim($slug, '-');
             if ($slug === '') { $slug = 'toko'; }
+            $slugBase = $slug;
             $slug .= '-' . substr(str_replace('-', '', $userId), 0, 6);
 
             $cekSlug = $pdo->prepare('SELECT 1 FROM stores WHERE slug = ? LIMIT 1');
             $cekSlug->execute([$slug]);
             if ($cekSlug->fetchColumn()) {
-                $slug .= '-' . substr(bin2hex(random_bytes(3)), 0, 6);
+                $slug = $slugBase . '-' . substr(bin2hex(random_bytes(3)), 0, 6);
             }
 
             $insStore = $pdo->prepare(
