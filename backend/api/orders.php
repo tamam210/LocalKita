@@ -124,6 +124,20 @@ function order_rows_response(PDO $pdo, array $rows): array
         unset($row['owner_user_id']);
         $hasil[] = $row;
     }
+    
+        $row['payment'] = [
+        'method' => ($row['payment_method'] ?? '') !== ''
+            ? $row['payment_method']
+            : null,
+        'status' => $paymentStatus,
+        'online_enabled' => (bool) ($row['payment_online_enabled'] ?? false),
+        'bank_name' => $row['payment_bank_name'] ?? null,
+        'account_number' => $row['payment_account_number'] ?? null,
+        'account_name' => $row['payment_account_name'] ?? null,
+        'va_number' => $row['payment_va_number'] ?? null,
+        'qris_image_url' => $row['payment_qris_image_url'] ?? null,
+        'instructions' => $row['payment_instructions'] ?? null,
+    ];
 
     return $hasil;
 }
@@ -523,6 +537,14 @@ function order_list_seller(PDO $pdo, array $user): array
                    o.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone,
                    o.status AS db_status, o.subtotal, o.discount_total, o.shipping_cost,
                    o.total_amount, o.created_at, o.completed_at,
+                    s.payment_online_enabled,
+                    s.payment_bank_name,
+                    s.payment_account_number,
+                    s.payment_account_name,
+                    s.payment_va_number,
+                    s.payment_qris_image_url,
+                    s.payment_instructions,
+                    COALESCE(p.method, '') AS payment_method,
                    COALESCE(p.status, 'pending') AS payment_status
             FROM orders o
             JOIN stores s ON s.store_id = o.store_id
@@ -554,6 +576,14 @@ function order_list_buyer(PDO $pdo, array $user): array
                 o.buyer_user_id, u.full_name AS buyer_name, u.phone AS buyer_phone,
                 o.status AS db_status, o.subtotal, o.discount_total, o.shipping_cost,
                 o.total_amount, o.created_at, o.completed_at,
+                s.payment_online_enabled,
+                s.payment_bank_name,
+                s.payment_account_number,
+                s.payment_account_name,
+                s.payment_va_number,
+                s.payment_qris_image_url,
+                s.payment_instructions,
+                COALESCE(p.method, '') AS payment_method,
                 COALESCE(p.status, 'pending') AS payment_status
          FROM orders o
          JOIN stores s ON s.store_id = o.store_id

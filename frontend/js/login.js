@@ -189,6 +189,22 @@
       data[FIELD[k].name] = k === 'sandi' ? v : v.trim();
     });
 
+    if (peran === 'penjual' && mode === 'daftar') {
+  var cek = document.getElementById('f-payment-online');
+  data.payment_online = !!(cek && cek.checked) ? 1 : 0;
+
+  var ambil = function (id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
+
+  data.payment_bank_name = ambil('f-bank');
+  data.payment_account_number = ambil('f-rek');
+  data.payment_account_name = ambil('f-pemilik');
+  data.payment_va_number = ambil('f-va');
+  data.payment_qris_image_url = ambil('f-qris');
+}
+
     galat('');
     $kirim.disabled = true;
 

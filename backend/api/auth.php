@@ -29,6 +29,34 @@ try {
     error_log('[auth] db failed: ' . $e->getMessage());
     json_error('Gagal terhubung ke database.', 500);
 }
+$paymentOnline = filter_var(
+  $input['payment_online'] ?? false,
+  FILTER_VALIDATE_BOOLEAN
+) ? 1 : 0;
+
+$bankName = trim((string) ($input['payment_bank_name'] ?? ''));
+$accountNumber = trim((string) ($input['payment_account_number'] ?? ''));
+$accountName = trim((string) ($input['payment_account_name'] ?? ''));
+$vaNumber = trim((string) ($input['payment_va_number'] ?? ''));
+$qrisUrl = trim((string) ($input['payment_qris_image_url'] ?? ''));
+$instructions = trim((string) ($input['payment_instructions'] ?? ''));
+
+if (
+  $paymentOnline === 1
+  && $bankName === ''
+  && $vaNumber === ''
+  && $qrisUrl === ''
+) {
+  json_error('Isi minimal satu metode pembayaran non-tunai.', 400);
+}
+
+if (
+  ($bankName !== '' || $accountNumber !== '' || $accountName !== '')
+  && ($bankName === '' || $accountNumber === '' || $accountName === '')
+) {
+  json_error('Data rekening bank belum lengkap.', 400);
+}
+
 if ($method === 'POST' && $action === 'register') {
     $name = trim((string) ($input['full_name'] ?? $input['username'] ?? $input['name'] ?? ''));
     $email = strtolower(trim((string) ($input['email'] ?? '')));
@@ -90,11 +118,29 @@ if ($method === 'POST' && $action === 'register') {
             $storeId = $pdo->query('SELECT UUID()')->fetchColumn();
 
             $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $storeName), '-'));
-            $slug = substr($slug, 0, 153);
-            $slug = rtrim($slug, '-');
-            if ($slug === '') { $slug = 'toko'; }
-            $slugBase = $slug;
-            $slug .= '-' . substr(str_replace('-', '', $userId), 0, 6);
+            
+            $insStore = $pdo->prepare(
+                "INSERT INTO stores
+                    (store_id, owner_user_id, category_id, slug, name, status,
+                     payment_online_enabled, payment_bank_name, payment_account_number,
+                     payment_account_name, payment_va_number, payment_qris_image_url,
+                     payment_instructions)
+                 VALUES (?, ?, NULL, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)"
+            );
+
+            $insStore->execute([
+                $storeId,
+                $userId,
+                $slug,
+                $storeName,
+                $paymentOnline,
+                $bankName !== '' ? $bankName : null,
+                $accountNumber !== '' ? $accountNumber : null,
+                $accountName !== '' ? $accountName : null,
+                $vaNumber !== '' ? $vaNumber : null,
+                $qrisUrl !== '' ? $qrisUrl : null,
+                $instructions !== '' ? $instructions : null,
+            ]);
 
             $cekSlug = $pdo->prepare('SELECT 1 FROM stores WHERE slug = ? LIMIT 1');
             $cekSlug->execute([$slug]);

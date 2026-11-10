@@ -119,6 +119,44 @@
       <div id="isi-ringkasan" class="grid-kartu" aria-live="polite"></div>
     </section>
 
+    <section id="pembayaran" class="panel kaca" aria-labelledby="pembayaran-j">
+  <h2 id="pembayaran-j">Pembayaran</h2>
+  <p>Kalau non-tunai tidak aktif, pembeli hanya bisa bayar di kasir.</p>
+
+  <form id="form-pembayaran">
+    <label class="cek">
+      <input type="checkbox" id="bayar-online" name="payment_online">
+      <span>Aktifkan pembayaran non-tunai</span>
+    </label>
+
+    <div id="bayar-isi" hidden>
+      <div class="bidang">
+        <label for="bayar-bank">Nama bank</label>
+        <input id="bayar-bank" name="payment_bank_name" type="text" maxlength="80">
+      </div>
+      <div class="bidang">
+        <label for="bayar-rek">Nomor rekening</label>
+        <input id="bayar-rek" name="payment_account_number" type="text" maxlength="60">
+      </div>
+      <div class="bidang">
+        <label for="bayar-pemilik">Nama pemilik rekening</label>
+        <input id="bayar-pemilik" name="payment_account_name" type="text" maxlength="120">
+      </div>
+      <div class="bidang">
+        <label for="bayar-va">Nomor Virtual Account (opsional)</label>
+        <input id="bayar-va" name="payment_va_number" type="text" maxlength="60">
+      </div>
+      <div class="bidang">
+        <label for="bayar-qris">URL gambar QRIS (opsional)</label>
+        <input id="bayar-qris" name="payment_qris_image_url" type="url" maxlength="500">
+      </div>
+    </div>
+
+    <button type="submit" class="tombol">Simpan Pembayaran</button>
+    <p id="pesan-pembayaran" class="info-data" hidden></p>
+  </form>
+</section>
+
     <section id="produk-terlaris" class="panel kaca" aria-labelledby="produk-terlaris-j">
       <div class="judul-baris">
         <h2 id="produk-terlaris-j">Produk terlaris</h2>
