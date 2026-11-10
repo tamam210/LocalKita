@@ -298,6 +298,23 @@
       return;
     }
 
+    if (window.LK && typeof LK.grafikGaris === 'function') {
+      LK.grafikGaris($grafik, list);
+      if (!$grafik.querySelector('.legenda-grafik')) {
+        $grafik.appendChild(LK.el('div', { 'class': 'legenda-grafik' }, [
+          LK.el('span', { 'class': 'butir' }, [
+            LK.el('span', { 'class': 'swatch omzet', 'aria-hidden': 'true' }),
+            LK.el('span', { text: 'Omzet' })
+          ]),
+          LK.el('span', { 'class': 'butir' }, [
+            LK.el('span', { 'class': 'swatch laba', 'aria-hidden': 'true' }),
+            LK.el('span', { text: 'Laba bersih' })
+          ])
+        ]));
+      }
+      return;
+    }
+
     var max = Math.max.apply(null, list.map(function (r) {
       return Number((r.summary || {}).gross_revenue) || 0;
     })) || 1;
@@ -351,9 +368,67 @@
     })[0] || items[0];
   }
 
+  function muatPembayaran(storeId) {
+    var form = document.getElementById('form-pembayaran');
+    var cek = document.getElementById('bayar-online');
+    var isi = document.getElementById('bayar-isi');
+    var pesan = document.getElementById('pesan-pembayaran');
+    if (!form || !cek || !isi) { return; }
+
+    function tampilIsi() { isi.hidden = !cek.checked; }
+    if (!cek._lkBound) {
+      cek.addEventListener('change', tampilIsi);
+      cek._lkBound = true;
+    }
+    if (!form._lkBound) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (pesan) { pesan.hidden = true; pesan.textContent = ''; }
+        var payload = {
+          store_id: storeAktif || storeId,
+          payment_online: cek.checked,
+          payment_bank_name: (document.getElementById('bayar-bank') || {}).value || '',
+          payment_account_number: (document.getElementById('bayar-rek') || {}).value || '',
+          payment_account_name: (document.getElementById('bayar-pemilik') || {}).value || '',
+          payment_va_number: (document.getElementById('bayar-va') || {}).value || '',
+          payment_qris_image_url: (document.getElementById('bayar-qris') || {}).value || ''
+        };
+        LK.apiPost('store_settings.php', payload).then(function () {
+          if (pesan) { pesan.textContent = 'Pengaturan pembayaran disimpan.'; pesan.hidden = false; }
+          LK.notif('Pengaturan pembayaran disimpan.', 'sukses', 'Pembayaran');
+        }).catch(function (err) {
+          if (pesan) { pesan.textContent = err.message || 'Gagal menyimpan.'; pesan.hidden = false; }
+          LK.notif(err.message || 'Gagal menyimpan pengaturan pembayaran.', 'bahaya', 'Pembayaran');
+        });
+      });
+      form._lkBound = true;
+    }
+
+    LK.apiGet('store_settings.php?store_id=' + encodeURIComponent(storeId)).then(function (d) {
+      if (!d) { return; }
+      cek.checked = !!d.payment_online_enabled;
+      var map = {
+        'bayar-bank': d.payment_bank_name || '',
+        'bayar-rek': d.payment_account_number || '',
+        'bayar-pemilik': d.payment_account_name || '',
+        'bayar-va': d.payment_va_number || '',
+        'bayar-qris': d.payment_qris_image_url || ''
+      };
+      Object.keys(map).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.value = map[id]; }
+      });
+      tampilIsi();
+    }).catch(function () {
+      cek.checked = false;
+      tampilIsi();
+    });
+  }
+
   function muatData(storeId, storeName) {
     storeAktif = storeId;
     $namaToko.textContent = storeName || 'Toko saya';
+    muatPembayaran(storeId);
     return Promise.all([
       aman(muatLaporan(storeId)),
       aman(muatProduk(storeId)),

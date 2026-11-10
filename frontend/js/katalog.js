@@ -75,25 +75,31 @@
       keranjangBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         try {
-          var KEY = 'lokalkita_keranjang';
-          var items = JSON.parse(localStorage.getItem(KEY) || '[]');
-          // Cek sudah ada
-          var ada = false;
-          for (var i = 0; i < items.length; i++) {
-            if (String(items[i].product_id) === String(p.product_id)) { items[i].qty = (items[i].qty || 1) + 1; ada = true; break; }
+          var item = {
+            product_id: p.product_id,
+            name: p.name,
+            price: p.price,
+            image: p.image_url,
+            store_id: p.store_id,
+            store_name: p.store_name,
+            qty: 1
+          };
+          if (LK.keranjang && typeof LK.keranjang.tambah === 'function') {
+            var res = LK.keranjang.tambah(item);
+            if (res && res.ok === false) {
+              LK.notif(res.pesan || 'Gagal menambah ke keranjang.', 'bahaya', 'Keranjang');
+              return;
+            }
+          } else {
+            var KEY = 'lokalkita_keranjang';
+            var items = JSON.parse(localStorage.getItem(KEY) || '[]');
+            var ada = false;
+            for (var i = 0; i < items.length; i++) {
+              if (String(items[i].product_id) === String(p.product_id)) { items[i].qty = (items[i].qty || 1) + 1; ada = true; break; }
+            }
+            if (!ada) { items.push(item); }
+            localStorage.setItem(KEY, JSON.stringify(items));
           }
-          if (!ada) {
-            items.push({
-              product_id: p.product_id,
-              name: p.name,
-              price: p.price,
-              image: p.image_url,
-              store_id: p.store_id,
-              store_name: p.store_name,
-              qty: 1
-            });
-          }
-          localStorage.setItem(KEY, JSON.stringify(items));
         } catch(ex) {}
         LK.notif('Produk dimasukkan ke keranjang', 'sukses', 'Keranjang');
       });

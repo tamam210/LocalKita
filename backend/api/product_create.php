@@ -86,6 +86,26 @@ if ($cekSku->fetchColumn()) {
     $sku .= '-' . strtoupper(bin2hex(random_bytes(2)));
 }
 
+$hppUnit = 0.0;
+if (array_key_exists('hpp_unit', $input) && $input['hpp_unit'] !== '' && $input['hpp_unit'] !== null) {
+    $hppUnit = validate_number($input['hpp_unit'], 'hpp_unit', 0, 1000000000);
+}
+
+$earnsPoints = 1;
+if (array_key_exists('earns_points', $input)) {
+    $earnsPoints = validate_boolean($input['earns_points'], 'earns_points') ? 1 : 0;
+}
+
+$pointMultiplier = 1.0;
+if (array_key_exists('point_multiplier', $input) && $input['point_multiplier'] !== '' && $input['point_multiplier'] !== null) {
+    $pointMultiplier = validate_number($input['point_multiplier'], 'point_multiplier', 0.1, 100);
+}
+
+$status = 'active';
+if (array_key_exists('status', $input) && $input['status'] !== null && $input['status'] !== '') {
+    $status = validate_enum($input['status'], 'status', ['draft', 'active', 'inactive']);
+}
+
 try {
     $pdo->beginTransaction();
 
@@ -95,7 +115,7 @@ try {
         "INSERT INTO products
          (product_id, store_id, category_id, slug, name, description,
           earns_points, point_multiplier, status)
-         VALUES (?, ?, ?, ?, ?, ?, 1, 1.00, 'active')"
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     );
     $ins->execute([
         $productId,
@@ -104,15 +124,21 @@ try {
         $slug,
         $name,
         $description !== '' ? $description : null,
+        $earnsPoints,
+        $pointMultiplier,
+        $status,
     ]);
 
     $variantId = $pdo->query('SELECT UUID()')->fetchColumn();
     $variantStatus = $stock > 0 ? 'active' : 'out_of_stock';
+    if ($status !== 'active') {
+        $variantStatus = $status;
+    }
 
     $insVariant = $pdo->prepare(
         "INSERT INTO product_variants
          (variant_id, product_id, store_id, sku, name, price, hpp_unit, stock, status)
-         VALUES (?, ?, ?, ?, 'Default', ?, 0, ?, ?)"
+         VALUES (?, ?, ?, ?, 'Default', ?, ?, ?, ?)"
     );
     $insVariant->execute([
         $variantId,
@@ -120,6 +146,7 @@ try {
         $storeId,
         $sku,
         $price,
+        $hppUnit,
         $stock,
         $variantStatus,
     ]);

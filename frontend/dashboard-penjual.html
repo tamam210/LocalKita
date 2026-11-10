@@ -13,9 +13,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=6">
   <script src="js/api.js?v=4" defer></script>
-<script src="js/sesi-ui.js?v=4" defer></script>
-<script src="js/dashboard-penjual.js?v=7" defer></script>
-<script src="js/dashboard-produk.js?v=2" defer></script>
+  <script src="js/sesi-ui.js?v=4" defer></script>
+  <script src="js/grafik-garis.js?v=1" defer></script>
+  <script src="js/dashboard-penjual.js?v=8" defer></script>
+  <script src="js/dashboard-produk.js?v=2" defer></script>
 </head>
 <body data-halaman="dashboard" data-perlu-akun="akun">
   <header class="navbar kaca">
@@ -173,13 +174,13 @@
 
       <div id="info-produk" class="info-data" role="status" hidden></div>
 
-      <details class="tambah-produk">
+      <details class="tambah-produk" hidden aria-hidden="true">
         <summary class="tombol tombol-garis">+ Tambah Produk</summary>
 
         <form id="form-produk" class="form-produk">
           <div class="bidang">
             <label for="produk-nama">Nama produk</label>
-            <input id="produk-nama" name="name" type="text" required maxlength="180">
+            <input id="produk-nama" name="name" type="text" maxlength="180">
           </div>
 
           <div class="bidang">
@@ -191,12 +192,12 @@
 
           <div class="bidang">
             <label for="produk-harga">Harga</label>
-            <input id="produk-harga" name="price" type="number" min="0" required>
+            <input id="produk-harga" name="price" type="number" min="0">
           </div>
 
           <div class="bidang">
             <label for="produk-stok">Stok</label>
-            <input id="produk-stok" name="stock" type="number" min="0" value="0" required>
+            <input id="produk-stok" name="stock" type="number" min="0" value="0">
           </div>
 
           <div class="bidang">

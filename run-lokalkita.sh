@@ -9,6 +9,18 @@ echo "   Menjalankan LokalKita (All-in-One)"
 echo "=================================="
 echo ""
 
+# Cek prasyarat lokal
+if [ ! -f "$PROJECT_DIR/backend/config.php" ]; then
+  echo "[WARN] backend/config.php belum ada. Jalankan: cp backend/config.example.php backend/config.php"
+fi
+if command -v php >/dev/null 2>&1; then
+  if ! php -m 2>/dev/null | grep -qi '^pdo_mysql$'; then
+    echo "[WARN] Ekstensi PHP pdo_mysql tidak terdeteksi. Login/daftar & fitur DB butuh pdo_mysql aktif."
+  fi
+else
+  echo "[WARN] PHP tidak ditemukan di PATH."
+fi
+
 # Cek docker container lokalkita-db
 if command -v docker >/dev/null 2>&1; then
   if docker ps --format '{{.Names}}' | grep -q '^lokalkita-db$'; then
@@ -30,8 +42,21 @@ sleep 2
 echo ""
 echo "[1/4] Menjalankan Flask Microservice (HPP & Diskon) di :5001..."
 cd "$PYTHON_DIR"
-source .venv/bin/activate
-nohup python hitung.py > /tmp/lokalkita-flask.log 2>&1 &
+PYTHON_BIN="python3"
+if [ -f ".venv/bin/activate" ]; then
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
+  PYTHON_BIN="python"
+elif [ -f "venv/bin/activate" ]; then
+  # shellcheck disable=SC1091
+  source venv/bin/activate
+  PYTHON_BIN="python"
+elif command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+else
+  PYTHON_BIN="python"
+fi
+nohup "$PYTHON_BIN" hitung.py > /tmp/lokalkita-flask.log 2>&1 &
 FLASK_PID=$!
 sleep 3
 

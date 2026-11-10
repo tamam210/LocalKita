@@ -61,6 +61,14 @@ $va = trim((string) ($input['payment_va_number'] ?? ''));
 $qris = trim((string) ($input['payment_qris_image_url'] ?? ''));
 $catatan = trim((string) ($input['payment_instructions'] ?? ''));
 
+if ($online === 1 && $bank === '' && $va === '' && $qris === '') {
+    json_error('Isi minimal satu metode pembayaran non-tunai.', 400);
+}
+
+if (($bank !== '' || $rek !== '' || $pemilik !== '') && ($bank === '' || $rek === '' || $pemilik === '')) {
+    json_error('Data rekening bank belum lengkap.', 400);
+}
+
 $stmt = $pdo->prepare(
     "UPDATE stores
      SET payment_online_enabled = ?,

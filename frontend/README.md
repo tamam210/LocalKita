@@ -22,24 +22,27 @@ Frontend LokalKita dibangun pakai **HTML, CSS, dan Vanilla JavaScript** tanpa fr
 
 ```text
 frontend/
-├── assets/            # Asset statis (gambar/icon jika ada)
-├── css/               # File CSS styling per halaman/komponen
+├── css/               # File CSS styling
+├── img/               # Asset gambar/icon
 ├── js/                # File JavaScript untuk logika & integrasi API
-├── index.html         # Halaman utama (beranda/katalog)
-├── katalog.html       # Halaman katalog produk
-├── login.html         # Halaman login
-├── dashboard-penjual.html # Warung Saya (Warung Saya)
-├── hpp.html           # Halaman simulasi & perhitungan HPP
-├── diskon.html        # Halaman simulasi diskon (jika tersedia)
-├── laporan.html       # Halaman laporan bulanan penjual
+├── index.html         # Halaman utama (etalase/katalog)
+├── login.html         # Halaman login & daftar
+├── dashboard.html     # Dashboard ringkasan
+├── dashboard-penjual.html # Warung Saya (dashboard penjual)
+├── hpp.html           # Kalkulator HPP & simulasi diskon
+├── laporan.html       # Laporan bulanan penjual
 ├── poin.html          # Halaman poin pembeli
 ├── chat.html          # Halaman chat pembeli-penjual
 ├── produk-detail.html # Detail produk
 ├── keranjang.html     # Keranjang belanja
-├── checkout.html      # Halaman checkout
-├── pesanan.html       # Daftar pesanan
+├── pesanan.html       # Riwayat pesanan pembeli
+├── pesanan-penjual.html # Kelola pesanan penjual
 ├── profil.html        # Profil user
-├── rencana.md         # Rencana UI/UX & identitas visual
+├── struk.html         # Struk pesanan
+├── tentang.html       # Tentang LokalKita
+├── panduan-pembeli.html # Panduan pembeli
+├── panduan-penjual.html # Panduan penjual
+├── legalitas.html     # Halaman legalitas
 └── README.md          # Panduan ini
 ```
 
@@ -109,37 +112,41 @@ Lalu buka `http://127.0.0.1:5500` di browser kamu.
 
 | Halaman | Akses | Keterangan |
 |---|---|---|
-| `index.html` | Publik | Beranda LokalKita |
-| `katalog.html` | Publik | Daftar produk per toko/kategori |
-| `produk-detail.html` | Publik | Detail produk & varian. HPP **tidak ditampilkan** buat pengunjung |
-| `login.html` | Publik | Form login (email/username/phone + password) |
-| `keranjang.html` | Pembeli (login) | Keranjang belanja |
-| `checkout.html` | Pembeli (login) | Proses checkout pesanan |
+| `index.html` | Publik | Etalase/beranda LokalKita |
+| `produk-detail.html` | Publik | Detail produk & varian. HPP **tidak ditampilkan** untuk pengunjung |
+| `login.html` | Publik | Login & pendaftaran pembeli/penjual |
+| `keranjang.html` | Pembeli (login) | Keranjang belanja & buat pesanan |
 | `pesanan.html` | Pembeli (login) | Riwayat pesanan pembeli |
 | `poin.html` | Pembeli (login) | Saldo & riwayat poin per toko |
 | `chat.html` | Pembeli/Penjual (login) | Chat antara pembeli & penjual |
 | `profil.html` | Login | Profil user yang sedang login |
-| `dashboard-penjual.html` | Seller (login) | Dashboard utama penjual (ringkasan toko) |
-| `hpp.html` | Seller (login) | Simulasi & perhitungan HPP, bisa simpan perhitungan |
-| `diskon.html` | Seller (login) | Simulasi diskon, hitung margin, status `safe/loss/below_target` |
-| `laporan.html` | Seller/Admin (login) | Laporan bulanan toko (omzet, HPP, laba kotor/bersih, pengeluaran, top produk) |
+| `dashboard.html` | Login | Ringkasan dashboard |
+| `dashboard-penjual.html` | Seller (login) | Warung Saya / dashboard penjual |
+| `hpp.html` | Seller (login) | Kalkulator HPP & simulasi diskon |
+| `laporan.html` | Seller/Admin (login) | Laporan bulanan toko (omzet, HPP, laba, pengeluaran, top produk) |
+| `pesanan-penjual.html` | Seller (login) | Kelola pesanan masuk |
+| `struk.html` | Login | Tampilan struk pesanan |
 
 ## Struktur JavaScript
 
-File JS di `frontend/js/` dipisah per fungsi biar gampang dirawat.
+File JS di `frontend/js/` dipisah per fungsi agar mudah dirawat.
 
 | File | Fungsi |
 |---|---|
-| `api.js` | Konfigurasi `API_BASE`, helper fetch & utilitas umum |
+| `api.js` | Konfigurasi `API_BASE`, helper fetch, utilitas umum, sesi, dan notifikasi |
 | `sesi-ui.js` | Cek session user, update UI header/navbar (login/logout) |
-| `login.js` | Logika form login, redirect setelah berhasil login |
-| `katalog.js` | Render daftar produk, filter & pencarian |
-| `hpp.js` | Form hitung HPP, integrasi ke API, tampilkan hasil perhitungan |
-| `diskon.js` | Form simulasi diskon, analisis margin & peringatan |
+| `login.js` | Logika form login/daftar, redirect setelah berhasil |
+| `katalog.js` | Render daftar produk/etalase, filter & pencarian |
+| `produk-detail.js` | Detail produk & aksi terkait |
+| `hpp.js` | Form hitung HPP & simulasi diskon, integrasi ke API |
 | `laporan.js` | Ambil & render laporan bulanan per toko |
-| `poin.js` | Tampilkan saldo & history poin pembeli |
-| `dashboard-penjual.js` | Logika Warung Saya |
-| `app.js` / file lain | Logika pendukung halaman terkait |
+| `poin.js` | Tampilkan saldo & riwayat poin pembeli |
+| `dashboard-penjual.js` | Logika Warung Saya / dashboard penjual |
+| `pesanan.js` | Riwayat pesanan pembeli |
+| `pesanan-penjual.js` | Kelola pesanan penjual |
+| `keranjang.js` | Logika keranjang & pembuatan pesanan |
+| `chat.js` | Percakapan & pesan |
+| `profil.js` | Halaman profil pengguna |
 
 ## Alur Autentikasi & Session
 
@@ -190,19 +197,19 @@ Berdasarkan `frontend/rencana.md`, LokalKita pakai palet warna yang menonjolkan 
 ## Alur Penggunaan Singkat
 
 ### Sebagai Pembeli
-1. Buka `katalog.html` / `index.html` -> pilih produk
-2. Login via `login.html` (bisa pakai akun `arya@lokalkita.test` / `sari@lokalkita.test`)
-3. Masuk ke keranjang -> `checkout.html`
+1. Buka `index.html` -> pilih produk
+2. Login/daftar via `login.html` (contoh: `arya@lokalkita.test` / `sari@lokalkita.test`)
+3. Tambahkan ke keranjang -> buat pesanan di `keranjang.html`
 4. Lihat pesanan di `pesanan.html`
 5. Cek poin di `poin.html`
-6. Bisa chat penjual lewat `chat.html`
+6. Chat penjual lewat `chat.html`
 
 ### Sebagai Penjual
 1. Login pakai akun seller (`tamam@lokalkita.test` / `rasya@lokalkita.test`)
 2. Masuk ke `dashboard-penjual.html`
-3. Coba simulasi HPP di `hpp.html` (bisa pakai fallback PHP kalo Flask mati)
-4. Simulasi diskon di `diskon.html` buat liat dampak ke margin
-5. Lihat laporan bulanan di `laporan.html` (omzet, HPP, laba, pengeluaran, top produk)
+3. Hitung HPP & simulasi diskon di `hpp.html`
+4. Lihat laporan bulanan di `laporan.html` (omzet, HPP, laba, pengeluaran, top produk)
+5. Kelola pesanan masuk di `pesanan-penjual.html`
 
 ## Akun Demo Untuk Testing
 

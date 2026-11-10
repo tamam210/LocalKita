@@ -130,6 +130,22 @@
   }
 
   function grafik(list) {
+    if (window.LK && typeof LK.grafikGaris === 'function') {
+      LK.grafikGaris($g, list);
+      if (!$g.querySelector('.legenda-grafik')) {
+        $g.appendChild(LK.el('div', { 'class': 'legenda-grafik' }, [
+          LK.el('span', { 'class': 'butir' }, [
+            LK.el('span', { 'class': 'swatch omzet', 'aria-hidden': 'true' }),
+            LK.el('span', { text: 'Omzet' })
+          ]),
+          LK.el('span', { 'class': 'butir' }, [
+            LK.el('span', { 'class': 'swatch laba', 'aria-hidden': 'true' }),
+            LK.el('span', { text: 'Laba bersih' })
+          ])
+        ]));
+      }
+      return;
+    }
     var max = Math.max.apply(null, list.map(function (r) {
       return Number(ringkasan(r).gross_revenue) || 0;
     })) || 1;

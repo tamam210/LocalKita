@@ -1,16 +1,19 @@
 /* LokalKita - helper bersama. Hanya fetch ke API PHP; tanpa token/secret di sini. */
 (function (w) {
   'use strict';
-  // Kalau frontend dibuka dari origin yang sama dengan API
-  // (http://localhost:8000/frontend/), pakai jalur relatif supaya
-  // bebas CORS dan cookie sesi tetap terkirim.
-  // Jika tidak, cocokkan host (localhost/127.0.0.1) dengan port API (8000)
-  // agar tidak ada mismatched origin yang pemicu CORS.
-  var BASE = location.port === '5500'
-    ? '/api/'
-    : (location.origin === 'http://localhost:8000'
-      ? '/backend/api/'
-      : location.origin.replace(/:5500$/, ':8000') + '/backend/api/');
+  // Tentukan base URL API.
+  // - Disajikan oleh PHP built-in server di port 8000 (root project): /backend/api/
+  // - Disajikan terpisah di port 5500 (frontend server): arahkan ke host yang sama port 8000
+  // - Kasus lain (reverse proxy/same-origin): gunakan /backend/api/ relatif
+  var BASE = (function () {
+    if (location.port === '5500') {
+      return location.protocol + '//' + location.hostname + ':8000/backend/api/';
+    }
+    if (location.port === '8000') {
+      return '/backend/api/';
+    }
+    return '/backend/api/';
+  })();
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   

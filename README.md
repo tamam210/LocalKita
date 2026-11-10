@@ -19,7 +19,7 @@ Cukup butuh **1 perintah** buat nyalain semua: Flask, PHP API, dan Frontend.
 ### 1) Masuk ke folder project
 
 ```bash
-cd /home/t-n-r-p-w/Documents/lomba/LocalKita
+cd /path/ke/LocalKita
 ```
 
 ### 2) Beri izin script (cuma pertama kali)
@@ -41,10 +41,7 @@ Kalo berhasil bakal muncul gini:
 Semua service sudah dijalankan:
  - Flask   : http://127.0.0.1:5001
  - PHP API : http://127.0.0.1:8000/backend/api/
- - Frontend: http://127.0.@EOF
-```
-
-Ketik `tail -c 200 /dev/null` biar aman, gw lanjutin langsung.
+ - Frontend: http://127.0.0.1:5500
 ==================================
 
 Buka browser: http://127.0.0.1:5500
@@ -63,7 +60,6 @@ Langsung login aja pake akun demo dibawah.
 Buka terminal baru atau terminal yang sama, terus jalanin:
 
 ```bash
-cd /home/t-n-r-p-w/Documents/lomba/LocalKita
 ./stop-lokalkita.sh
 ```
 

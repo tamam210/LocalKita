@@ -146,6 +146,43 @@
       ]));
     });
 
+    if (peran === 'penjual' && mode === 'daftar') {
+      var cekBayar = LK.el('input', { type: 'checkbox', id: 'f-payment-online', name: 'payment_online' });
+      var isiBayar = LK.el('div', { id: 'f-bayar-isi', hidden: '' }, [
+        LK.el('div', { 'class': 'bidang' }, [
+          LK.el('label', { 'for': 'f-bank', text: 'Nama bank' }),
+          LK.el('input', { id: 'f-bank', name: 'payment_bank_name', type: 'text', maxlength: '80' })
+        ]),
+        LK.el('div', { 'class': 'bidang' }, [
+          LK.el('label', { 'for': 'f-rek', text: 'Nomor rekening' }),
+          LK.el('input', { id: 'f-rek', name: 'payment_account_number', type: 'text', maxlength: '60' })
+        ]),
+        LK.el('div', { 'class': 'bidang' }, [
+          LK.el('label', { 'for': 'f-pemilik', text: 'Nama pemilik rekening' }),
+          LK.el('input', { id: 'f-pemilik', name: 'payment_account_name', type: 'text', maxlength: '120' })
+        ]),
+        LK.el('div', { 'class': 'bidang' }, [
+          LK.el('label', { 'for': 'f-va', text: 'Nomor Virtual Account (opsional)' }),
+          LK.el('input', { id: 'f-va', name: 'payment_va_number', type: 'text', maxlength: '60' })
+        ]),
+        LK.el('div', { 'class': 'bidang' }, [
+          LK.el('label', { 'for': 'f-qris', text: 'URL gambar QRIS (opsional)' }),
+          LK.el('input', { id: 'f-qris', name: 'payment_qris_image_url', type: 'url', maxlength: '500' })
+        ])
+      ]);
+      cekBayar.addEventListener('change', function () {
+        isiBayar.hidden = !cekBayar.checked;
+      });
+      $kolom.appendChild(LK.el('div', { 'class': 'bidang' }, [
+        LK.el('label', { 'class': 'cek', 'for': 'f-payment-online' }, [
+          cekBayar,
+          LK.el('span', { text: 'Aktifkan pembayaran non-tunai (opsional)' })
+        ]),
+        LK.el('small', { text: 'Jika aktif, isi minimal satu: rekening bank (lengkap) / VA / QRIS.' }),
+        isiBayar
+      ]));
+    }
+
     $kirim.textContent = mode === 'masuk' ? 'Masuk' : (peran === 'penjual' ? 'Daftarkan toko' : 'Daftar');
   }
 
@@ -243,14 +280,4 @@
   });
 
   render();
-
-  var $google = document.getElementById('tombol-google');
-  if ($google) {
-    $google.addEventListener('click', function () {
-      galat('Login dengan Google belum tersedia. Silakan masuk dengan email/username.');
-      if (LK && typeof LK.notif === 'function') {
-        LK.notif('Login dengan Google belum tersedia saat ini.', 'info', 'Google');
-      }
-    });
-  }
 })();

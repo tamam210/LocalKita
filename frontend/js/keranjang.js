@@ -9,11 +9,18 @@
   var $checkout = document.getElementById('btn-checkout');
 
   function load() {
+    if (window.LK && LK.keranjang && typeof LK.keranjang.load === 'function') {
+      return LK.keranjang.load();
+    }
     try {
       return JSON.parse(localStorage.getItem(KEY) || '[]');
     } catch(e) { return []; }
   }
   function save(items) {
+    if (window.LK && LK.keranjang && typeof LK.keranjang.save === 'function') {
+      LK.keranjang.save(items);
+      return;
+    }
     localStorage.setItem(KEY, JSON.stringify(items));
   }
 
@@ -108,7 +115,7 @@
         });
 
         localStorage.setItem('lokalkita_pesanan', JSON.stringify(pesanan));
-        localStorage.setItem(KEY, JSON.stringify([]));
+        save([]);
 
         LK.notif('Pesanan berhasil dibuat', 'sukses', 'Pesanan');
         window.location.href = 'pesanan.html';
