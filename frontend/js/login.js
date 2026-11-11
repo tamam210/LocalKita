@@ -8,7 +8,7 @@
     email: { label: 'Email', name: 'email', type: 'email', ac: 'email', max: 120 },
     username: { label: 'Username', name: 'username', type: 'text', ac: 'username', min: 3, max: 30, pattern: '[A-Za-z0-9_.]+', hint: '3-30 karakter: huruf, angka, titik, atau garis bawah.' },
     // Khusus login: tanpa pattern/minlength agar username lama tetap bisa masuk.
-    usernameMasuk: { label: 'Email atau username', name: 'username', type: 'text', ac: 'username', max: 30 },
+    usernameMasuk: { label: 'Email atau username', name: 'username', type: 'text', ac: 'username', max: 255 },
     jenis: { label: 'Jenis jualan', name: 'jenis_jualan', type: 'select' },
     toko: { label: 'Nama toko', name: 'nama_toko', type: 'text', ac: 'organization', max: 60 },
     sandi: { label: 'Kata sandi', name: 'password', type: 'password' }

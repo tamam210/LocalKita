@@ -41,6 +41,8 @@
         return;
       }
 
+      url = LK.mediaUrl(url);
+
       var img = LK.el('img', {
         src: url,
         alt: p.name || 'Foto produk',

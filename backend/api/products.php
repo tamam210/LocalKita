@@ -251,7 +251,7 @@ if ($productId !== null && $productId !== '') {
          FROM products p
          LEFT JOIN stores s ON s.store_id = p.store_id
          LEFT JOIN categories c ON c.category_id = p.category_id
-         WHERE p.product_id = ?
+         WHERE p.product_id = ? AND p.deleted_at IS NULL
          LIMIT 1"
     );
     $stmt->execute([$productId]);
@@ -354,7 +354,7 @@ if ($seed === '') {
 }
 $userId = (string) ($user['user_id'] ?? '');
 
-$where = [];
+$where = ['p.deleted_at IS NULL'];
 $params = [];
 
 if ($q !== '') {

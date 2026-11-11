@@ -84,7 +84,7 @@
   }
 
   function render(p) {
-    var gambarUrl = p.image_url || p.primary_image_url || (p.images && p.images[0] && p.images[0].url) || '';
+    var gambarUrl = LK.mediaUrl(p.image_url || p.primary_image_url || (p.images && p.images[0] && p.images[0].url) || '');
     var gambarAlt = p.image_alt || p.name || 'Produk';
     var storeId = p.store_id || '';
     var storeName = p.store_name || p.store || '-';

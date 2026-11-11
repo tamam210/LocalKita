@@ -63,7 +63,7 @@
   function kartu(p) {
     var gambar = LK.el('div', { 'class': 'kartu-gambar' });
     var awal = LK.el('span', { 'aria-hidden': 'true', text: String(p.name || '?').charAt(0).toUpperCase() });
-    var url = p.image_url;
+    var url = LK.mediaUrl(p.image_url);
     if (typeof url === 'string' && /^(https?:\/\/|\/|[\w\-.\/]+$)/.test(url)) {
       var img = LK.el('img', { src: url, alt: String(p.image_alt || p.alt_text || ''), loading: 'lazy' });
       img.addEventListener('error', function () { img.remove(); gambar.appendChild(awal); });

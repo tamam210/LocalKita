@@ -2,18 +2,14 @@
 (function (w) {
   'use strict';
   // Tentukan base URL API.
-  // - Disajikan oleh PHP built-in server di port 8000 (root project): /backend/api/
-  // - Disajikan terpisah di port 5500 (frontend server): arahkan ke host yang sama port 8000
-  // - Kasus lain (reverse proxy/same-origin): gunakan /backend/api/ relatif
-  var BASE = (function () {
-    if (location.port === '5500') {
-      return location.protocol + '//' + location.hostname + ':8000/backend/api/';
-    }
-    if (location.port === '8000') {
-      return '/backend/api/';
-    }
-    return '/backend/api/';
-  })();
+  // - Frontend di port 5500: API ada di host yang sama, port 8000.
+  // - PHP built-in server :8000 / reverse proxy same-origin: pakai /backend/api/.
+  var API_ORIGIN = location.port === '5500'
+    ? location.protocol + '//' + location.hostname + ':8000'
+    : location.origin;
+  var BASE = location.port === '5500'
+    ? API_ORIGIN + '/backend/api/'
+    : '/backend/api/';
   var fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
   var sesiCache = null;
   
@@ -79,6 +75,17 @@
   }
 
   function rupiah(n) { n = Number(n); return isFinite(n) ? fmt.format(n) : fmt.format(0); }
+
+  // Path upload dari API root-relative (/uploads/...), padahal frontend bisa
+  // berjalan di port lain. Arahkan path itu ke origin API.
+  function mediaUrl(url) {
+    if (!url || typeof url !== 'string') { return url; }
+    if (/^(?:[a-z]+:)?\/\//i.test(url) || /^(?:data|blob):/i.test(url)) { return url; }
+    if (url.charAt(0) === '/') { return API_ORIGIN + url; }
+    if (url.indexOf('uploads/') === 0) { return API_ORIGIN + '/' + url; }
+    return url;
+  }
+
   // Buat elemen DOM tanpa innerHTML (aman dari XSS). attrs.text = textContent.
   function el(tag, attrs, children) {
     var e = document.createElement(tag);
@@ -256,7 +263,7 @@
       .then(function () { sesiCache = null; });
   }
 w.LK = {
-    apiGet: apiGet, apiPost: apiPost, apiUpload: apiUpload, rupiah: rupiah, el: el, persen: persen,
+    apiGet: apiGet, apiPost: apiPost, apiUpload: apiUpload, rupiah: rupiah, mediaUrl: mediaUrl, el: el, persen: persen,
     tanggal: tanggal, bulan: bulan, angka: angka, status: status, ulang: ulang,
     popup: popup, konfirmasi: konfirmasi, notif: notif, sesi: sesi, sesiAman: sesiAman, keluar: keluar
   };

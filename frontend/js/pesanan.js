@@ -18,7 +18,7 @@
 
   function gambarPesanan(order) {
     var items = Array.isArray(order.items) ? order.items : [];
-    var url = items[0] && items[0].image_url;
+    var url = LK.mediaUrl(items[0] && items[0].image_url);
     var kotak = LK.el('div', { 'class': 'kartu-gambar' });
 
     if (url) {

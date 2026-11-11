@@ -37,7 +37,7 @@
     var total = 0;
     items.forEach(function (it, idx) {
       total += Number(it.price || 0) * Number(it.qty || 1);
-      var img = LK.el('img', { src: it.image || 'img/produk/keripik-singkong.jpg', alt: it.name || '' });
+      var img = LK.el('img', { src: LK.mediaUrl(it.image) || 'img/produk/keripik-singkong.jpg', alt: it.name || '' });
       var info = LK.el('div', { 'class': 'item-keranjang-info' }, [
         LK.el('div', { 'class': 'item-keranjang-nama', text: it.name || 'Produk' }),
         LK.el('div', { 'class': 'item-keranjang-toko', text: it.store_name || '-' }),
